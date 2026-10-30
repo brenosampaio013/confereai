@@ -1,0 +1,15 @@
+# Configuração do Supabase CLI para o Confere Aí (desenvolvimento local / deploy).
+project_id = "confere-ai"
+
+[auth]
+enable_signup = true
+# Permite usar a leitura automática sem criar conta (sessão anônima apenas para o OCR).
+enable_anonymous_sign_ins = true
+minimum_password_length = 8
+
+[auth.email]
+enable_confirmations = true
+
+[functions.receipt-ocr]
+# A função exige um JWT válido do Supabase (usuário com conta ou sessão anônima).
+verify_jwt = true

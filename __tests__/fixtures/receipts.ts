@@ -1,0 +1,89 @@
+/**
+ * ATENÇÃO: DADOS FICTÍCIOS EXCLUSIVAMENTE PARA TESTES AUTOMATIZADOS.
+ * Estes textos imitam o layout de cupons fiscais (NFC-e/ECF) para exercitar o parser.
+ * Não são documentos fiscais reais; estabelecimento, CNPJ (número de teste com dígitos
+ * válidos), chave e valores foram inventados.
+ */
+
+export const TEST_RECEIPT_NFCE = `
+MERCADO TESTE FICTICIO LTDA
+CNPJ: 11.222.333/0001-81 IE: 000000000
+RUA DE TESTE, 100 - CENTRO
+Documento Auxiliar da Nota Fiscal de Consumidor Eletronica
+Codigo Descricao Qtde UN Vl Unit Vl Total
+001 7891000100103 LEITE INTEGRAL 1L 2 UN X 5,49 10,98
+002 7896006711117 ARROZ TIPO 1 5KG 1 UN X 28,99 28,99
+003 7896102500011 FEIJAO CARIOCA 1KG 1 UN X 8,49 8,49
+004 2000001 BANANA PRATA KG 1,250 KG X 7,99 9,99
+005 7891107101621 OLEO SOJA 900ML 1 UN X 10,00 10,00
+DESCONTO ITEM 005 -2,00
+Qtd. total de itens 5
+Valor total R$ 68,45
+Descontos R$ 2,00
+Valor a pagar R$ 66,45
+Cartao de Debito 66,45
+Consumidor nao identificado
+Emissao: 30/10/2026 14:22:10
+Chave de acesso:
+3526 1011 2223 3300 0181 6500 1000 0012 3410 0001 2340
+`.trim().split('\n');
+
+/** Mesmo cupom com layout em duas linhas por item. */
+export const TEST_RECEIPT_TWO_LINES = `
+SUPERMERCADO EXEMPLO TESTE
+CNPJ 11.222.333/0001-81
+001 7891000100103 LEITE INTEGRAL 1L
+2 UN x 5,49 10,98
+002 7896006711117 ARROZ TIPO 1 5KG
+1 UN x 28,99 28,99
+TOTAL R$ 39,97
+`.trim().split('\n');
+
+/** Cupom com linha ilegível (sem preço) e total ausente. */
+export const TEST_RECEIPT_INCOMPLETE = `
+MERCADO TESTE FICTICIO
+CNPJ: 11.222.333/0001-81
+001 7891000100103 LEITE INTEGRAL 1L 1 UN X 5,49 5,49
+002 7896006711117 ARROZ TIPO 1 5KG
+003 7896102500011 FEIJAO CARIOCA 1KG 1 UN X 8,49 8,49
+`.trim().split('\n');
+
+/** Cupom longo fotografado em duas partes com sobreposição dos itens 003 e 004. */
+export const TEST_RECEIPT_PART_1 = `
+MERCADO TESTE FICTICIO LTDA
+CNPJ: 11.222.333/0001-81
+001 7891000100103 LEITE INTEGRAL 1L 1 UN X 5,49 5,49
+002 7896006711117 ARROZ TIPO 1 5KG 1 UN X 28,99 28,99
+003 7896102500011 FEIJAO CARIOCA 1KG 1 UN X 8,49 8,49
+004 7891107101621 OLEO SOJA 900ML 1 UN X 8,00 8,00
+`.trim().split('\n');
+
+export const TEST_RECEIPT_PART_2 = `
+003 7896102500011 FEIJAO CARIOCA 1KG 1 UN X 8,49 8,49
+004 7891107101621 OLEO SOJA 900ML 1 UN X 8,00 8,00
+005 7891000100103 LEITE INTEGRAL 1L 1 UN X 5,49 5,49
+Qtd. total de itens 5
+Valor total R$ 56,46
+Valor a pagar R$ 56,46
+`.trim().split('\n');
+
+/** Cupom com o mesmo produto em duas linhas (sem carrinho). */
+export const TEST_RECEIPT_REPEATED = `
+MERCADO TESTE FICTICIO
+CNPJ: 11.222.333/0001-81
+001 7891000100103 LEITE INTEGRAL 1L 1 UN X 5,49 5,49
+002 7896006711117 ARROZ TIPO 1 5KG 1 UN X 28,99 28,99
+003 7891000100103 LEITE INTEGRAL 1L 1 UN X 5,49 5,49
+Valor a pagar R$ 39,97
+`.trim().split('\n');
+
+/** Layout ECF/SAT com alíquota entre preço e total e descrições abreviadas. */
+export const TEST_RECEIPT_ECF = `
+MERCADINHO TESTE
+CNPJ: 11.222.333/0001-81
+ITEM CODIGO DESCRICAO QTD UN VL UNIT VL ITEM
+001 123 LT INT TESTELAC 1L 1UN x 5,49 T17,00% 5,49
+002 456 REFRIG COLA TESTE 2L 2UN x 7,50 F1 15,00
+SUBTOTAL R$ 20,49
+TOTAL R$ 20,49
+`.trim().split('\n');
