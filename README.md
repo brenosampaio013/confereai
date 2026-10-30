@@ -228,6 +228,8 @@ npx eas-cli@latest build --profile preview --platform android
 npx eas-cli@latest build --profile production --platform all
 ```
 
+Passo a passo da Google Play (ficha da loja, gráficos, política de privacidade e respostas de “Segurança dos dados”): [`store/android/PUBLICACAO.md`](store/android/PUBLICACAO.md).
+
 Antes de produção: configure as variáveis `EXPO_PUBLIC_*` no EAS (`eas env:create`) ou no `.env`, revise `bundleIdentifier`/`package` em `app.json` (`br.com.confereai.app` é um valor sugerido), preencha o contato de privacidade e revise a política com assessoria jurídica. A publicação nas lojas exige contas Apple Developer / Google Play e etapas manuais (fichas, capturas de tela, classificação, formulário de segurança de dados); nada disso é automático.
 
 ## Regras de negócio importantes

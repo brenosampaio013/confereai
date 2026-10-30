@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Política de privacidade — Confere Aí</title>
+<style>
+  :root { --navy:#0E2A47; --green:#11915A; --bg:#F3F5F8; --text:#0F1C2A; --muted:#5A6878; --border:#DFE5EC; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif; }
+  header { background:var(--navy); color:#fff; padding:28px 16px; }
+  header div, main { max-width:760px; margin:0 auto; }
+  h1 { margin:0; font-size:28px; letter-spacing:-.3px; }
+  h1 span { color:#3CCB8A; }
+  header p { margin:6px 0 0; color:#C9D6E3; }
+  main { padding:24px 16px 48px; }
+  section { background:#fff; border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:14px; }
+  h2 { font-size:19px; margin:0 0 8px; color:var(--navy); }
+  p, li { margin:6px 0; }
+  ul { padding-left:20px; margin:6px 0; }
+  .muted { color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<header><div>
+  <h1>Confere <span>Aí</span></h1>
+  <p>Política de privacidade · última atualização: 30 de outubro de 2026</p>
+</div></header>
+<main>
+  <section>
+    <h2>Quem somos</h2>
+    <p>O Confere Aí é um aplicativo de apoio à conferência de compras de supermercado. Responsável pelo tratamento dos dados: <strong>[NOME DO RESPONSÁVEL]</strong>. Contato sobre privacidade: <strong>[E-MAIL DE CONTATO]</strong>.</p>
+  </section>
+  <section>
+    <h2>Quais dados tratamos</h2>
+    <ul>
+      <li>Dados das compras que você registra: produtos, códigos de barras, quantidades, preços, estabelecimento e data.</li>
+      <li>Dados extraídos dos cupons fiscais que você fotografa: itens, valores, CNPJ do estabelecimento, data e chave de acesso. Não coletamos seu CPF; se ele estiver impresso no cupom, não é salvo pelo aplicativo.</li>
+      <li>Se você criar uma conta: e-mail e senha. A senha é guardada de forma protegida pelo provedor de autenticação, nunca em texto.</li>
+    </ul>
+    <p>O aplicativo não usa publicidade, não coleta localização, contatos nem identificadores de publicidade e não possui rastreamento de uso.</p>
+  </section>
+  <section>
+    <h2>Onde os dados ficam</h2>
+    <ul>
+      <li>Sem conta, tudo fica apenas no seu aparelho.</li>
+      <li>Com conta, os dados são sincronizados com o banco de dados do Confere Aí (Supabase), com acesso restrito a você por regras de segurança por usuário.</li>
+      <li>As fotos de cupons não são armazenadas na nuvem. Elas ficam no aparelho até a leitura e são apagadas em seguida. Fotos de embalagens ficam apenas no aparelho.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Leitura automática de imagens</h2>
+    <p>Quando você pede a leitura automática, a imagem é enviada com conexão criptografada para o servidor do Confere Aí, que a repassa ao serviço de reconhecimento de texto configurado (por exemplo, a API da Anthropic ou o Google Cloud Vision). A imagem é usada somente para extrair o texto e não é armazenada pelo Confere Aí. Os provedores têm suas próprias políticas de retenção.</p>
+    <p>O envio só ocorre após o seu consentimento, que pode ser revogado a qualquer momento na aba Conta. Os cálculos da conferência são feitos por regras fixas no próprio aplicativo; a inteligência artificial não decide valores.</p>
+  </section>
+  <section>
+    <h2>Consulta de produtos</h2>
+    <p>Ao ler um código de barras desconhecido, o aplicativo pode consultar a base pública Open Food Facts enviando apenas o número do código. Nenhum dado pessoal é enviado.</p>
+  </section>
+  <section>
+    <h2>Seus direitos (LGPD)</h2>
+    <p>Você pode corrigir qualquer dado, excluir compras individualmente, excluir todos os dados do aparelho e excluir sua conta com todos os dados da nuvem, a qualquer momento, na aba Conta do aplicativo. Também pode solicitar a exclusão pelo contato acima.</p>
+    <p>Não vendemos nem compartilhamos seus dados com terceiros para publicidade.</p>
+  </section>
+  <section>
+    <h2>Limitações</h2>
+    <p>O Confere Aí é uma ferramenta de apoio. Ele não garante a identificação de todos os erros e não substitui a conferência do cupom impresso. Alertas indicam pontos de atenção, não a confirmação de cobrança indevida.</p>
+  </section>
+  <p class="muted">Esta política pode ser atualizada; a data no topo indica a versão vigente.</p>
+</main>
+</body>
+</html>

@@ -129,7 +129,7 @@ export function Divider() {
 /* Botões                                                              */
 /* ------------------------------------------------------------------ */
 
-type ButtonKind = 'primary' | 'confirm' | 'secondary' | 'ghost' | 'danger';
+type ButtonKind = 'primary' | 'confirm' | 'secondary' | 'ghost' | 'danger' | 'onDark';
 export function Button({
   title,
   onPress,
@@ -157,6 +157,7 @@ export function Button({
     secondary: { bg: colors.surface, pressed: colors.navySoft, fg: colors.navy, border: colors.border },
     ghost: { bg: 'transparent', pressed: colors.navySoft, fg: colors.navy, border: 'transparent' },
     danger: { bg: colors.surface, pressed: colors.redSoft, fg: colors.redText, border: colors.border },
+    onDark: { bg: 'rgba(255,255,255,0.10)', pressed: 'rgba(255,255,255,0.18)', fg: colors.white, border: 'rgba(255,255,255,0.28)' },
   }[kind];
   const off = disabled || loading;
   return (

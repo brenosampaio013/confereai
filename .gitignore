@@ -47,3 +47,8 @@ example
 .env.local
 supabase/functions/.env
 supabase/.temp
+
+# chave da conta de serviço do Google Play (nunca versionar)
+google-play-service-account.json
+*.jks
+*.keystore

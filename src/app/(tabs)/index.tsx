@@ -84,8 +84,7 @@ export default function Home() {
             <Button
               title="Conferir a nota desta compra"
               icon="receipt-outline"
-              kind="ghost"
-              style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+              kind="onDark"
               onPress={() => router.push({ pathname: '/receipt/capture', params: { purchaseId: active.id } })}
             />
           </Card>
