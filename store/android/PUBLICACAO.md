@@ -1,6 +1,6 @@
 # Publicação na Google Play — Confere Aí
 
-Guia passo a passo e conteúdo pronto para a ficha da loja. Itens marcados com **[PREENCHER]** dependem de você.
+Guia passo a passo e conteúdo pronto para a ficha da loja. Responsável: Breno Sampaio · contato: atendimentoencantoindiana@gmail.com.
 
 ## 0. Antes de começar (decisões)
 
@@ -102,15 +102,15 @@ O Confere Aí é uma ferramenta de apoio. As cores indicam pontos de atenção, 
 As capturas foram feitas no próprio app com produtos de exemplo.
 
 **Categoria:** Compras · **Tags sugeridas:** compras, lista de compras, supermercado
-**E-mail de contato:** [PREENCHER] · **Site:** opcional
+**E-mail de contato:** atendimentoencantoindiana@gmail.com · **Site:** opcional
 
 ## 5. Conteúdo do app (Política → Conteúdo do app)
 
-**Política de privacidade** — a página está em `docs/privacidade.html`. Preencha `[NOME DO RESPONSÁVEL]` e `[E-MAIL DE CONTATO]`, faça commit e ative o GitHub Pages (repositório → Settings → Pages → Branch `master`, pasta `/docs`). A URL será:
+**Política de privacidade** — a página está em `docs/privacidade.html` (responsável Breno Sampaio, contato atendimentoencantoindiana@gmail.com). Ative o GitHub Pages (repositório → Settings → Pages → Branch `master`, pasta `/docs`). A URL será:
 ```
 https://brenosampaio013.github.io/confereai/privacidade.html
 ```
-Preencha também `EXPO_PUBLIC_PRIVACY_CONTACT` antes do build, para o mesmo contato aparecer dentro do app.
+O mesmo contato aparece dentro do app (padrão em `src/lib/config.ts`; pode ser trocado por `EXPO_PUBLIC_PRIVACY_CONTACT`).
 
 **Anúncios:** Não contém anúncios.
 **Acesso ao app:** Todo o app está disponível sem restrições (não exige login).

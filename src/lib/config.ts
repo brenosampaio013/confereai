@@ -7,7 +7,7 @@ export const config = {
   supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
   /** Consulta opcional à base pública Open Food Facts para sugerir nome/marca pelo código. */
   openFoodFacts: (process.env.EXPO_PUBLIC_OPEN_FOOD_FACTS ?? 'true') !== 'false',
-  privacyContactEmail: process.env.EXPO_PUBLIC_PRIVACY_CONTACT ?? '',
+  privacyContactEmail: process.env.EXPO_PUBLIC_PRIVACY_CONTACT || 'atendimentoencantoindiana@gmail.com',
 };
 
 export const isCloudConfigured = () => !!config.supabaseUrl && !!config.supabaseAnonKey;
