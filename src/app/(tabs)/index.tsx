@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { plural } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
@@ -10,6 +10,7 @@ import { Banner, Button, Card, Divider, EmptyState, Money, Row, SectionTitle, T,
 import { Logo } from '@/ui/Logo';
 import { PurchaseRow } from '@/ui/PurchaseRow';
 import { colors, radius, space } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 export default function Home() {
   const { repo, active, totals, version, ensureActivePurchase, bump, session, isAnonymous } = useApp();
@@ -26,7 +27,7 @@ export default function Home() {
       router.push('/scan');
     };
     if (active) {
-      Alert.alert(
+      showAlert(
         'Você tem uma compra em andamento',
         `Ela tem ${plural(totals.lineCount, 'item', 'itens')}. Ao iniciar uma nova, a atual é encerrada e fica salva no histórico.`,
         [

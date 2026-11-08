@@ -24,6 +24,11 @@ const targets = [
   { file: 'android-icon-background.png', size: 1024, svg: svg(1024, '', `<rect width="64" height="64" fill="${NAVY}"/>`) },
   { file: 'android-icon-monochrome.png', size: 1024, svg: svg(1024, scaled(0.78, glyph(WHITE, NAVY, NAVY))) },
   { file: 'splash-icon.png', size: 512, svg: svg(512, '', `<rect width="64" height="64" rx="16" fill="${NAVY}"/>${glyph()}`) },
+  // Ícones do app instalável (PWA)
+  { file: 'pwa-192.png', size: 192, svg: svg(192, '', `<rect width="64" height="64" rx="14" fill="${NAVY}"/>${glyph()}`) },
+  { file: 'pwa-512.png', size: 512, svg: svg(512, '', `<rect width="64" height="64" rx="14" fill="${NAVY}"/>${glyph()}`) },
+  { file: 'pwa-maskable-512.png', size: 512, svg: svg(512, scaled(0.8, glyph()), `<rect width="64" height="64" fill="${NAVY}"/>`) },
+  { file: 'apple-touch-icon.png', size: 180, svg: svg(180, scaled(1.0, glyph()), `<rect width="64" height="64" fill="${NAVY}"/>`) },
   { file: 'favicon.png', size: 64, svg: svg(64, glyph(), `<rect width="64" height="64" rx="14" fill="${NAVY}"/>`) },
 ];
 

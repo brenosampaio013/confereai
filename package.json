@@ -57,7 +57,8 @@
     "test": "jest",
     "test:db": "node --test supabase/tests/*.test.mjs",
     "test:all": "npm run typecheck && jest && node --test supabase/tests/*.test.mjs",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "build:web": "node scripts/build-web.mjs"
   },
   "private": true
 }

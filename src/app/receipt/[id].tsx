@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { formatCnpj } from '@/domain/fiscal';
 import { centsToInput, formatBRL, parseBRL } from '@/domain/money';
 import { itemNeedsReview, receiptItemNet, validateReceipt } from '@/domain/receiptParser';
@@ -12,6 +12,7 @@ import { runConference } from '@/services/conference';
 import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, Field, KeyValue, Loading, Money, Pill, Row, Screen, SectionTitle, Segmented, Sheet, T } from '@/ui/components';
 import { colors, space } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 const ISSUE_LABEL: Record<string, string> = {
   missing_quantity: 'quantidade não lida',
@@ -98,7 +99,7 @@ export default function ReviewReceipt() {
 
   const removeDraft = () => {
     if (!draft?.id) return;
-    Alert.alert('Excluir linha?', 'Use quando a linha não existe no cupom (por exemplo, foi lida duas vezes na emenda das fotos).', [
+    showAlert('Excluir linha?', 'Use quando a linha não existe no cupom (por exemplo, foi lida duas vezes na emenda das fotos).', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',
@@ -123,7 +124,7 @@ export default function ReviewReceipt() {
 
   const saveHeader = async () => {
     const t = total ? parseBRL(total) : null;
-    if (total && t == null) return Alert.alert('Valor inválido', 'Confira o total (ex.: 123,45).');
+    if (total && t == null) return showAlert('Valor inválido', 'Confira o total (ex.: 123,45).');
     await repo.updateReceiptHeader(id, { storeName: store.trim() || null, totalCents: t });
     if (store.trim()) await repo.updatePurchase(receipt.purchaseId, { storeName: store.trim() });
     setHeaderOpen(false);
@@ -140,13 +141,13 @@ export default function ReviewReceipt() {
         bump();
         router.replace(`/report/${reportId}`);
       } catch (e) {
-        Alert.alert('Não foi possível conferir', e instanceof Error ? e.message : String(e));
+        showAlert('Não foi possível conferir', e instanceof Error ? e.message : String(e));
       } finally {
         setRunning(false);
       }
     };
     if (!v.complete) {
-      Alert.alert('Leitura incompleta', 'Ainda há pendências na leitura. Você pode conferir mesmo assim; o resultado será marcado como incompleto.', [
+      showAlert('Leitura incompleta', 'Ainda há pendências na leitura. Você pode conferir mesmo assim; o resultado será marcado como incompleto.', [
         { text: 'Continuar revisando', style: 'cancel' },
         { text: 'Conferir assim', onPress: go },
       ]);

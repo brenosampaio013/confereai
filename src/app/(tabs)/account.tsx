@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { isCloudConfigured } from '@/lib/config';
 import { fmtDate } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
@@ -9,6 +9,7 @@ import { getSupabase } from '@/services/supabase';
 import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, KeyValue, Row, Screen, SectionTitle, Sheet, T } from '@/ui/components';
 import { colors, space } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 export default function Account() {
   const { repo, session, isAnonymous, syncNow, lastSync, pending, bump, version } = useApp();
@@ -23,12 +24,12 @@ export default function Account() {
     setSyncing(true);
     const r = await syncNow();
     setSyncing(false);
-    if (r?.skipped === 'offline') Alert.alert('Sem internet', 'Seus dados estão salvos no aparelho e serão sincronizados quando a conexão voltar.');
-    else if (r?.error) Alert.alert('Sincronização incompleta', `${r.error}\nOs dados locais foram mantidos e o envio será tentado novamente.`);
+    if (r?.skipped === 'offline') showAlert('Sem internet', 'Seus dados estão salvos no aparelho e serão sincronizados quando a conexão voltar.');
+    else if (r?.error) showAlert('Sincronização incompleta', `${r.error}\nOs dados locais foram mantidos e o envio será tentado novamente.`);
   };
 
   const signOut = () => {
-    Alert.alert('Sair da conta', 'Deseja manter os dados neste aparelho?', [
+    showAlert('Sair da conta', 'Deseja manter os dados neste aparelho?', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Sair e manter', onPress: async () => { await getSupabase()?.auth.signOut(); bump(); } },
       {
@@ -36,7 +37,7 @@ export default function Account() {
         style: 'destructive',
         onPress: async () => {
           if (pending > 0) {
-            Alert.alert('Há dados não sincronizados', `${pending} alteração(ões) ainda não foram enviadas. Sincronize antes de apagar para não perdê-las.`);
+            showAlert('Há dados não sincronizados', `${pending} alteração(ões) ainda não foram enviadas. Sincronize antes de apagar para não perdê-las.`);
             return;
           }
           await getSupabase()?.auth.signOut();
@@ -48,7 +49,7 @@ export default function Account() {
   };
 
   const wipeLocal = () => {
-    Alert.alert(
+    showAlert(
       'Excluir os dados deste aparelho?',
       `Compras, produtos, preços e conferências serão apagados deste aparelho.${signedIn ? ' Os dados já sincronizados continuam na sua conta.' : ' Como você não está conectado a uma conta, não será possível recuperá-los.'}`,
       [
@@ -59,7 +60,7 @@ export default function Account() {
   };
 
   const deleteAccount = () => {
-    Alert.alert('Excluir conta e dados da nuvem?', 'Sua conta e todos os dados sincronizados serão excluídos definitivamente. Os dados deste aparelho também serão apagados.', [
+    showAlert('Excluir conta e dados da nuvem?', 'Sua conta e todos os dados sincronizados serão excluídos definitivamente. Os dados deste aparelho também serão apagados.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir tudo',
@@ -68,7 +69,7 @@ export default function Account() {
           const sb = getSupabase();
           const { error } = (await sb?.rpc('delete_my_account')) ?? { error: null };
           if (error) {
-            Alert.alert('Não foi possível excluir', `${error.message}\nVerifique a conexão e tente novamente.`);
+            showAlert('Não foi possível excluir', `${error.message}\nVerifique a conexão e tente novamente.`);
             return;
           }
           await sb?.auth.signOut();
@@ -123,7 +124,7 @@ export default function Account() {
             onPress={async () => {
               await repo.setSetting('ocr_consent', null);
               reload();
-              Alert.alert('Consentimento revogado', 'Nenhuma imagem será enviada sem nova autorização.');
+              showAlert('Consentimento revogado', 'Nenhuma imagem será enviada sem nova autorização.');
             }}
           />
         ) : null}

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { adjustQuantity, itemNetCents, quantityStep } from '@/domain/cart';
 import { formatBRL } from '@/domain/money';
 import { PRICE_SOURCE_LABEL, type CartItem } from '@/domain/types';
@@ -10,6 +10,7 @@ import { useApp } from '@/state/AppContext';
 import { Button, Card, Divider, EmptyState, Field, Money, Pill, Row, Screen, Sheet, Stepper, T } from '@/ui/components';
 import { colors, space } from '@/ui/theme';
 import { useState } from 'react';
+import { showAlert } from '@/lib/dialog';
 
 export default function CartScreen() {
   const { repo, active, cart, totals, bump } = useApp();
@@ -43,7 +44,7 @@ export default function CartScreen() {
   const change = async (item: CartItem, dir: 1 | -1) => {
     const next = adjustQuantity(item, dir * quantityStep(item));
     if (next == null) {
-      Alert.alert('Remover item?', `${item.name} será retirado do carrinho.`, [
+      showAlert('Remover item?', `${item.name} será retirado do carrinho.`, [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Remover',
@@ -63,7 +64,7 @@ export default function CartScreen() {
   };
 
   const finish = () => {
-    Alert.alert('Encerrar compra sem conferir a nota?', 'A compra fica salva no histórico e você pode conferir a nota depois.', [
+    showAlert('Encerrar compra sem conferir a nota?', 'A compra fica salva no histórico e você pode conferir a nota depois.', [
       { text: 'Voltar', style: 'cancel' },
       {
         text: 'Encerrar',

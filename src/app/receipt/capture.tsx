@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Linking, Modal, StyleSheet, View } from 'react-native';
+import { Linking, Modal, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatCnpj, isOfficialConsultUrl, isValidCnpj, NfceQrInfo, parseNfceQr } from '@/domain/fiscal';
 import { formatBRL } from '@/domain/money';
@@ -19,6 +19,7 @@ import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, IconButton, KeyValue, Pill, Row, Screen, SectionTitle, T } from '@/ui/components';
 import { useOcrConsent } from '@/ui/OcrConsent';
 import { colors, radius, space } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 const MAX_PHOTOS = 6;
 
@@ -57,7 +58,7 @@ export default function CaptureReceipt() {
   const addFromCamera = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Câmera sem permissão', 'Libere a câmera nas configurações do aparelho ou escolha fotos da galeria.', [
+      showAlert('Câmera sem permissão', 'Libere a câmera nas configurações do aparelho ou escolha fotos da galeria.', [
         { text: 'Fechar', style: 'cancel' },
         { text: 'Abrir configurações', onPress: () => Linking.openSettings() },
       ]);
@@ -70,7 +71,7 @@ export default function CaptureReceipt() {
   const addFromGallery = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Galeria sem permissão', 'Libere o acesso às fotos nas configurações do aparelho.');
+      showAlert('Galeria sem permissão', 'Libere o acesso às fotos nas configurações do aparelho.');
       return;
     }
     const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsMultipleSelection: true, selectionLimit: MAX_PHOTOS, quality: 0.85, orderedSelection: true });

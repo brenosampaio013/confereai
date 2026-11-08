@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { validateItem } from '@/domain/cart';
 import { centsToInput, formatBRL, parseBRL } from '@/domain/money';
 import { PRICE_SOURCE_LABEL, type CartItem } from '@/domain/types';
@@ -10,6 +10,7 @@ import { useLoad } from '@/lib/useLoad';
 import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, Field, KeyValue, Loading, Money, Row, Screen, SectionTitle, Stepper, T } from '@/ui/components';
 import { colors } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 const FIELD_LABEL: Record<string, string> = {
   name: 'Nome',
@@ -85,7 +86,7 @@ export default function EditItem() {
   };
 
   const remove = () => {
-    Alert.alert('Remover item?', `${item.name} será retirado do carrinho.`, [
+    showAlert('Remover item?', `${item.name} será retirado do carrinho.`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Remover',

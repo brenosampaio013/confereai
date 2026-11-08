@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { LabelReading, parseLabel } from '@/domain/labelParser';
 import { centsToInput, parseBRL } from '@/domain/money';
 import { extractPackageMeasure, formatPackageMeasure } from '@/domain/units';
@@ -12,6 +12,7 @@ import { handoff } from '@/state/handoff';
 import { Banner, Button, Card, Field, Pill, Row, Screen, Segmented, T } from '@/ui/components';
 import { useOcrConsent } from '@/ui/OcrConsent';
 import { colors } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 export default function LabelScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
@@ -33,7 +34,7 @@ export default function LabelScreen() {
   const pick = async (fromCamera: boolean) => {
     const perm = fromCamera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permissão necessária', fromCamera ? 'Permita o acesso à câmera para fotografar a etiqueta.' : 'Permita o acesso às fotos para escolher uma imagem.');
+      showAlert('Permissão necessária', fromCamera ? 'Permita o acesso à câmera para fotografar a etiqueta.' : 'Permita o acesso às fotos para escolher uma imagem.');
       return;
     }
     const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.8 };
@@ -76,16 +77,16 @@ export default function LabelScreen() {
     const pr = promo ? parseBRL(promo) : null;
     const ref = reference ? parseBRL(reference) : null;
     if ((regular && reg == null) || (promo && pr == null) || (reference && ref == null)) {
-      Alert.alert('Valor inválido', 'Confira os preços (ex.: 5,49).');
+      showAlert('Valor inválido', 'Confira os preços (ex.: 5,49).');
       return;
     }
     const weight = mode === 'weight';
     if (weight && ref == null) {
-      Alert.alert('Informe o preço por quilo', 'Produtos vendidos por peso precisam do preço por kg.');
+      showAlert('Informe o preço por quilo', 'Produtos vendidos por peso precisam do preço por kg.');
       return;
     }
     if (!weight && reg == null && pr == null) {
-      Alert.alert('Informe o preço', 'Não foi possível identificar o preço. Digite o valor da etiqueta.');
+      showAlert('Informe o preço', 'Não foi possível identificar o preço. Digite o valor da etiqueta.');
       return;
     }
     const final: LabelReading = {

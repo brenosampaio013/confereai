@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { itemNetCents } from '@/domain/cart';
 import { formatBRL } from '@/domain/money';
 import { PRICE_SOURCE_LABEL } from '@/domain/types';
@@ -11,6 +11,7 @@ import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, Field, KeyValue, Loading, Money, Row, Screen, SectionTitle, Sheet, T } from '@/ui/components';
 import { purchaseStatusPill } from '@/ui/PurchaseRow';
 import { colors, space } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 const EVENT_LABEL: Record<string, string> = {
   scan_new: 'Produto lido',
@@ -45,7 +46,7 @@ export default function PurchaseDetail() {
   const p = s.purchase;
 
   const del = () => {
-    Alert.alert('Excluir esta compra?', 'Os produtos, a leitura do cupom e o relatório desta compra serão excluídos deste aparelho e da nuvem (se sincronizados). Os produtos cadastrados continuam disponíveis.', [
+    showAlert('Excluir esta compra?', 'Os produtos, a leitura do cupom e o relatório desta compra serão excluídos deste aparelho e da nuvem (se sincronizados). Os produtos cadastrados continuam disponíveis.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Excluir',

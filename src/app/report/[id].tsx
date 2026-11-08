@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ComponentProps, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { itemNetCents } from '@/domain/cart';
 import { formatBRL } from '@/domain/money';
 import { receiptItemNet } from '@/domain/receiptParser';
@@ -14,6 +14,7 @@ import { runConference } from '@/services/conference';
 import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, Loading, Money, Pill, Row, Screen, SEVERITY_ICON, SectionTitle, Sheet, T } from '@/ui/components';
 import { colors, space, tone } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 const OVERALL_TEXT = {
   green: { title: 'Nenhuma divergência identificada', text: 'Nos dados analisados, a nota confere. Isso não garante a ausência de erros fora do que foi lido.' },
@@ -393,7 +394,7 @@ function DivergenceCard({ d, expanded, onToggle, cart, lines, actions }: { d: Di
           ) : null}
           {actions.map((a) => (
             <Button key={a.title} title={a.title} icon={a.icon} kind={a.kind ?? 'secondary'} compact onPress={() => {
-              Promise.resolve(a.run()).catch((e) => Alert.alert('Não foi possível concluir', e instanceof Error ? e.message : String(e)));
+              Promise.resolve(a.run()).catch((e) => showAlert('Não foi possível concluir', e instanceof Error ? e.message : String(e)));
             }} />
           ))}
         </View>

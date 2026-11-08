@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { validateItem } from '@/domain/cart';
 import { centsToInput, formatBRL, formatSignedBRL, parseBRL } from '@/domain/money';
 import { compareWithLastPrice, PriceComparison } from '@/domain/priceHistory';
@@ -16,6 +16,7 @@ import { useApp } from '@/state/AppContext';
 import { handoff } from '@/state/handoff';
 import { Banner, Button, Card, Field, Loading, Money, Pill, Row, Screen, Segmented, Stepper, T } from '@/ui/components';
 import { colors, space } from '@/ui/theme';
+import { showAlert } from '@/lib/dialog';
 
 export default function AddItem() {
   const params = useLocalSearchParams<{ barcode?: string; via?: string; newLine?: string }>();
@@ -117,7 +118,7 @@ export default function AddItem() {
   const takePhoto = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Câmera indisponível', 'Permita o acesso à câmera nas configurações para fotografar a embalagem.');
+      showAlert('Câmera indisponível', 'Permita o acesso à câmera nas configurações para fotografar a embalagem.');
       return;
     }
     const r = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.6 });
@@ -152,7 +153,7 @@ export default function AddItem() {
         (prod.imageUri ?? null) !== photo ||
         (measure?.amount ?? null) !== prod.packageAmount;
       if (productChanged) {
-        const imageUri = photo && photo !== prod?.imageUri ? persistProductPhoto(photo) : photo;
+        const imageUri = photo && photo !== prod?.imageUri ? await persistProductPhoto(photo) : photo;
         prod = await repo.saveProduct({
           id: prod?.id,
           barcode: prod?.barcode ?? barcode,
@@ -185,7 +186,7 @@ export default function AddItem() {
       bump();
       router.back();
     } catch (e) {
-      Alert.alert('Não foi possível salvar', e instanceof Error ? e.message : String(e));
+      showAlert('Não foi possível salvar', e instanceof Error ? e.message : String(e));
     } finally {
       setSaving(false);
     }

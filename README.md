@@ -142,6 +142,24 @@ npx expo start --dev-client
 
 Com Android Studio/Xcode instalados também é possível compilar localmente: `npx expo run:android` ou `npx expo run:ios`.
 
+## Versão web (instalável pelo Chrome)
+
+O app também roda no navegador e pode ser instalado como aplicativo (PWA) pelo Chrome no Android ou no computador:
+<https://brenosampaio013.github.io/confereai/>
+
+- **Publicação automática:** a cada push no `master`, o GitHub Actions (`.github/workflows/deploy-web.yml`) roda os testes, gera o site (`npm run build:web`) e publica no GitHub Pages. Na primeira vez, ative em *Settings → Pages → Source: GitHub Actions*.
+- **Instalar:** abra o endereço no Chrome e use *Instalar app* (menu ⋮ → "Instalar app" ou "Adicionar à tela inicial").
+- **Funciona sem internet** depois da primeira abertura; os dados ficam no banco local do navegador.
+- **Câmera:** o leitor usa a detecção de códigos de barras do próprio navegador (nativa no Chrome para Android; nos demais, uma biblioteca de leitura carregada sob demanda).
+- **Detalhe técnico:** o banco SQLite na web precisa de isolamento entre origens (COOP/COEP). Como o GitHub Pages não permite configurar cabeçalhos, o service worker os acrescenta; na primeira visita a página recarrega uma vez sozinha.
+- **Limitações na web:** os dados ficam no navegador daquele aparelho (limpar os dados do site apaga tudo, a menos que você use conta e sincronização); confirmações usam as caixas padrão do navegador; vibração não existe na web.
+
+Para gerar e testar localmente:
+
+```bash
+npm run build:web
+```
+
 ## Configurar o Supabase
 
 1. Crie um projeto em <https://supabase.com>.
