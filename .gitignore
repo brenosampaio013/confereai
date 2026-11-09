@@ -52,3 +52,4 @@ supabase/.temp
 google-play-service-account.json
 *.jks
 *.keystore
+/e2e-output

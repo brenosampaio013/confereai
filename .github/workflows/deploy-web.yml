@@ -26,6 +26,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      - run: npm run test:db
       - name: Gerar o app web instalável
         run: node scripts/build-web.mjs
         env:

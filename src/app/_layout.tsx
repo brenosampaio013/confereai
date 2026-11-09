@@ -44,6 +44,13 @@ export default function RootLayout() {
           <Stack.Screen name="product/[id]" options={{ title: 'Produto' }} />
           <Stack.Screen name="auth" options={{ title: 'Sua conta', presentation: 'modal' }} />
           <Stack.Screen name="privacy" options={{ title: 'Privacidade' }} />
+          <Stack.Screen name="offers/publish" options={{ title: 'Publicar promoção' }} />
+          <Stack.Screen name="offers/[id]" options={{ title: 'Oferta' }} />
+          <Stack.Screen name="offers/mine" options={{ title: 'Minhas publicações' }} />
+          <Stack.Screen name="offers/store/[id]" options={{ title: 'Ofertas da unidade' }} />
+          <Stack.Screen name="offers/notifications" options={{ title: 'Avisos de ofertas' }} />
+          <Stack.Screen name="admin/index" options={{ title: 'Moderação' }} />
+          <Stack.Screen name="admin/[id]" options={{ title: 'Revisar publicação' }} />
         </Stack>
       </AppProvider>
     </SafeAreaProvider>

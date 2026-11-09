@@ -222,7 +222,7 @@ export default function ScanScreen() {
           </Row>
           <Row>
             <Button title="Digitar código" icon="keypad-outline" kind="secondary" compact onPress={() => setManualOpen(true)} style={{ flex: 1 }} />
-            <Button title="Ver carrinho" icon="cart-outline" compact onPress={() => router.navigate('/cart')} style={{ flex: 1 }} />
+            <Button title="Ver carrinho" icon="cart-outline" compact onPress={() => router.navigate('/purchases')} style={{ flex: 1 }} />
           </Row>
         </View>
       </SafeAreaView>

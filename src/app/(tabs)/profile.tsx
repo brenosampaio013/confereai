@@ -5,6 +5,8 @@ import { View } from 'react-native';
 import { isCloudConfigured } from '@/lib/config';
 import { fmtDate } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
+import { REPUTATION_LABEL } from '@/domain/marketplace';
+import { isAdmin, myReputation } from '@/services/marketplace';
 import { getSupabase } from '@/services/supabase';
 import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, KeyValue, Row, Screen, SectionTitle, Sheet, T } from '@/ui/components';
@@ -19,6 +21,8 @@ export default function Account() {
   const { data: products } = useLoad(() => repo.listProducts(), [version, productsOpen]);
   const cloud = isCloudConfigured();
   const signedIn = !!session && !isAnonymous;
+  const { data: admin } = useLoad(() => (cloud && signedIn ? isAdmin() : Promise.resolve(false)), [cloud, signedIn, session?.user.id]);
+  const { data: rep } = useLoad(() => (cloud && signedIn ? myReputation().catch(() => null) : Promise.resolve(null)), [cloud, signedIn, session?.user.id, version]);
 
   const doSync = async () => {
     setSyncing(true);
@@ -111,6 +115,18 @@ export default function Account() {
           <Button title="Entrar ou criar conta" icon="person-add-outline" onPress={() => router.push('/auth')} />
         </Card>
       )}
+
+      {cloud ? (
+        <>
+          <SectionTitle>Ofertas da comunidade</SectionTitle>
+          <Card>
+            {signedIn && rep ? <T v="small" color={colors.textMuted}>{`${REPUTATION_LABEL[rep.level]} · ${rep.published} publicadas · ${rep.confirmed} confirmadas`}</T> : null}
+            <Button title="Minhas publicações" icon="albums-outline" kind="secondary" onPress={() => router.push('/offers/mine')} />
+            <Button title="Avisos e preferências" icon="notifications-outline" kind="secondary" onPress={() => router.push('/offers/notifications')} />
+            {admin ? <Button title="Painel de moderação" icon="shield-outline" onPress={() => router.push('/admin')} /> : null}
+          </Card>
+        </>
+      ) : null}
 
       <SectionTitle>Seus dados</SectionTitle>
       <Card>

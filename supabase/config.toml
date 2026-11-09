@@ -13,3 +13,7 @@ enable_confirmations = true
 [functions.receipt-ocr]
 # A função exige um JWT válido do Supabase (usuário com conta ou sessão anônima).
 verify_jwt = true
+
+[functions.send-push]
+# Chamada pelo agendador com o segredo PUSH_CRON_SECRET (não usa JWT de usuário).
+verify_jwt = false

@@ -7,6 +7,8 @@ export const config = {
   supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
   /** Consulta opcional à base pública Open Food Facts para sugerir nome/marca pelo código. */
   openFoodFacts: (process.env.EXPO_PUBLIC_OPEN_FOOD_FACTS ?? 'true') !== 'false',
+  /** Endereço público da versão web, usado nos links compartilhados de ofertas. */
+  webUrl: (process.env.EXPO_PUBLIC_WEB_URL || 'https://brenosampaio013.github.io/confereai').replace(/\/$/, ''),
   privacyContactEmail: process.env.EXPO_PUBLIC_PRIVACY_CONTACT || 'atendimentoencantoindiana@gmail.com',
 };
 

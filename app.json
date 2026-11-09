@@ -23,8 +23,15 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "permissions": ["android.permission.CAMERA"],
-      "blockedPermissions": ["android.permission.RECORD_AUDIO"],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -59,7 +66,21 @@
         }
       ],
       "expo-sqlite",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O Confere Aí usa sua localização apenas quando você publica ou confirma uma oferta, para conferir se você está perto do supermercado. Suas coordenadas não são armazenadas.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0E2A47"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

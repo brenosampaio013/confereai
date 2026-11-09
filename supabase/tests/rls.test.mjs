@@ -2,37 +2,18 @@
 // embutido (PGlite) com um esquema `auth` mínimo que imita o do Supabase.
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { PGlite } from '@electric-sql/pglite';
+import { createDb, as as runAs } from './helpers.mjs';
 
 const A = randomUUID();
 const B = randomUUID();
 let db;
 
-const AUTH_STUB = `
-  create role anon nologin; create role authenticated nologin;
-  create schema auth;
-  create table auth.users (id uuid primary key);
-  create function auth.uid() returns uuid language sql stable as $$
-    select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-  grant usage on schema auth to authenticated, anon;
-  grant usage on schema public to authenticated, anon;
-`;
-
-async function as(user, fn) {
-  await db.exec(`reset role; select set_config('request.jwt.claim.sub', '${user ?? ''}', false); set role ${user ? 'authenticated' : 'anon'};`);
-  try { return await fn(); } finally { await db.exec('reset role;'); }
-}
+const as = (user, fn) => runAs(db, user, fn);
 const now = () => new Date().toISOString();
 
 before(async () => {
-  db = new PGlite();
-  await db.exec(AUTH_STUB);
-  const dir = new URL('../migrations/', import.meta.url);
-  for (const f of readdirSync(dir).filter((f) => f.endsWith('.sql')).sort()) {
-    await db.exec(readFileSync(new URL(f, dir), 'utf8'));
-  }
+  db = await createDb();
   await db.exec(`insert into auth.users (id) values ('${A}'), ('${B}')`);
 });
 

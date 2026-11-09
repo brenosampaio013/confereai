@@ -13,7 +13,8 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 3. [Arquitetura e pastas](#arquitetura-e-pastas)
 4. [Como executar](#como-executar)
 5. [Abrir no celular (câmera)](#abrir-no-celular)
-6. [Configurar o Supabase](#configurar-o-supabase)
+6. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
+7. [Configurar o Supabase](#configurar-o-supabase)
 7. [Configurar o OCR / IA](#configurar-o-ocr--ia)
 8. [Testes](#testes)
 9. [Gerar versões (EAS)](#gerar-versões-eas)
@@ -160,6 +161,57 @@ Para gerar e testar localmente:
 npm run build:web
 ```
 
+## Marketplace colaborativo de ofertas
+
+A aba **Ofertas** é um marketplace em que qualquer pessoa com conta publica promoções encontradas nos supermercados e todos (inclusive sem conta) podem ver, filtrar e conferir.
+
+**Navegação:** Início · **Ofertas** · Escanear · **Compras** (compra atual + histórico) · **Perfil**.
+
+| Recurso | Como funciona |
+|---|---|
+| Explorar | Busca, cidade, localização atual (opcional), filtros por supermercado, categoria (11 categorias visuais), distância e preço; ordenação por mais recentes, menor preço ou mais perto; seções "Ofertas recentes" e "Ofertas próximas"; convite para publicar quando não há ofertas. |
+| Mapa | MapLibre GL (web) com mapas gratuitos do OpenFreeMap. Um marcador por **unidade de supermercado**, nas coordenadas da unidade cadastrada; toque mostra endereço, quantidade de ofertas, principais ofertas e atalho para todas. No app nativo, lista de unidades com atalho para o app de mapas. |
+| Publicar (5 etapas) | Produto (busca nos produtos já cadastrados) → Fotos (até 5; exige etiqueta, placa ou anúncio; recorte e rotação antes do envio; rejeita imagens vazias/formatos inválidos) → Preço (promocional, anterior opcional, unidade, condições especiais, quantidade mínima, datas) → Supermercado (busca, distância, sugestão de novo estabelecimento para análise) → Localização. |
+| Localização | Capturada no momento da publicação, com precisão exibida e opção de aguardar mais precisão. O **servidor** recalcula a distância até a unidade (raio padrão 200 m, configurável por unidade e em `marketplace_settings`), recusa leituras com mais de 5 minutos e **descarta as coordenadas** — só distância e precisão são gravadas. Sem localização (ou fora do raio), a oferta vai para análise. |
+| Verificação | Indicadores **separados**: localização compatível · comprovada por foto (moderação) · confirmada pela comunidade (3 pessoas diferentes, contas com mais de 24 h) · verificada pela moderação. Nunca há um selo genérico. Desconto só é mostrado quando o preço anterior foi comprovado. |
+| Comunidade | "Encontrei", "preço correto", "preço diferente" (com o valor), "acabou", "não encontrei"; foto opcional. Uma resposta por pessoa por oferta (atualizável após 24 h), autor não confirma a própria, limite diário. |
+| Duplicidade | Publicação idêntica (mesma unidade, produto, preço, unidade de venda, condições e validade) é desviada para a oferta existente; ofertas parecidas são mostradas antes de publicar; diferenças legítimas são aceitas. |
+| Validade | Status: rascunho, aguardando análise, publicada, verificada parcialmente, confirmada pela comunidade, contestada, expirada, removida. Ofertas vencidas somem das buscas imediatamente; `expire_promotions()` atualiza o status (pg_cron a cada 15 min). Histórico de status preservado. |
+| Denúncias e moderação | 9 motivos; 3 denúncias deixam a oferta **contestada** (revisão, não remoção). Painel em Perfil → Painel de moderação (só administradores): denúncias, ofertas em análise, estabelecimentos sugeridos, fotos, verificações de localização (distância/precisão), histórico, aprovar/suspender/remover/restaurar, aceitar/rejeitar foto, suspender conta; todas as decisões registradas. |
+| Reputação | Novo colaborador → ativo → confiável → destaque. Pesa ofertas confirmadas e preços corretos; denúncias procedentes e remoções reduzem. Colaboradores confiáveis publicam sem localização sem passar por análise. |
+| Notificações | Geradas pelo banco apenas a partir de eventos reais: oferta nova na cidade escolhida, categoria/produto favorito, oferta confirmada/contestada, resposta da moderação, favorita perto de vencer. Caixa de avisos no app; push via Edge Function `send-push` (Expo Push). |
+
+### Configuração do marketplace
+
+1. Aplique as migrações (`npx supabase db push`): `20261109120000_marketplace.sql` cria tabelas, funções, RLS, o bucket privado `promotion-images` e, se o projeto tiver **pg_cron**, as tarefas de expiração e retenção. Sem pg_cron, agende `select public.expire_promotions()` (a cada 15 min), `public.purge_stale_drafts()` (diária) e `public.purge_old_promotions()` (mensal) pelo painel do Supabase (Integrations → Cron).
+2. Crie o primeiro administrador no *SQL Editor*:
+
+```sql
+insert into public.app_admins (user_id) select id from auth.users where email = 'SEU-EMAIL';
+```
+
+3. Cadastre os supermercados: pelo app (Publicar → "Não encontrei: sugerir estabelecimento") e aprove em **Painel de moderação → Lojas**, definindo raio e logotipo. O banco começa **sem** estabelecimentos — não há dados inventados.
+4. Push (opcional): rode `npx eas-cli@latest init` (gera o `projectId` usado pelo Expo Push), publique a função e agende a chamada:
+
+```bash
+npx supabase secrets set PUSH_CRON_SECRET=uma-senha-longa-aleatoria
+```
+
+```bash
+npx supabase functions deploy send-push --no-verify-jwt
+```
+
+   Agende uma requisição `POST https://SEU-PROJETO.supabase.co/functions/v1/send-push` com `Authorization: Bearer <PUSH_CRON_SECRET>` a cada 5 minutos (Supabase Cron + pg_net). Na web os avisos ficam na caixa do app.
+5. Parâmetros (raio, precisão máxima, confirmações necessárias, limites diários): tabela `marketplace_settings` (editável por administradores).
+
+### Limitações do marketplace
+
+- **GPS não é prova.** A localização pode ser falsificada em aparelhos modificados e não garante que a promoção exista nem que a pessoa estava dentro da loja. Por isso é apenas um indicador entre outros (foto, confirmações independentes, reputação, moderação).
+- **Mapa:** no app nativo o mapa interativo exigiria o MapLibre nativo em um build próprio; hoje o app nativo mostra a lista de unidades com atalho para o app de mapas. Na web o fundo do mapa depende do OpenFreeMap (gratuito, sem garantia de disponibilidade).
+- **Endereço → coordenadas:** não há geocodificação automática (evita serviço pago). A posição da loja vem do GPS de quem está nela ou do toque no mapa (web) e é revisada pela moderação.
+- **Arquivos de fotos removidas:** a retenção apaga os registros do banco; os arquivos correspondentes no Storage devem ser limpos periodicamente pela API do Storage (ainda não automatizado).
+- **Sem PostGIS:** distâncias são calculadas por Haversine em SQL com índice simples de latitude/longitude — adequado para escala de cidade. Para grande volume, migrar para PostGIS (`geography` + índice GiST).
+
 ## Configurar o Supabase
 
 1. Crie um projeto em <https://supabase.com>.
@@ -284,11 +336,14 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 
 | Tipo | Situação |
 |---|---|
-| **Automatizados — regras de negócio e persistência (Jest)** | 73 testes, todos passando. Cobrem os 20 itens exigidos (adição/remoção/quantidade, repetição técnica, compra intencional de 2 unidades, subtotais, total, arredondamento, peso, descontos, leitura incompleta, quantidade/preço diferentes, ausentes no carrinho/na nota, descrições diferentes, recuperação após fechar o app, offline/sincronização, permissão da câmera) e os 5 exemplos do enunciado. |
+| **Automatizados — regras de negócio e persistência (Jest)** | 82 testes (73 do app de conferência + 9 do marketplace: distância, prévia de proximidade, permissão de localização, indicadores separados, desconto só comprovado, datas, validação das etapas, imagens), todos passando. Cobrem os 20 itens exigidos (adição/remoção/quantidade, repetição técnica, compra intencional de 2 unidades, subtotais, total, arredondamento, peso, descontos, leitura incompleta, quantidade/preço diferentes, ausentes no carrinho/na nota, descrições diferentes, recuperação após fechar o app, offline/sincronização, permissão da câmera) e os 5 exemplos do enunciado. |
 | **Automatizados — banco (PGlite + migração real)** | 8 testes, todos passando: isolamento entre usuários, `user_id` forjado, sobrescrita/exclusão de dados alheios, vínculo a compra de outro usuário, conflito de versão, restrições de valores, exclusão de conta. |
 | **Compilação** | `tsc` sem erros; ESLint sem avisos; bundles Hermes de Android e iOS gerados com `expo export`. |
 | **Simulado (navegador)** | Build web executado no Chromium (390×844) com SQLite real: nova compra, digitação de código, cadastro de produto desconhecido, diálogo de leitura repetida, carrinho, cupom digitado, conferência (vermelho → amarelo após “Confirmar que comprei 3 un”). Sem câmera no ambiente. |
-| **Edge Function** | Tipagem verificada contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
+| **Marketplace — banco (PGlite + migração real)** | 31 testes, todos passando, cobrindo os 22 itens exigidos: publicação, fotos (vazia, formato, caminho, limite de 5, evidência obrigatória), seleção e sugestão de estabelecimento/unidade, GPS dentro/fora do raio, baixa precisão, sem localização e leitura antiga, publicação manual em análise, consultas por cidade/distância/categoria/supermercado/preço, mapa por unidade, expiração e retenção, confirmação comunitária (contas novas não contam, sem auto-confirmação, sem repetição), denúncias e contestação, moderação e registro, duplicidade, coordenadas privadas, permissões administrativas, RLS, limites diários, notificações e reputação. |
+| **Contrato app × banco** | 3 testes: todas as funções e parâmetros usados por `src/services/marketplace.ts` existem no banco; todos os campos enviados são lidos; colunas das tabelas acessadas existem. |
+| **Ponta a ponta (navegador)** | `npm run test:e2e`: app web real + servidor local que imita o Supabase sobre o PostgreSQL real. 11 passos passando: visitante sem ofertas, publicação com foto/recorte/GPS compatível, GPS longe (análise), outra pessoa vê com indicadores separados, confirmação, favoritar e denunciar, duplicidade desviada, moderação (denúncia, foto, aprovação), mapa por unidade, nenhuma coordenada gravada, expiração. Câmera e GPS simulados pelo Chromium. |
+| **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |
 

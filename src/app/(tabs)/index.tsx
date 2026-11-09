@@ -80,7 +80,7 @@ export default function Home() {
             </View>
             <Row>
               <Button title="Escanear" icon="barcode-outline" kind="confirm" onPress={() => router.push('/scan')} style={{ flex: 1 }} />
-              <Button title="Carrinho" icon="cart-outline" kind="secondary" onPress={() => router.push('/cart')} style={{ flex: 1 }} />
+              <Button title="Carrinho" icon="cart-outline" kind="secondary" onPress={() => router.push('/purchases')} style={{ flex: 1 }} />
             </Row>
             <Button
               title="Conferir a nota desta compra"
@@ -104,8 +104,21 @@ export default function Home() {
           />
         </View>
 
+        <Card onPress={() => router.push('/offers')} accessibilityLabel="Ver ofertas da comunidade">
+          <Row>
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="pricetags-outline" size={22} color={colors.green} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <T v="bodyStrong">Ofertas da comunidade</T>
+              <T v="small" color={colors.textMuted}>Promoções encontradas por pessoas da sua região. Compartilhe as que você achar.</T>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
+          </Row>
+        </Card>
+
         {withIssues.length ? (
-          <Card onPress={() => router.push('/history')} accessibilityLabel="Ver divergências anteriores">
+          <Card onPress={() => router.push({ pathname: '/purchases', params: { view: 'history' } })} accessibilityLabel="Ver divergências anteriores">
             <Row>
               <Ionicons name="alert-circle" size={22} color={colors.yellow} />
               <View style={{ flex: 1 }}>
@@ -119,7 +132,7 @@ export default function Home() {
           </Card>
         ) : null}
 
-        <SectionTitle action={recent.length ? <Button title="Ver tudo" kind="ghost" compact onPress={() => router.push('/history')} /> : null}>
+        <SectionTitle action={recent.length ? <Button title="Ver tudo" kind="ghost" compact onPress={() => router.push({ pathname: '/purchases', params: { view: 'history' } })} /> : null}>
           Últimas compras
         </SectionTitle>
         <Card style={{ paddingVertical: space.xs }}>

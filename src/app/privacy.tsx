@@ -15,6 +15,17 @@ const SECTIONS: { title: string; body: string[] }[] = [
       'Dados das suas compras que você registra: produtos, códigos de barras, quantidades, preços, estabelecimento e data.',
       'Dados extraídos de cupons fiscais que você fotografa: itens, valores, CNPJ do estabelecimento, data e chave de acesso. Não coletamos seu CPF; se ele estiver impresso no cupom, não é salvo pelo aplicativo.',
       'Se você criar uma conta: e-mail e senha (a senha é guardada de forma protegida pelo provedor de autenticação, nunca em texto).',
+      'Se você usar o marketplace de ofertas: as promoções que publicar (produto, preço, condições, supermercado, fotos), suas confirmações, denúncias e favoritos, e suas preferências de avisos (cidade e categorias).',
+    ],
+  },
+  {
+    title: 'Marketplace de ofertas e localização',
+    body: [
+      'Ao publicar ou confirmar uma oferta, o aplicativo pode pedir sua localização naquele momento. Ela é enviada ao servidor apenas para calcular a distância até o supermercado escolhido e é descartada em seguida: guardamos somente a distância e a precisão do GPS, nunca suas coordenadas, e não mantemos histórico de localização.',
+      'Para outras pessoas, a oferta mostra apenas a unidade do supermercado, a distância aproximada dela e o seu nível de colaborador. Seu nome, e-mail e localização não são exibidos.',
+      'As fotos que você anexa a uma oferta publicada ficam guardadas na nuvem e podem ser vistas por outras pessoas enquanto a oferta estiver visível. Fotos de confirmação ficam visíveis só para você e para a moderação.',
+      'A localização é um sinal de confiança, não uma prova: ela pode ser adulterada e não garante que a promoção exista. Por isso também usamos fotos, confirmações de outras pessoas e moderação.',
+      'Ofertas encerradas são apagadas após 12 meses; rascunhos não publicados, após 2 dias. Você pode encerrar suas ofertas a qualquer momento.',
     ],
   },
   {
@@ -22,7 +33,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
     body: [
       'Sem conta, tudo fica apenas no seu aparelho.',
       'Com conta, os dados são sincronizados com o banco de dados do Confere Aí (Supabase), com acesso restrito a você por regras de segurança por usuário.',
-      'As fotos de cupons não são enviadas para a nuvem para armazenamento. Elas ficam no aparelho até a leitura e são apagadas em seguida. Fotos de embalagens que você tirar ficam apenas no aparelho.',
+      'As fotos de cupons não são enviadas para a nuvem para armazenamento. Elas ficam no aparelho até a leitura e são apagadas em seguida. Fotos de embalagens que você tirar ficam apenas no aparelho. (Fotos de ofertas publicadas no marketplace são tratadas na seção própria.)',
     ],
   },
   {

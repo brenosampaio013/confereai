@@ -83,6 +83,7 @@ RECURSOS
 • Histórico de compras e de preços de cada produto
 • Funciona sem internet no supermercado
 • Conta opcional para guardar os dados na nuvem
+• Ofertas da comunidade: publique promoções encontradas na loja, com foto e verificação de localização, e confirme as de outras pessoas
 
 PRIVACIDADE
 Sem conta, seus dados ficam só no seu celular. As fotos dos cupons não são guardadas na nuvem e só são enviadas para leitura com a sua autorização.
@@ -133,9 +134,11 @@ O mesmo contato aparece dentro do app (padrão em `src/lib/config.ts`; pode ser 
 |---|---|---|---|---|---|
 | Informações pessoais → **Endereço de e-mail** | Sim | Não | Não | Opcional (só com conta) | Funcionalidade do app; gerenciamento da conta |
 | Informações financeiras → **Histórico de compras** | Sim | Não | Não | Opcional (só com conta) | Funcionalidade do app |
-| Fotos e vídeos → **Fotos** | Sim | Não | **Sim** (só para extrair o texto) | Opcional | Funcionalidade do app |
+| Fotos e vídeos → **Fotos** | Sim | Não | Cupons: **sim** (só para extrair o texto). Ofertas do marketplace: não (ficam guardadas e visíveis a outros usuários, por ação do próprio usuário) | Opcional | Funcionalidade do app |
+| Local → **Local exato** | Sim | Não | **Sim** (usado só para calcular a distância até a loja; as coordenadas não são guardadas) | Opcional | Funcionalidade do app; prevenção de fraude |
+| Atividade no app → **Outros conteúdos gerados pelo usuário** | Sim | Não | Não | Opcional | Funcionalidade do app (ofertas, confirmações, denúncias) |
 
-"Compartilhado = Não" porque Supabase, Anthropic e Google Cloud atuam como **prestadores de serviço** em nome do app, o que a política do Google não considera compartilhamento. Não marque localização, contatos, IDs de dispositivo, dados de uso ou registros de falha: o app não os coleta.
+"Compartilhado = Não" porque Supabase, Anthropic e Google Cloud atuam como **prestadores de serviço** em nome do app, o que a política do Google não considera compartilhamento. Ofertas publicadas no marketplace ficam visíveis a outros usuários por ação de quem publica (o Google não considera isso compartilhamento com terceiros). Não marque contatos, IDs de dispositivo, dados de uso ou registros de falha: o app não os coleta. Se publicar **sem** o marketplace configurado, retire as linhas de localização e de conteúdo gerado pelo usuário.
 
 **B) Publicando sem Supabase (somente no aparelho)**
 
