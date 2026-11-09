@@ -1,0 +1,44 @@
+# Publicação da versão web (PWA) do Confere Aí na Netlify.
+# Conecte o repositório em app.netlify.com: build e deploy são automáticos a cada push no master.
+
+[build]
+  # URL é definida pela Netlify durante o build (endereço do site): usada nos links compartilhados.
+  command = "EXPO_PUBLIC_WEB_URL=$URL node scripts/build-web.mjs"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Rotas do app (ex.: /offers/123) abertas diretamente
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Isolamento entre origens: necessário para o banco local (SQLite) funcionar no navegador.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(self), geolocation=(self), microphone=()"
+
+# Página e service worker sempre atualizados; arquivos com hash podem ficar em cache.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/_expo/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

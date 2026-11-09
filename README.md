@@ -13,7 +13,8 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 3. [Arquitetura e pastas](#arquitetura-e-pastas)
 4. [Como executar](#como-executar)
 5. [Abrir no celular (câmera)](#abrir-no-celular)
-6. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
+6. [Publicar na Netlify](#publicar-na-netlify)
+7. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
 7. [Configurar o Supabase](#configurar-o-supabase)
 7. [Configurar o OCR / IA](#configurar-o-ocr--ia)
 8. [Testes](#testes)
@@ -160,6 +161,16 @@ Para gerar e testar localmente:
 ```bash
 npm run build:web
 ```
+
+## Publicar na Netlify
+
+O arquivo `netlify.toml` já tem tudo: comando de build, pasta publicada, rotas do app e os cabeçalhos de isolamento de que o banco local precisa (na Netlify a página abre direto, sem o recarregamento da primeira visita que o GitHub Pages exige).
+
+1. Em <https://app.netlify.com>: **Add new site → Import an existing project → GitHub** e escolha `brenosampaio013/confereai`. Os campos de build já vêm do `netlify.toml`; não altere.
+2. Para o marketplace e a leitura de cupons, em **Site configuration → Environment variables** cadastre `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` (os mesmos do `.env`) e faça um novo deploy (**Deploys → Trigger deploy**). Sem elas, o app funciona só no aparelho.
+3. Cada push no `master` publica uma nova versão automaticamente.
+
+No celular, abra o endereço `https://<seu-site>.netlify.app` no Chrome e use **Instalar app**.
 
 ## Marketplace colaborativo de ofertas
 
