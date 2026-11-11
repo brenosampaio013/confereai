@@ -13,12 +13,14 @@ const APP = 'http://localhost:8090/confereai';
 const API = 'http://localhost:8091';
 const sql = async (q, params = []) => (await fetch(`${API}/__debug/sql`, { method: 'POST', body: JSON.stringify({ sql: q, params }) })).json();
 const results = [];
+let currentPage = null;
 const step = async (name, fn) => {
   try {
     await fn();
     results.push(`ok   ${name}`);
   } catch (e) {
     results.push(`FAIL ${name}: ${e.message.split('\n')[0]}`);
+    if (currentPage) await currentPage.screenshot({ path: join(OUT, 'falha.png') }).catch(() => {});
     throw e;
   }
 };
@@ -75,6 +77,7 @@ async function addManual(page, name, price) {
 try {
   const alice = await session('alice@teste.local', 'senha-teste-1');
   const { page, dialogs } = alice;
+  currentPage = page;
 
   await step('define o orçamento ao começar a compra', async () => {
     await page.goto(`${APP}/`);
