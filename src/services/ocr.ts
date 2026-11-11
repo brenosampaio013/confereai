@@ -4,6 +4,8 @@
  * Supabase do próprio projeto, que chama o provedor configurado e devolve apenas o texto.
  */
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import { parseLabel } from '@/domain/labelParser';
+import { type CaptureReading, normalizeProductCapture, type RawProductCapture } from '@/domain/productCapture';
 import { getSupabase } from './supabase';
 import { isOnline } from './network';
 
@@ -24,6 +26,8 @@ export class OcrError extends Error {
 export interface OcrResult {
   provider: string;
   parts: { lines: string[] }[];
+  /** Campos identificados na foto do produto com a etiqueta (kind = 'product'). */
+  product?: RawProductCapture;
 }
 
 /** Reduz e comprime a foto antes do envio (menos dados móveis, sem perder legibilidade). */
@@ -48,7 +52,7 @@ export async function ensureSession(): Promise<void> {
   }
 }
 
-export async function runOcr(kind: 'receipt' | 'label', imageUris: string[]): Promise<OcrResult> {
+export async function runOcr(kind: 'receipt' | 'label' | 'product', imageUris: string[]): Promise<OcrResult> {
   const sb = getSupabase();
   if (!sb) throw new OcrError('not_configured', 'O serviço de leitura automática não está configurado neste aplicativo.');
   if (!(await isOnline())) {
@@ -80,4 +84,26 @@ export async function runOcr(kind: 'receipt' | 'label', imageUris: string[]): Pr
   }
   if (!data || !Array.isArray(data.parts)) throw new OcrError('service_error', 'Resposta inesperada do serviço de leitura.');
   return data;
+}
+
+/**
+ * Lê a foto do produto com a etiqueta de preço. O resultado é sempre uma sugestão para
+ * o usuário conferir. Se o provedor só transcreve texto (Google Vision), a etiqueta é
+ * interpretada pelas regras do aplicativo e o nome/marca ficam para o usuário completar.
+ */
+export async function readProductPhoto(uri: string): Promise<{ reading: CaptureReading; lines: string[]; provider: string }> {
+  const res = await runOcr('product', [uri]);
+  const lines = res.parts[0]?.lines ?? [];
+  if (res.product) return { reading: normalizeProductCapture(res.product), lines, provider: res.provider };
+  const label = parseLabel(lines);
+  return {
+    reading: {
+      ...label,
+      association: 'uncertain',
+      uncertain: [],
+      notes: [...label.notes, 'A leitura trouxe apenas o texto da etiqueta. Confira o nome, a marca e o peso do produto.'],
+    },
+    lines,
+    provider: res.provider,
+  };
 }

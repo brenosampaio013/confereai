@@ -83,6 +83,10 @@ RECURSOS
 • Histórico de compras e de preços de cada produto
 • Funciona sem internet no supermercado
 • Conta opcional para guardar os dados na nuvem
+• Orçamento da compra: informe quanto pretende gastar e acompanhe o saldo em tempo real, com avisos antes de passar do limite
+• Foto do produto com a etiqueta: nome, marca, peso e preço lidos para você conferir
+• Histórico de preços por supermercado e comparação de onde está mais barato
+• Minhas compras e resumo de gastos do mês
 • Ofertas da comunidade: publique promoções encontradas na loja, com foto e verificação de localização, e confirme as de outras pessoas
 
 PRIVACIDADE
@@ -133,10 +137,10 @@ O mesmo contato aparece dentro do app (padrão em `src/lib/config.ts`; pode ser 
 | Tipo de dado | Coletado | Compartilhado | Processamento temporário | Obrigatório? | Finalidade |
 |---|---|---|---|---|---|
 | Informações pessoais → **Endereço de e-mail** | Sim | Não | Não | Opcional (só com conta) | Funcionalidade do app; gerenciamento da conta |
-| Informações financeiras → **Histórico de compras** | Sim | Não | Não | Opcional (só com conta) | Funcionalidade do app |
+| Informações financeiras → **Histórico de compras** (inclui o orçamento de cada compra) | Sim | Não | Não | Opcional (só com conta) | Funcionalidade do app |
 | Fotos e vídeos → **Fotos** | Sim | Não | Cupons: **sim** (só para extrair o texto). Ofertas do marketplace: não (ficam guardadas e visíveis a outros usuários, por ação do próprio usuário) | Opcional | Funcionalidade do app |
 | Local → **Local exato** | Sim | Não | **Sim** (usado só para calcular a distância até a loja; as coordenadas não são guardadas) | Opcional | Funcionalidade do app; prevenção de fraude |
-| Atividade no app → **Outros conteúdos gerados pelo usuário** | Sim | Não | Não | Opcional | Funcionalidade do app (ofertas, confirmações, denúncias) |
+| Atividade no app → **Outros conteúdos gerados pelo usuário** | Sim | Não | Não | Opcional | Funcionalidade do app (ofertas, confirmações, denúncias, preços informados à base da comunidade) |
 
 "Compartilhado = Não" porque Supabase, Anthropic e Google Cloud atuam como **prestadores de serviço** em nome do app, o que a política do Google não considera compartilhamento. Ofertas publicadas no marketplace ficam visíveis a outros usuários por ação de quem publica (o Google não considera isso compartilhamento com terceiros). Não marque contatos, IDs de dispositivo, dados de uso ou registros de falha: o app não os coleta. Se publicar **sem** o marketplace configurado, retire as linhas de localização e de conteúdo gerado pelo usuário.
 

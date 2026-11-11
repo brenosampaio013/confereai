@@ -204,6 +204,16 @@ export const LOCAL_MIGRATIONS: string[] = [
   );
   CREATE INDEX IF NOT EXISTS sync_queue_row_idx ON sync_queue(table_name, row_id);
   `,
+  // 2 — orçamento da compra, unidade do supermercado, preço normal × promocional e base de preços
+  `
+  ALTER TABLE purchases ADD COLUMN budget_cents INTEGER;
+  ALTER TABLE purchases ADD COLUMN store_location_id TEXT;
+  ALTER TABLE cart_items ADD COLUMN regular_price_cents INTEGER;
+  ALTER TABLE price_history ADD COLUMN store_location_id TEXT;
+  ALTER TABLE price_history ADD COLUMN regular_price_cents INTEGER;
+  ALTER TABLE price_history ADD COLUMN shared_at TEXT;
+  CREATE INDEX IF NOT EXISTS price_history_unshared_idx ON price_history(shared_at) WHERE shared_at IS NULL;
+  `,
 ];
 
 export async function migrate(db: SqlDriver): Promise<void> {

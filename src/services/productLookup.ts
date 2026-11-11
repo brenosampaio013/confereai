@@ -5,7 +5,8 @@
  *    SUGESTÃO de nome/marca/embalagem para o usuário confirmar; preço nunca vem de fora.
  */
 import { config } from '@/lib/config';
-import { extractPackageMeasure, PackageMeasure } from '@/domain/units';
+import { extractPackageMeasure, formatPackageMeasure, PackageMeasure } from '@/domain/units';
+import { lookupCommunityProduct } from './prices';
 import { isOnline } from './network';
 
 export interface ProductSuggestion {
@@ -13,10 +14,20 @@ export interface ProductSuggestion {
   brand: string | null;
   packageMeasure: PackageMeasure | null;
   quantityText: string | null;
-  source: 'open_food_facts';
+  source: 'open_food_facts' | 'community';
 }
 
+/** Sugestão para um código desconhecido: primeiro a base da comunidade do Confere Aí, depois o Open Food Facts. */
 export async function lookupPublicProduct(barcode: string): Promise<ProductSuggestion | null> {
+  const shared = await lookupCommunityProduct(barcode);
+  if (shared) {
+    const measure = shared.package_amount && shared.package_unit ? { amount: shared.package_amount, unit: shared.package_unit } : null;
+    return { name: shared.name, brand: shared.brand, packageMeasure: measure, quantityText: measure ? formatPackageMeasure(measure) : null, source: 'community' };
+  }
+  return lookupOpenFoodFacts(barcode);
+}
+
+async function lookupOpenFoodFacts(barcode: string): Promise<ProductSuggestion | null> {
   if (!config.openFoodFacts || !/^\d{8,14}$/.test(barcode)) return null;
   if (!(await isOnline())) return null;
   const controller = new AbortController();

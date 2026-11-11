@@ -16,6 +16,7 @@ export function cartItem(p: Partial<CartItem> & { name: string; unitPriceCents: 
     quantityMilli: MILLI,
     discountCents: 0,
     priceSource: 'manual',
+    regularPriceCents: null,
     promoNote: null,
     addedVia: 'scan',
     createdAt: now,

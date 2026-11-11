@@ -12,6 +12,7 @@ import type { CartItem } from '@/domain/types';
 import { formatQuantity, isWeighed, MILLI } from '@/domain/units';
 import { cameraPermissionView } from '@/lib/permissions';
 import { useApp } from '@/state/AppContext';
+import { BudgetStrip } from '@/ui/Budget';
 import { Banner, Button, Field, IconButton, Money, Row, Sheet, T } from '@/ui/components';
 import { colors, radius, space } from '@/ui/theme';
 
@@ -19,7 +20,7 @@ import { colors, radius, space } from '@/ui/theme';
 const BARCODE_TYPES: BarcodeType[] = ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'itf14', 'code39'];
 
 export default function ScanScreen() {
-  const { repo, cart, totals, active, ensureActivePurchase, bump } = useApp();
+  const { repo, cart, totals, active, ensureActivePurchase, bump, budget } = useApp();
   const [permission, requestPermission] = useCameraPermissions();
   const [focused, setFocused] = useState(false);
   const [torch, setTorch] = useState(false);
@@ -220,9 +221,11 @@ export default function ScanScreen() {
             </View>
             <T v="small" color={colors.textMuted}>{totals.lineCount} {totals.lineCount === 1 ? 'item' : 'itens'}</T>
           </Row>
+          {budget ? <BudgetStrip status={budget} /> : null}
           <Row>
             <Button title="Digitar código" icon="keypad-outline" kind="secondary" compact onPress={() => setManualOpen(true)} style={{ flex: 1 }} />
-            <Button title="Ver carrinho" icon="cart-outline" compact onPress={() => router.navigate('/purchases')} style={{ flex: 1 }} />
+            <Button title="Foto" icon="camera-outline" kind="secondary" compact onPress={() => { busy.current = true; router.push('/capture'); }} style={{ flex: 1 }} />
+            <Button title="Carrinho" icon="cart-outline" compact onPress={() => router.navigate('/purchases')} style={{ flex: 1 }} />
           </Row>
         </View>
       </SafeAreaView>

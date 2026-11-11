@@ -32,10 +32,14 @@ const site = http.createServer((req, res) => {
 }).listen(8090);
 
 // Assíncrono: o servidor de arquivos acima roda neste mesmo processo.
-const child = spawn(process.execPath, ['e2e/marketplace.e2e.mjs', out], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'] });
-let output = '';
-child.stdout.on('data', (d) => { output += d; process.stdout.write(d); });
-const exit = await new Promise((r) => child.on('close', r));
+let failed = false;
+for (const script of ['e2e/marketplace.e2e.mjs', 'e2e/budget.e2e.mjs']) {
+  const child = spawn(process.execPath, [script, out], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'] });
+  let output = '';
+  child.stdout.on('data', (d) => { output += d; process.stdout.write(d); });
+  const exit = await new Promise((r) => child.on('close', r));
+  if (exit !== 0 || /^FAIL/m.test(output)) failed = true;
+}
 site.close();
 api.kill();
-process.exit(exit !== 0 || /^FAIL/m.test(output) ? 1 : 0);
+process.exit(failed ? 1 : 0);

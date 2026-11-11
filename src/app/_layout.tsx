@@ -41,7 +41,10 @@ export default function RootLayout() {
           <Stack.Screen name="receipt/[id]" options={{ title: 'Revisar leitura do cupom' }} />
           <Stack.Screen name="report/[id]" options={{ title: 'Resultado da conferência' }} />
           <Stack.Screen name="purchase/[id]" options={{ title: 'Detalhes da compra' }} />
-          <Stack.Screen name="product/[id]" options={{ title: 'Produto' }} />
+          <Stack.Screen name="product/[id]" options={{ title: 'Preços do produto' }} />
+          <Stack.Screen name="capture" options={{ title: 'Foto do produto e preço' }} />
+          <Stack.Screen name="prices" options={{ title: 'Preços registrados' }} />
+          <Stack.Screen name="compare" options={{ title: 'Comparar compras' }} />
           <Stack.Screen name="auth" options={{ title: 'Sua conta', presentation: 'modal' }} />
           <Stack.Screen name="privacy" options={{ title: 'Privacidade' }} />
           <Stack.Screen name="offers/publish" options={{ title: 'Publicar promoção' }} />

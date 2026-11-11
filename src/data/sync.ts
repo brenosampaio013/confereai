@@ -28,6 +28,7 @@ export interface SyncResult {
 /** Colunas que existem apenas no aparelho e não são enviadas. */
 const LOCAL_ONLY: Partial<Record<SyncedTable, string[]>> = {
   products: ['image_uri'],
+  price_history: ['shared_at'],
 };
 
 const BOOL_COLUMNS: Partial<Record<SyncedTable, string[]>> = {

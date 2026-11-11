@@ -223,10 +223,23 @@ npx supabase functions deploy send-push --no-verify-jwt
 - **Arquivos de fotos removidas:** a retenção apaga os registros do banco; os arquivos correspondentes no Storage devem ser limpos periodicamente pela API do Storage (ainda não automatizado).
 - **Sem PostGIS:** distâncias são calculadas por Haversine em SQL com índice simples de latitude/longitude — adequado para escala de cidade. Para grande volume, migrar para PostGIS (`geography` + índice GiST).
 
+## Orçamento, preços e histórico de gastos
+
+- **Orçamento da compra.** Ao iniciar a compra, o app pergunta quanto você pretende gastar (opcional; pode ser definido ou alterado depois). A cada item adicionado, removido ou alterado, mostra orçamento, total, saldo e percentual usado no carrinho, no leitor e na tela inicial. Avisos em 75% e 85% (configuráveis), ao atingir 100% e sempre que ultrapassar, informando o excesso. O aviso só dispara quando o gasto **sobe** de faixa. Cálculo em centavos inteiros (`src/domain/budget.ts`).
+- **Foto do produto com a etiqueta.** Tela `/capture`: a foto é enviada à Edge Function `receipt-ocr` (`kind: "product"`), que identifica nome, marca, peso, código de barras, preço normal, promocional, preço por kg/L, condições e se a etiqueta parece ser daquele produto. A IA copia os textos como impressos; a conversão para centavos e as validações são do app (`src/domain/productCapture.ts`). O resultado apenas preenche o formulário, que o usuário confere e corrige antes de salvar. Dá para adicionar ao carrinho ou só registrar o preço.
+- **Histórico de preços por supermercado.** Cada preço guarda data, loja, unidade cadastrada (quando escolhida), promoção e preço normal. A tela do produto mostra o último preço, o preço em cada supermercado, onde está mais barato e a evolução. Preços com mais de 30 dias são marcados como antigos e **não** entram na comparação.
+- **Base de preços da comunidade.** Com conta e compra vinculada a uma unidade cadastrada, os preços registrados são enviados à base compartilhada (pode ser desligado no Perfil). Qualquer pessoa consulta o último preço por unidade; ninguém vê quem informou. Um código de barras já cadastrado por alguém vira sugestão de cadastro para os demais. Não depende de base prévia de produtos.
+- **Minhas compras.** Toda compra fica salva com data e horário, supermercado e unidade, produtos, quantidades, preços, descontos, total, orçamento planejado e diferença. É possível comparar duas compras (preço dos produtos em comum).
+- **Resumo financeiro.** Total do mês, número de compras, média, maior compra, economia registrada (descontos + diferença entre preço normal e promocional), comparação com o mês anterior, gasto por mês e por supermercado.
+
+A migração `supabase/migrations/20261111120000_budget_prices.sql` precisa ser aplicada **antes** de publicar esta versão do app: a sincronização envia as colunas novas (`budget_cents`, `store_location_id`, `regular_price_cents`). Depois, reimplante a função: `npx supabase functions deploy receipt-ocr`.
+
+Limites desta parte: a leitura por IA pode errar e depende de internet e do provedor configurado (com Google Vision só o texto da etiqueta é interpretado; nome e marca ficam para digitar); os preços da comunidade não são verificados; a base compartilhada só recebe preços de unidades cadastradas e aprovadas no marketplace; os percentuais de alerta ficam guardados no aparelho (não sincronizam).
+
 ## Configurar o Supabase
 
 1. Crie um projeto em <https://supabase.com>.
-2. Aplique a migração (`supabase/migrations/20261030120000_initial_schema.sql`). Pelo CLI:
+2. Aplique as migrações de `supabase/migrations/` (as três, em ordem). Pelo CLI:
 
 ```bash
 npx supabase login
@@ -254,7 +267,7 @@ A chave `anon` é pública; a proteção dos dados vem das políticas RLS. **Nun
 
 ## Configurar o OCR / IA
 
-A leitura de cupons e etiquetas passa pela Edge Function `receipt-ocr`, que devolve **somente o texto transcrito**. A interpretação dos valores é feita pelo parser determinístico do app.
+A leitura de cupons e etiquetas passa pela Edge Function `receipt-ocr`, que devolve **somente o texto transcrito**. A interpretação dos valores é feita pelo parser determinístico do app. Para a foto do produto com a etiqueta (`kind: "product"`), a função devolve também os campos identificados, como texto impresso; o app converte e valida.
 
 ```bash
 cp supabase/functions/.env.example supabase/functions/.env
@@ -354,7 +367,10 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Marketplace — banco (PGlite + migração real)** | 31 testes, todos passando, cobrindo os 22 itens exigidos: publicação, fotos (vazia, formato, caminho, limite de 5, evidência obrigatória), seleção e sugestão de estabelecimento/unidade, GPS dentro/fora do raio, baixa precisão, sem localização e leitura antiga, publicação manual em análise, consultas por cidade/distância/categoria/supermercado/preço, mapa por unidade, expiração e retenção, confirmação comunitária (contas novas não contam, sem auto-confirmação, sem repetição), denúncias e contestação, moderação e registro, duplicidade, coordenadas privadas, permissões administrativas, RLS, limites diários, notificações e reputação. |
 | **Contrato app × banco** | 3 testes: todas as funções e parâmetros usados por `src/services/marketplace.ts` existem no banco; todos os campos enviados são lidos; colunas das tabelas acessadas existem. |
 | **Ponta a ponta (navegador)** | `npm run test:e2e`: app web real + servidor local que imita o Supabase sobre o PostgreSQL real. 11 passos passando: visitante sem ofertas, publicação com foto/recorte/GPS compatível, GPS longe (análise), outra pessoa vê com indicadores separados, confirmação, favoritar e denunciar, duplicidade desviada, moderação (denúncia, foto, aprovação), mapa por unidade, nenhuma coordenada gravada, expiração. Câmera e GPS simulados pelo Chromium. |
-| **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
+| **Orçamento, preços e gastos — Jest** | 30 testes novos (112 no total), todos passando: faixas exatas de 75/85/100%, limites configuráveis, alerta só ao subir de faixa, carrinho com quantidade/peso/desconto, resumo mensal, série por mês, gasto por supermercado, economia, comparação de compras, preço antigo fora da comparação, normalização da leitura por foto, persistência do orçamento, migração do banco local da versão anterior. |
+| **Orçamento, preços e gastos — banco** | 12 testes novos (55 no total), todos passando: isolamento das compras/orçamento entre usuários, restrições, base compartilhada acessível só por funções, sem identificação de quem informou, idempotência, limite diário, dados inválidos, unidade não aprovada, preço antigo, exclusão de conta, contrato app × banco. |
+| **Orçamento, preços e gastos — ponta a ponta** | 11 passos novos em `npm run test:e2e` (22 no total), todos passando: orçamento ao iniciar, saldo a cada item, avisos em 80%, 100% e 120%, sem aviso ao diminuir, unidade cadastrada, foto → formulário de conferência, Minhas compras, resumo, envio à base da comunidade, isolamento entre contas. **A leitura por IA é simulada** pelo servidor de teste (resposta fixa no formato da função real). |
+| **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada (a parte nova de leitura de produto por foto segue o mesmo padrão de chamada, mas não foi verificada nem executada) contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |
 

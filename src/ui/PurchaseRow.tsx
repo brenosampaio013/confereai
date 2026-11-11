@@ -17,7 +17,7 @@ export function purchaseStatusPill(s: PurchaseSummary) {
 }
 
 export function PurchaseRow({ s }: { s: PurchaseSummary }) {
-  const total = s.receiptTotalCents ?? s.cartTotalCents;
+  const total = s.finalTotalCents;
   return (
     <Pressable
       onPress={() => router.push(`/purchase/${s.purchase.id}`)}
@@ -34,7 +34,12 @@ export function PurchaseRow({ s }: { s: PurchaseSummary }) {
           {fmtDate(s.purchase.startedAt)}
           {s.purchase.mode === 'cart' ? ` · ${plural(s.itemCount, 'item', 'itens')}` : ''}
         </T>
-        {purchaseStatusPill(s)}
+        <Row gap={6} style={{ flexWrap: 'wrap' }}>
+          {purchaseStatusPill(s)}
+          {s.budgetDiffCents != null && s.purchase.status !== 'active' ? (
+            <Pill label={s.budgetDiffCents > 0 ? 'Acima do orçamento' : 'Dentro do orçamento'} t={s.budgetDiffCents > 0 ? 'red' : 'green'} icon="wallet-outline" />
+          ) : null}
+        </Row>
       </View>
       <Row gap={4}>
         <Money cents={total} />

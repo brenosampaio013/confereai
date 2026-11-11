@@ -2,13 +2,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { itemNetCents } from '@/domain/cart';
-import { formatBRL } from '@/domain/money';
+import { formatBRL, formatSignedBRL } from '@/domain/money';
 import { PRICE_SOURCE_LABEL } from '@/domain/types';
 import { formatQuantity } from '@/domain/units';
 import { fmtDateTime } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
 import { useApp } from '@/state/AppContext';
-import { Banner, Button, Card, Divider, Field, KeyValue, Loading, Money, Row, Screen, SectionTitle, Sheet, T } from '@/ui/components';
+import { Banner, Button, Card, Divider, KeyValue, Loading, Money, Row, Screen, SectionTitle, T } from '@/ui/components';
+import { BudgetSheet } from '@/ui/Budget';
+import { StoreSheet } from '@/ui/StoreSheet';
 import { purchaseStatusPill } from '@/ui/PurchaseRow';
 import { colors, space } from '@/ui/theme';
 import { showAlert } from '@/lib/dialog';
@@ -27,9 +29,9 @@ const EVENT_LABEL: Record<string, string> = {
 
 export default function PurchaseDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { repo, bump, version } = useApp();
+  const { repo, bump, version, thresholds, setThresholds } = useApp();
+  const [budgetOpen, setBudgetOpen] = useState(false);
   const [storeOpen, setStoreOpen] = useState(false);
-  const [store, setStore] = useState('');
   const [showEvents, setShowEvents] = useState(false);
   const { data } = useLoad(async () => {
     const s = await repo.getPurchaseSummary(id);
@@ -65,12 +67,36 @@ export default function PurchaseDetail() {
       <Card>
         <Row style={{ justifyContent: 'space-between' }}>
           <T v="title" style={{ flex: 1 }}>{p.storeName || (p.mode === 'cart' ? 'Compra' : 'Conferência de nota')}</T>
-          <Button title="Editar" kind="ghost" compact onPress={() => { setStore(p.storeName ?? ''); setStoreOpen(true); }} />
+          <Button title="Editar" kind="ghost" compact onPress={() => setStoreOpen(true)} />
         </Row>
         {purchaseStatusPill(s)}
-        <KeyValue label="Início" value={fmtDateTime(p.startedAt)} />
+        <KeyValue label="Data e horário" value={fmtDateTime(p.startedAt)} />
+        {p.closedAt ? <KeyValue label="Encerrada em" value={fmtDateTime(p.closedAt)} /> : null}
+        <KeyValue label="Supermercado" value={p.storeName ? `${p.storeName}${p.storeLocationId ? ' (unidade cadastrada)' : ''}` : 'Não informado'} />
         {p.mode === 'cart' ? <KeyValue label="Total registrado" value={formatBRL(s.cartTotalCents)} /> : null}
-        <KeyValue label="Total da nota" value={s.receiptTotalCents != null ? formatBRL(s.receiptTotalCents) : 'Nota não conferida'} strong />
+        {s.discountCents ? <KeyValue label="Descontos nos itens" value={formatBRL(s.discountCents)} /> : null}
+        {s.savingsCents ? <KeyValue label="Economia registrada" value={formatBRL(s.savingsCents)} /> : null}
+        <KeyValue label="Total da nota" value={s.receiptTotalCents != null ? formatBRL(s.receiptTotalCents) : 'Nota não conferida'} />
+        <KeyValue label="Total da compra" value={formatBRL(s.finalTotalCents)} strong />
+      </Card>
+
+      <Card>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <T v="heading">Orçamento</T>
+          <Button title={p.budgetCents ? 'Alterar' : 'Informar'} kind="ghost" compact onPress={() => setBudgetOpen(true)} />
+        </Row>
+        {p.budgetCents ? (
+          <>
+            <KeyValue label="Orçamento planejado" value={formatBRL(p.budgetCents)} />
+            <KeyValue label="Valor final" value={formatBRL(s.finalTotalCents)} />
+            <KeyValue
+              label={s.budgetDiffCents! > 0 ? 'Acima do orçamento' : 'Sobrou do orçamento'}
+              value={<T v="bodyStrong" color={s.budgetDiffCents! > 0 ? colors.redText : colors.greenText}>{s.budgetDiffCents! > 0 ? formatSignedBRL(s.budgetDiffCents!) : formatBRL(-s.budgetDiffCents!)}</T>}
+            />
+          </>
+        ) : (
+          <T color={colors.textMuted}>Nenhum orçamento foi definido para esta compra.</T>
+        )}
       </Card>
 
       {s.latestReportId ? (
@@ -93,7 +119,12 @@ export default function PurchaseDetail() {
                 <Pressable onPress={() => router.push(`/item/${it.id}`)} style={{ flexDirection: 'row', paddingVertical: space.md, gap: space.md, alignItems: 'center' }} accessibilityRole="button" accessibilityLabel={`Editar ${it.name}`}>
                   <View style={{ flex: 1 }}>
                     <T v="bodyStrong" numberOfLines={1}>{it.name}</T>
-                    <T v="small" color={colors.textMuted}>{formatQuantity(it.quantityMilli, it.saleUnit)} × {formatBRL(it.unitPriceCents)} · {PRICE_SOURCE_LABEL[it.priceSource]}</T>
+                    <T v="small" color={colors.textMuted}>
+                      {formatQuantity(it.quantityMilli, it.saleUnit)} × {formatBRL(it.unitPriceCents)}
+                      {it.discountCents ? ` − desconto ${formatBRL(it.discountCents)}` : ''}
+                      {it.regularPriceCents && it.regularPriceCents > it.unitPriceCents ? ` · promoção (normal ${formatBRL(it.regularPriceCents)})` : ''}
+                      {` · ${PRICE_SOURCE_LABEL[it.priceSource]}`}
+                    </T>
                   </View>
                   <Money cents={itemNetCents(it)} />
                 </Pressable>
@@ -121,10 +152,19 @@ export default function PurchaseDetail() {
 
       <Button title="Excluir compra" icon="trash-outline" kind="danger" onPress={del} />
 
-      <Sheet visible={storeOpen} onClose={() => setStoreOpen(false)} title="Estabelecimento">
-        <Field label="Nome do supermercado" value={store} onChangeText={setStore} autoCapitalize="words" autoFocus />
-        <Button title="Salvar" icon="checkmark" kind="confirm" onPress={async () => { await repo.updatePurchase(id, { storeName: store.trim() || null }); setStoreOpen(false); bump(); }} />
-      </Sheet>
+      <StoreSheet
+        visible={storeOpen}
+        onClose={() => setStoreOpen(false)}
+        initial={{ name: p.storeName, locationId: p.storeLocationId }}
+        onSave={async (c) => { await repo.updatePurchase(id, { storeName: c.name, storeLocationId: c.locationId }); setStoreOpen(false); bump(); }}
+      />
+      <BudgetSheet
+        visible={budgetOpen}
+        onClose={() => setBudgetOpen(false)}
+        initialCents={p.budgetCents}
+        thresholds={thresholds}
+        onSave={async (cents, t) => { await setThresholds(t); await repo.updatePurchase(id, { budgetCents: cents }); setBudgetOpen(false); bump(); }}
+      />
     </Screen>
   );
 }

@@ -7,15 +7,17 @@ import { PRICE_SOURCE_LABEL, type CartItem } from '@/domain/types';
 import { formatQuantity, isWeighed } from '@/domain/units';
 import { fmtTime, plural } from '@/lib/format';
 import { useApp } from '@/state/AppContext';
-import { Button, Card, Divider, EmptyState, Field, Money, Pill, Row, Screen, Sheet, Stepper, T } from '@/ui/components';
+import { BudgetCard, BudgetSheet } from '@/ui/Budget';
+import { Button, Card, Divider, EmptyState, Money, Pill, Row, Screen, Stepper, T } from '@/ui/components';
+import { StoreSheet } from '@/ui/StoreSheet';
 import { colors, space } from '@/ui/theme';
 import { useState } from 'react';
 import { showAlert } from '@/lib/dialog';
 
 export default function CartScreen() {
-  const { repo, active, cart, totals, bump } = useApp();
+  const { repo, active, cart, totals, bump, budget, thresholds, setThresholds } = useApp();
   const [storeOpen, setStoreOpen] = useState(false);
-  const [store, setStore] = useState('');
+  const [budgetOpen, setBudgetOpen] = useState(false);
 
   if (!active) {
     return (
@@ -25,17 +27,22 @@ export default function CartScreen() {
           title="Nenhuma compra em andamento"
           text="Inicie uma compra para registrar os produtos enquanto passa pelo supermercado."
           action={
-            <Button
-              title="Nova compra"
-              icon="add-circle"
-              onPress={async () => {
-                await repo.startPurchase('cart');
-                bump();
-                router.push('/scan');
-              }}
-              style={{ alignSelf: 'stretch', marginTop: space.md }}
-            />
+            <Button title="Nova compra" icon="add-circle" onPress={() => setBudgetOpen(true)} style={{ alignSelf: 'stretch', marginTop: space.md }} />
           }
+        />
+        <BudgetSheet
+          visible={budgetOpen}
+          onClose={() => setBudgetOpen(false)}
+          initialCents={null}
+          thresholds={thresholds}
+          startLabel="Começar a compra"
+          onSave={async (cents, t) => {
+            await setThresholds(t);
+            await repo.startPurchase('cart', null, cents);
+            setBudgetOpen(false);
+            bump();
+            router.push('/scan');
+          }}
         />
       </Screen>
     );
@@ -64,7 +71,7 @@ export default function CartScreen() {
   };
 
   const finish = () => {
-    showAlert('Encerrar compra sem conferir a nota?', 'A compra fica salva no histórico e você pode conferir a nota depois.', [
+    showAlert('Encerrar compra sem conferir a nota?', 'A compra fica salva em Minhas compras e você pode conferir a nota depois.', [
       { text: 'Voltar', style: 'cancel' },
       {
         text: 'Encerrar',
@@ -98,7 +105,22 @@ export default function CartScreen() {
         </>
       }
     >
-      <Card onPress={() => { setStore(active.storeName ?? ''); setStoreOpen(true); }} accessibilityLabel="Informar estabelecimento">
+      {budget ? (
+        <BudgetCard status={budget} onEdit={() => setBudgetOpen(true)} />
+      ) : (
+        <Card onPress={() => setBudgetOpen(true)} accessibilityLabel="Definir orçamento da compra">
+          <Row>
+            <Ionicons name="wallet-outline" size={22} color={colors.navy} />
+            <View style={{ flex: 1 }}>
+              <T v="bodyStrong">Definir orçamento</T>
+              <T v="small" color={colors.textMuted}>Informe quanto pretende gastar e acompanhe o saldo a cada produto</T>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
+          </Row>
+        </Card>
+      )}
+
+      <Card onPress={() => setStoreOpen(true)} accessibilityLabel="Informar estabelecimento">
         <Row>
           <Ionicons name="storefront-outline" size={22} color={colors.navy} />
           <View style={{ flex: 1 }}>
@@ -151,23 +173,35 @@ export default function CartScreen() {
       )}
 
       <Row>
+        <Button title="Foto do produto" icon="camera-outline" kind="secondary" compact onPress={() => router.push('/capture')} style={{ flex: 1 }} />
         <Button title="Item sem código" icon="create-outline" kind="secondary" compact onPress={() => router.push({ pathname: '/item/add', params: { via: 'manual' } })} style={{ flex: 1 }} />
+      </Row>
+      <Row>
         <Button title="Encerrar" icon="flag-outline" kind="ghost" compact onPress={finish} style={{ flex: 1 }} />
       </Row>
 
-      <Sheet visible={storeOpen} onClose={() => setStoreOpen(false)} title="Estabelecimento">
-        <Field label="Nome do supermercado" value={store} onChangeText={setStore} placeholder="Ex.: Mercado do bairro" autoFocus autoCapitalize="words" />
-        <Button
-          title="Salvar"
-          icon="checkmark"
-          kind="confirm"
-          onPress={async () => {
-            await repo.updatePurchase(active.id, { storeName: store.trim() || null });
-            setStoreOpen(false);
-            bump();
-          }}
-        />
-      </Sheet>
+      <StoreSheet
+        visible={storeOpen}
+        onClose={() => setStoreOpen(false)}
+        initial={{ name: active.storeName, locationId: active.storeLocationId }}
+        onSave={async (c) => {
+          await repo.updatePurchase(active.id, { storeName: c.name, storeLocationId: c.locationId });
+          setStoreOpen(false);
+          bump();
+        }}
+      />
+      <BudgetSheet
+        visible={budgetOpen}
+        onClose={() => setBudgetOpen(false)}
+        initialCents={active.budgetCents}
+        thresholds={thresholds}
+        onSave={async (cents, t) => {
+          await setThresholds(t);
+          await repo.updatePurchase(active.id, { budgetCents: cents });
+          setBudgetOpen(false);
+          bump();
+        }}
+      />
     </Screen>
   );
 }

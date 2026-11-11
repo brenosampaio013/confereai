@@ -17,18 +17,21 @@ import { handoff } from '@/state/handoff';
 import { Banner, Button, Card, Field, Loading, Money, Pill, Row, Screen, Segmented, Stepper, T } from '@/ui/components';
 import { colors, space } from '@/ui/theme';
 import { showAlert } from '@/lib/dialog';
+import { budgetMessage, budgetStatus } from '@/domain/budget';
+import { StoreChoice, StoreSheet } from '@/ui/StoreSheet';
 
 export default function AddItem() {
-  const params = useLocalSearchParams<{ barcode?: string; via?: string; newLine?: string }>();
+  const params = useLocalSearchParams<{ barcode?: string; via?: string; newLine?: string; capture?: string }>();
   const barcode = params.barcode && /^\d{6,14}$/.test(params.barcode) ? params.barcode : null;
   const via = params.via === 'manual' ? 'manual' : 'scan';
-  const { repo, ensureActivePurchase, bump } = useApp();
+  const { repo, ensureActivePurchase, bump, active, budget, thresholds } = useApp();
 
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<Product | null>(null);
   const [suggestion, setSuggestion] = useState<ProductSuggestion | null>(null);
   const [editingProduct, setEditingProduct] = useState(false);
-  const [usedSuggestion, setUsedSuggestion] = useState(false);
+  const [usedSuggestion, setUsedSuggestion] = useState<'open_food_facts' | 'community' | null>(null);
+  const [priceOnlyStore, setPriceOnlyStore] = useState<StoreChoice>({ name: null, locationId: null });
 
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('');
@@ -46,7 +49,12 @@ export default function AddItem() {
   const [promoOption, setPromoOption] = useState<{ cents: number; conditions: string[] } | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const labelToken = useRef(newId()).current;
+  const [regularCents, setRegularCents] = useState<number | null>(null);
+  const [fromPhoto, setFromPhoto] = useState<{ association: string; uncertain: string[] } | null>(null);
+  const [priceOnlyOpen, setPriceOnlyOpen] = useState(false);
+  const ownToken = useRef(newId()).current;
+  // Vindo da tela de foto do produto, o resultado chega pelo token recebido na rota.
+  const labelToken = params.capture ?? ownToken;
 
   useEffect(() => {
     (async () => {
@@ -79,22 +87,33 @@ export default function AddItem() {
       const r = handoff.takeLabel(labelToken);
       if (!r) return;
       const notes: string[] = [...r.notes];
-      if (r.soldByWeight) setSaleUnit('kg');
+      const source: PriceSource = 'association' in r ? 'photo_ai' : 'label_ocr';
+      if ('association' in r) {
+        setFromPhoto({ association: r.association, uncertain: r.uncertain });
+        const shot = handoff.takePhoto(labelToken);
+        if (shot && !photo) setPhoto(shot);
+        if (!brand && r.brand) setBrand(r.brand);
+      }
+      if (r.soldByWeight) setSaleUnit(r.referencePrice?.per === 'l' ? 'l' : 'kg');
       if (r.soldByWeight && r.referencePrice) {
         setPrice(centsToInput(r.referencePrice.cents));
-        setPriceSource('label_ocr');
+        setPriceSource(source);
       } else if (r.regularPriceCents != null) {
         setPrice(centsToInput(r.regularPriceCents));
-        setPriceSource('label_ocr');
+        setPriceSource(source);
+      } else if (r.promoPriceCents != null) {
+        setPrice(centsToInput(r.promoPriceCents));
+        setPriceSource(source);
       }
-      if (r.promoPriceCents != null) setPromoOption({ cents: r.promoPriceCents, conditions: r.promoConditions });
+      setRegularCents(null);
+      if (r.promoPriceCents != null && r.regularPriceCents != null) setPromoOption({ cents: r.promoPriceCents, conditions: r.promoConditions });
       if (r.referencePrice && !r.soldByWeight) {
         notes.push(`Preço de referência: ${formatBRL(r.referencePrice.cents)} por ${r.referencePrice.per === 'l' ? 'litro' : r.referencePrice.per}.`);
       }
       if (!name && r.productName) setName(titleCase(r.productName));
       if (!pkg && r.packageMeasure) setPkg(formatPackageMeasure(r.packageMeasure));
       setLabelInfo(notes);
-    }, [labelToken, name, pkg]),
+    }, [labelToken, name, pkg, brand, photo]),
   );
 
   const applySuggestion = () => {
@@ -102,7 +121,7 @@ export default function AddItem() {
     setName(suggestion.name);
     setBrand(suggestion.brand ?? '');
     if (suggestion.packageMeasure) setPkg(formatPackageMeasure(suggestion.packageMeasure));
-    setUsedSuggestion(true);
+    setUsedSuggestion(suggestion.source);
     setSuggestion(null);
   };
 
@@ -125,7 +144,8 @@ export default function AddItem() {
     if (!r.canceled && r.assets[0]) setPhoto(r.assets[0].uri);
   };
 
-  const save = async () => {
+  /** Valida o formulário e garante o cadastro do produto (reaproveita um igual sem código de barras). */
+  const prepare = async (): Promise<Product | null> => {
     const errs: string[] = [];
     if (priceCents == null) errs.push('Informe o preço (ex.: 5,49).');
     if (discount && discountCents == null) errs.push('Desconto inválido.');
@@ -138,39 +158,47 @@ export default function AddItem() {
     };
     errs.push(...validateItem(candidate).filter((e) => !(priceCents == null && e.includes('preço'))));
     setErrors(errs);
-    if (errs.length) return;
+    if (errs.length) return null;
+    const measure = extractPackageMeasure(pkg);
+    let prod = product;
+    if (!prod && !barcode) prod = await repo.findProductByIdentity(name.trim(), brand.trim() || null, measure?.amount ?? null, measure?.unit ?? null, saleUnit);
+    const productChanged =
+      !prod ||
+      prod.name !== name.trim() ||
+      (prod.brand ?? '') !== brand.trim() ||
+      prod.saleUnit !== saleUnit ||
+      (prod.imageUri ?? null) !== (photo ?? prod.imageUri ?? null) ||
+      (measure?.amount ?? null) !== prod.packageAmount;
+    if (productChanged) {
+      const imageUri = photo && photo !== prod?.imageUri ? await persistProductPhoto(photo) : photo ?? prod?.imageUri ?? null;
+      prod = await repo.saveProduct({
+        id: prod?.id,
+        barcode: prod?.barcode ?? barcode,
+        name: name.trim(),
+        brand: brand.trim() || null,
+        category: prod?.category ?? null,
+        packageAmount: measure?.amount ?? null,
+        packageUnit: measure?.unit ?? null,
+        saleUnit,
+        imageUri,
+        source: prod?.source ?? (usedSuggestion ?? 'user'),
+      });
+    }
+    return prod;
+  };
 
+  const effectiveRegular = regularCents != null && priceCents != null && regularCents > priceCents ? regularCents : null;
+
+  const save = async () => {
     setSaving(true);
     try {
+      const prod = await prepare();
+      if (!prod) return;
       const purchase = await ensureActivePurchase();
-      const measure = extractPackageMeasure(pkg);
-      let prod = product;
-      const productChanged =
-        !prod ||
-        prod.name !== name.trim() ||
-        (prod.brand ?? '') !== brand.trim() ||
-        prod.saleUnit !== saleUnit ||
-        (prod.imageUri ?? null) !== photo ||
-        (measure?.amount ?? null) !== prod.packageAmount;
-      if (productChanged) {
-        const imageUri = photo && photo !== prod?.imageUri ? await persistProductPhoto(photo) : photo;
-        prod = await repo.saveProduct({
-          id: prod?.id,
-          barcode: prod?.barcode ?? barcode,
-          name: name.trim(),
-          brand: brand.trim() || null,
-          category: prod?.category ?? null,
-          packageAmount: measure?.amount ?? null,
-          packageUnit: measure?.unit ?? null,
-          saleUnit,
-          imageUri,
-          source: prod?.source ?? (usedSuggestion ? 'open_food_facts' : 'user'),
-        });
-      }
       const item = await repo.addCartItem({
         purchaseId: purchase.id,
-        productId: prod!.id,
-        barcode: prod!.barcode ?? barcode,
+        productId: prod.id,
+        barcode: prod.barcode ?? barcode,
         name: name.trim(),
         brand: brand.trim() || null,
         packageLabel: pkg.trim() || null,
@@ -179,10 +207,11 @@ export default function AddItem() {
         unitPriceCents: priceCents!,
         discountCents: discountCents ?? 0,
         priceSource,
+        regularPriceCents: effectiveRegular,
         promoNote: promoNote.trim() || null,
         addedVia: via,
       });
-      if (!barcode) await repo.logScanEvent({ purchaseId: purchase.id, type: 'manual_entry', cartItemId: item.id, detail: 'Produto sem código adicionado manualmente' });
+      if (!barcode) await repo.logScanEvent({ purchaseId: purchase.id, type: 'manual_entry', cartItemId: item.id, detail: fromPhoto ? 'Produto identificado por foto' : 'Produto sem código adicionado manualmente' });
       bump();
       router.back();
     } catch (e) {
@@ -191,6 +220,54 @@ export default function AddItem() {
       setSaving(false);
     }
   };
+
+  /** Guarda só o preço visto (histórico de preços), sem colocar o produto no carrinho. */
+  const savePriceOnly = async (store: StoreChoice) => {
+    setPriceOnlyOpen(false);
+    setSaving(true);
+    try {
+      const prod = await prepare();
+      if (!prod) return;
+      await repo.recordPriceObservation({
+        productId: prod.id,
+        storeName: store.name,
+        storeLocationId: store.locationId,
+        saleUnit,
+        unitPriceCents: priceCents!,
+        regularPriceCents: effectiveRegular,
+        promo: !!promoNote.trim() || effectiveRegular != null,
+        source: priceSource,
+      });
+      if (store.name) await repo.setSetting('last_store', JSON.stringify(store));
+      bump();
+      router.replace(`/product/${prod.id}`);
+    } catch (e) {
+      showAlert('Não foi possível salvar', e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openPriceOnly = async () => {
+    if (priceCents == null || !name.trim()) {
+      setErrors(['Informe o nome do produto e o preço antes de registrar.']);
+      return;
+    }
+    let initial: StoreChoice = { name: active?.storeName ?? null, locationId: active?.storeLocationId ?? null };
+    if (!initial.name) {
+      try {
+        const last = await repo.getSetting('last_store');
+        if (last) initial = JSON.parse(last) as StoreChoice;
+      } catch {
+        // preferência antiga ilegível: começa em branco
+      }
+    }
+    setPriceOnlyStore(initial);
+    setPriceOnlyOpen(true);
+  };
+
+  // Efeito deste item no orçamento, antes de adicionar.
+  const budgetAfter = budget && subtotal != null && subtotal >= 0 ? budgetStatus(budget.budgetCents, budget.spentCents + subtotal, thresholds) : null;
 
   if (loading) return <Loading text="Buscando produto…" />;
 
@@ -204,11 +281,25 @@ export default function AddItem() {
               <Money cents={subtotal} />
             </Row>
           ) : null}
+          {budgetAfter && budgetAfter.level !== 'ok' ? (
+            <T v="small" color={budgetAfter.level === 'attention' || budgetAfter.level === 'near' ? colors.yellowText : colors.redText}>
+              Com este item: {budgetMessage(budgetAfter)}
+            </T>
+          ) : null}
           <Button title="Adicionar ao carrinho" icon="checkmark" kind="confirm" onPress={save} loading={saving} />
-          <Button title="Cancelar" kind="ghost" compact onPress={() => router.back()} />
+          <Row>
+            <Button title="Só registrar o preço" icon="pricetag-outline" kind="secondary" compact onPress={openPriceOnly} style={{ flex: 1 }} />
+            <Button title="Cancelar" kind="ghost" compact onPress={() => router.back()} style={{ flex: 1 }} />
+          </Row>
         </>
       }
     >
+      {fromPhoto ? (
+        <Banner t={fromPhoto.association === 'match' ? 'navy' : 'yellow'} icon="sparkles-outline" title="Dados lidos da foto — confira antes de salvar">
+          {fromPhoto.association === 'match' ? 'A etiqueta parece ser deste produto.' : 'Não foi possível confirmar que a etiqueta é deste produto.'}
+          {fromPhoto.uncertain.length ? ` Leitura incerta em: ${fromPhoto.uncertain.join(', ')}.` : ''}
+        </Banner>
+      ) : null}
       {product && !editingProduct ? (
         <Card>
           <Row style={{ alignItems: 'flex-start' }}>
@@ -233,7 +324,7 @@ export default function AddItem() {
           ) : null}
           {suggestion ? (
             <Card>
-              <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>Sugestão da base pública Open Food Facts</T>
+              <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>{suggestion.source === 'community' ? 'Sugestão da comunidade do Confere Aí' : 'Sugestão da base pública Open Food Facts'}</T>
               <T v="bodyStrong">{suggestion.name}</T>
               <T v="small" color={colors.textMuted}>{[suggestion.brand, suggestion.quantityText].filter(Boolean).join(' · ')}</T>
               <T v="small" color={colors.textMuted}>Base colaborativa: confira se corresponde à embalagem em mãos.</T>
@@ -275,13 +366,15 @@ export default function AddItem() {
           onChangeText={(s) => {
             setPrice(s);
             setPriceSource('manual');
+            setRegularCents(null);
           }}
           keyboardType="decimal-pad"
           prefix="R$"
           placeholder="0,00"
           testID="price-input"
         />
-        {priceSource !== 'manual' ? <Pill label={priceSource === 'label_ocr' ? 'Preço lido da etiqueta (confira)' : 'Preço anterior reconfirmado'} t="navy" icon="information-circle-outline" /> : null}
+        {priceSource !== 'manual' ? <Pill label={priceSource === 'label_ocr' ? 'Preço lido da etiqueta (confira)' : priceSource === 'photo_ai' ? 'Preço lido da foto (confira)' : 'Preço anterior reconfirmado'} t="navy" icon="information-circle-outline" /> : null}
+        {effectiveRegular != null ? <Pill label={`Promoção: preço normal ${formatBRL(effectiveRegular)}`} t="green" icon="pricetags-outline" /> : null}
         {promoOption ? (
           <Banner t="yellow" icon="pricetags-outline" title={`Preço promocional na etiqueta: ${formatBRL(promoOption.cents)}`}>
             <T v="small" color={colors.yellowText}>
@@ -293,8 +386,9 @@ export default function AddItem() {
               kind="secondary"
               compact
               onPress={() => {
+                setRegularCents(priceCents);
                 setPrice(centsToInput(promoOption.cents));
-                setPriceSource('label_ocr');
+                setPriceSource(fromPhoto ? 'photo_ai' : 'label_ocr');
                 setPromoNote(promoOption.conditions.join('; ') || 'Preço promocional da etiqueta');
                 setPromoOption(null);
               }}
@@ -362,6 +456,7 @@ export default function AddItem() {
           ))}
         </Banner>
       ) : null}
+      <StoreSheet visible={priceOnlyOpen} onClose={() => setPriceOnlyOpen(false)} initial={priceOnlyStore} onSave={savePriceOnly} />
     </Screen>
   );
 }

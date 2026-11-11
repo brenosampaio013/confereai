@@ -1,11 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { plural } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
 import { useOnline } from '@/services/network';
 import { useApp } from '@/state/AppContext';
+import { BudgetSheet, BudgetStrip } from '@/ui/Budget';
 import { Banner, Button, Card, Divider, EmptyState, Money, Row, SectionTitle, T, IconName } from '@/ui/components';
 import { Logo } from '@/ui/Logo';
 import { PurchaseRow } from '@/ui/PurchaseRow';
@@ -13,7 +15,8 @@ import { colors, radius, space } from '@/ui/theme';
 import { showAlert } from '@/lib/dialog';
 
 export default function Home() {
-  const { repo, active, totals, version, ensureActivePurchase, bump, session, isAnonymous } = useApp();
+  const { repo, active, totals, version, bump, session, isAnonymous, budget, thresholds, setThresholds } = useApp();
+  const [budgetOpen, setBudgetOpen] = useState(false);
   const online = useOnline();
   const { data: summaries } = useLoad(() => repo.listPurchaseSummaries(50), [version]);
   const recent = (summaries ?? []).filter((s) => s.purchase.status !== 'active').slice(0, 4);
@@ -22,30 +25,25 @@ export default function Home() {
   const email = session && !isAnonymous ? session.user.email : null;
 
   const startNew = async () => {
-    const begin = async () => {
-      await ensureActivePurchase();
-      router.push('/scan');
-    };
     if (active) {
       showAlert(
         'Você tem uma compra em andamento',
-        `Ela tem ${plural(totals.lineCount, 'item', 'itens')}. Ao iniciar uma nova, a atual é encerrada e fica salva no histórico.`,
+        `Ela tem ${plural(totals.lineCount, 'item', 'itens')}. Ao iniciar uma nova, a atual é encerrada e fica salva em Minhas compras.`,
         [
           { text: 'Continuar a atual', style: 'cancel', onPress: () => router.push('/scan') },
           {
             text: 'Iniciar nova',
             onPress: async () => {
               await repo.updatePurchase(active.id, { status: 'closed' });
-              const p = await repo.startPurchase('cart');
               bump();
-              if (p) router.push('/scan');
+              setBudgetOpen(true);
             },
           },
         ],
       );
       return;
     }
-    await begin();
+    setBudgetOpen(true);
   };
 
   return (
@@ -78,6 +76,11 @@ export default function Home() {
                 {active.storeName ? ` · ${active.storeName}` : ''}
               </T>
             </View>
+            {budget ? (
+              <View style={{ backgroundColor: colors.surface, borderRadius: radius.md, padding: space.md }}>
+                <BudgetStrip status={budget} />
+              </View>
+            ) : null}
             <Row>
               <Button title="Escanear" icon="barcode-outline" kind="confirm" onPress={() => router.push('/scan')} style={{ flex: 1 }} />
               <Button title="Carrinho" icon="cart-outline" kind="secondary" onPress={() => router.push('/purchases')} style={{ flex: 1 }} />
@@ -102,6 +105,11 @@ export default function Home() {
             onPress={() => router.push('/receipt/capture')}
             accent
           />
+        </View>
+
+        <View style={styles.actions}>
+          <ActionTile icon="camera-outline" title="Foto do produto e preço" text="A IA lê o nome, a marca e o preço da etiqueta" onPress={() => router.push('/capture')} />
+          <ActionTile icon="trending-down-outline" title="Preços e gastos" text="Compare supermercados e veja o resumo do mês" onPress={() => router.push('/prices')} accent />
         </View>
 
         <Card onPress={() => router.push('/offers')} accessibilityLabel="Ver ofertas da comunidade">
@@ -148,6 +156,20 @@ export default function Home() {
           )}
         </Card>
       </ScrollView>
+      <BudgetSheet
+        visible={budgetOpen}
+        onClose={() => setBudgetOpen(false)}
+        initialCents={null}
+        thresholds={thresholds}
+        startLabel="Começar a compra"
+        onSave={async (cents, t) => {
+          await setThresholds(t);
+          await repo.startPurchase('cart', null, cents);
+          setBudgetOpen(false);
+          bump();
+          router.push('/scan');
+        }}
+      />
     </SafeAreaView>
   );
 }

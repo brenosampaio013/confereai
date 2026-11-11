@@ -4,6 +4,10 @@
 // a transcrição do texto, linha a linha. A interpretação (itens, valores, totais) é feita
 // no aplicativo por regras determinísticas, para que nenhum valor seja inventado pela IA.
 //
+// kind = "product": uma foto do produto junto com a etiqueta de preço. A IA identifica os
+// campos (nome, marca, peso, preços) copiando os textos como estão impressos; a conversão
+// para centavos e as validações são feitas no aplicativo, e o usuário confere antes de salvar.
+//
 // - Exige usuário autenticado no Supabase (pode ser sessão anônima).
 // - As imagens são processadas em memória e não são armazenadas.
 // - Chaves de API ficam apenas nos segredos da função (nunca no aplicativo).
@@ -18,7 +22,7 @@
 import Anthropic from 'npm:@anthropic-ai/sdk@1.3.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
-type Kind = 'receipt' | 'label';
+type Kind = 'receipt' | 'label' | 'product';
 interface ImageInput {
   base64: string;
   mimeType?: 'image/jpeg' | 'image/png';
@@ -26,6 +30,8 @@ interface ImageInput {
 interface OcrResponse {
   provider: string;
   parts: { lines: string[] }[];
+  /** Somente para kind = "product". */
+  product?: Record<string, unknown>;
 }
 
 const MAX_IMAGES = 6;
@@ -41,7 +47,7 @@ function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
 }
 
-const TRANSCRIBE_PROMPT: Record<Kind, string> = {
+const TRANSCRIBE_PROMPT: Record<'receipt' | 'label', string> = {
   receipt: `As imagens são partes, em ordem, de UM cupom fiscal brasileiro (NFC-e, SAT ou ECF).
 Transcreva o texto impresso de cada imagem exatamente como aparece, uma linha impressa por item da lista "lines".
 Regras:
@@ -75,7 +81,82 @@ const OUTPUT_SCHEMA = {
   },
 } as const;
 
-async function transcribeWithClaude(kind: Kind, images: ImageInput[]): Promise<OcrResponse> {
+const PRODUCT_PROMPT = `A foto foi tirada em um supermercado brasileiro e deve mostrar um produto e a etiqueta de preço dele na gôndola.
+Preencha os campos copiando os textos EXATAMENTE como estão impressos. Não calcule, não estime e não complete nada.
+
+- product_name: nome do produto como aparece na embalagem (ou na etiqueta, se a embalagem não estiver legível), sem a marca e sem o peso.
+- brand: marca impressa na embalagem.
+- package_text: peso ou volume da embalagem como impresso (ex.: "5 kg", "900 ml", "12 un").
+- barcode: os dígitos do código de barras, somente se todos estiverem legíveis.
+- regular_price: preço normal do produto, só o número como impresso (ex.: "28,99").
+- promo_price: preço promocional, quando a etiqueta mostra "DE ... POR ...", "OFERTA" ou destaque de promoção.
+- price_basis: "unit" se o preço é da embalagem/unidade; "kg" ou "l" se o produto é vendido por quilo ou litro (hortifrúti, carnes, frios, granel).
+- reference_price e reference_per: preço por unidade de medida impresso em letras pequenas (ex.: "5,80" e "kg"). Nunca use esse valor como preço do produto.
+- promo_conditions: condições da promoção exatamente como impressas (ex.: "LEVE 3 PAGUE 2", "CLUBE", "VÁLIDO ATÉ 15/11", "A PARTIR DE 3 UN").
+- label_matches_product: "yes" se a etiqueta claramente é do produto fotografado (descrição, marca e peso compatíveis); "uncertain" se há mais de uma etiqueta ou não dá para ter certeza; "no_label" se não há etiqueta de preço legível; "no_product" se só a etiqueta aparece.
+- uncertain_fields: nomes dos campos acima em que a leitura não é segura.
+- lines: transcrição das linhas de texto da etiqueta de preço, uma por item.
+
+Se houver várias etiquetas, use a que está mais próxima e alinhada ao produto em destaque e marque "uncertain" quando não for evidente.
+Use null para qualquer campo ilegível ou ausente. Nunca adivinhe dígitos de preço ou de código de barras.`;
+
+const nullableString = { anyOf: [{ type: 'string' }, { type: 'null' }] } as const;
+const PRODUCT_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['product_name', 'brand', 'package_text', 'barcode', 'regular_price', 'promo_price', 'price_basis', 'reference_price', 'reference_per',
+    'promo_conditions', 'label_matches_product', 'uncertain_fields', 'lines'],
+  properties: {
+    product_name: nullableString,
+    brand: nullableString,
+    package_text: nullableString,
+    barcode: nullableString,
+    regular_price: nullableString,
+    promo_price: nullableString,
+    price_basis: { type: 'string', enum: ['unit', 'kg', 'l'] },
+    reference_price: nullableString,
+    reference_per: { anyOf: [{ type: 'string', enum: ['kg', 'l', '100g', '100ml'] }, { type: 'null' }] },
+    promo_conditions: { type: 'array', items: { type: 'string' } },
+    label_matches_product: { type: 'string', enum: ['yes', 'uncertain', 'no_label', 'no_product'] },
+    uncertain_fields: { type: 'array', items: { type: 'string' } },
+    lines: { type: 'array', items: { type: 'string' } },
+  },
+} as const;
+
+async function readProductWithClaude(image: ImageInput): Promise<OcrResponse> {
+  const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
+  if (!apiKey) throw new HttpError(503, 'ocr_not_configured', 'ANTHROPIC_API_KEY não configurada na função.');
+  const model = Deno.env.get('ANTHROPIC_MODEL') ?? 'claude-opus-5-5';
+  const client = new Anthropic({ apiKey });
+  const response = await client.beta.messages.create({
+    model,
+    max_tokens: 4000,
+    output_config: { effort: 'low', format: { type: 'json_schema', schema: PRODUCT_SCHEMA } },
+    betas: ['server-side-fallback-2026-07-01'],
+    fallbacks: 'default',
+    messages: [{
+      role: 'user',
+      content: [
+        { type: 'image', source: { type: 'base64', media_type: image.mimeType ?? 'image/jpeg', data: image.base64 } },
+        { type: 'text', text: PRODUCT_PROMPT },
+      ],
+    }],
+  });
+  if (response.stop_reason === 'refusal') throw new HttpError(422, 'ocr_refused', 'O serviço recusou processar a imagem.');
+  if (response.stop_reason === 'max_tokens') throw new HttpError(422, 'ocr_truncated', 'A foto tem texto demais. Aproxime o produto e a etiqueta.');
+  const text = response.content.find((b) => b.type === 'text');
+  if (!text || text.type !== 'text') throw new HttpError(502, 'ocr_empty', 'O serviço não retornou a leitura.');
+  let parsed: Record<string, unknown> & { lines?: string[] };
+  try {
+    parsed = JSON.parse(text.text);
+  } catch {
+    throw new HttpError(502, 'ocr_invalid', 'Resposta da leitura em formato inesperado.');
+  }
+  const { lines, ...product } = parsed;
+  return { provider: `anthropic:${response.model}`, parts: normalizeParts([{ lines: Array.isArray(lines) ? lines : [] }], 1), product };
+}
+
+async function transcribeWithClaude(kind: 'receipt' | 'label', images: ImageInput[]): Promise<OcrResponse> {
   const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
   if (!apiKey) throw new HttpError(503, 'ocr_not_configured', 'ANTHROPIC_API_KEY não configurada na função.');
   const model = Deno.env.get('ANTHROPIC_MODEL') ?? 'claude-opus-5-5';
@@ -167,11 +248,12 @@ Deno.serve(async (req) => {
     if (userError || !userData.user) throw new HttpError(401, 'unauthenticated', 'Sessão inválida.');
 
     const body = (await req.json().catch(() => null)) as { kind?: Kind; images?: ImageInput[] } | null;
-    const kind: Kind = body?.kind === 'label' ? 'label' : 'receipt';
+    const kind: Kind = body?.kind === 'label' ? 'label' : body?.kind === 'product' ? 'product' : 'receipt';
     const images = body?.images ?? [];
     if (!Array.isArray(images) || images.length < 1 || images.length > MAX_IMAGES) {
       throw new HttpError(400, 'invalid_images', `Envie de 1 a ${MAX_IMAGES} imagens.`);
     }
+    if (kind === 'product' && images.length !== 1) throw new HttpError(400, 'invalid_images', 'Envie uma única foto do produto com a etiqueta.');
     for (const img of images) {
       if (typeof img?.base64 !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(img.base64.slice(0, 200))) {
         throw new HttpError(400, 'invalid_images', 'Imagem em formato inválido.');
@@ -189,7 +271,12 @@ Deno.serve(async (req) => {
     if ((count ?? 0) >= limit) throw new HttpError(429, 'daily_limit', 'Limite diário de leituras atingido. Tente amanhã ou digite os dados.');
 
     const provider = (Deno.env.get('OCR_PROVIDER') ?? 'anthropic').toLowerCase();
-    const result = provider === 'google_vision' ? await transcribeWithGoogleVision(images) : await transcribeWithClaude(kind, images);
+    // Com o Google Vision só há transcrição: para "product" o aplicativo interpreta o texto da etiqueta.
+    const result = provider === 'google_vision'
+      ? await transcribeWithGoogleVision(images)
+      : kind === 'product'
+        ? await readProductWithClaude(images[0])
+        : await transcribeWithClaude(kind, images);
 
     await supabase.from('ocr_usage').insert({ kind, images: images.length, provider: result.provider });
     return json(200, result);

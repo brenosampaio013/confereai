@@ -1,4 +1,6 @@
 import { cartTotals } from '@/domain/cart';
+import { itemsSavings, type SpendRecord } from '@/domain/finance';
+import { productIdentityKey } from '@/domain/productCapture';
 import type { Cents } from '@/domain/money';
 import type { PriceRecord } from '@/domain/priceHistory';
 import type {
@@ -56,6 +58,8 @@ function toPurchase(r: Row): Purchase {
     id: r.id as string,
     storeName: (r.store_name as string) ?? null,
     storeCnpj: (r.store_cnpj as string) ?? null,
+    storeLocationId: (r.store_location_id as string) ?? null,
+    budgetCents: (r.budget_cents as number) ?? null,
     status: r.status as Purchase['status'],
     mode: r.mode as Purchase['mode'],
     startedAt: r.started_at as string,
@@ -78,6 +82,7 @@ function toCartItem(r: Row): CartItem {
     unitPriceCents: r.unit_price_cents as number,
     discountCents: r.discount_cents as number,
     priceSource: r.price_source as PriceSource,
+    regularPriceCents: (r.regular_price_cents as number) ?? null,
     promoNote: (r.promo_note as string) ?? null,
     addedVia: r.added_via as CartItem['addedVia'],
     createdAt: r.created_at as string,
@@ -131,6 +136,14 @@ export interface PurchaseSummary {
   itemCount: number;
   cartTotalCents: Cents;
   receiptTotalCents: Cents | null;
+  /** Descontos informados nos itens (carrinho). */
+  discountCents: Cents;
+  /** Economia registrada: descontos + diferença entre preço normal e promocional. */
+  savingsCents: Cents;
+  /** Valor final da compra: total da nota quando houver, senão o total registrado. */
+  finalTotalCents: Cents;
+  /** Valor final − orçamento (positivo = passou do orçamento); null sem orçamento. */
+  budgetDiffCents: Cents | null;
   reportOverall: Severity | null;
   reportComplete: boolean | null;
   openDivergences: number;
@@ -150,8 +163,30 @@ export interface NewCartItem {
   unitPriceCents: Cents;
   discountCents?: Cents;
   priceSource: PriceSource;
+  regularPriceCents?: Cents | null;
   promoNote?: string | null;
   addedVia: 'scan' | 'manual';
+}
+
+export interface ProductPriceRow {
+  product: Product;
+  last: PriceRecord | null;
+  storeCount: number;
+}
+
+export interface UnsharedPrice {
+  id: string;
+  locationId: string;
+  barcode: string | null;
+  name: string;
+  brand: string | null;
+  packageAmount: number | null;
+  packageUnit: string | null;
+  saleUnit: SaleUnit;
+  unitPriceCents: Cents;
+  regularPriceCents: Cents | null;
+  promo: boolean;
+  recordedAt: string;
 }
 
 export class Repository {
@@ -246,32 +281,45 @@ export class Repository {
     return r ? toPurchase(r) : null;
   }
 
-  async startPurchase(mode: Purchase['mode'] = 'cart', storeName: string | null = null): Promise<Purchase> {
+  async startPurchase(mode: Purchase['mode'] = 'cart', storeName: string | null = null, budgetCents: Cents | null = null): Promise<Purchase> {
+    if (budgetCents != null && (!Number.isInteger(budgetCents) || budgetCents <= 0)) throw new Error('Orçamento inválido');
     const now = this.clock.now();
     const id = this.newId();
     await this.db.run(
-      'INSERT INTO purchases (id, store_name, status, mode, started_at, updated_at) VALUES (?,?,?,?,?,?)',
-      [id, storeName, mode === 'cart' ? 'active' : 'checked', mode, now, now],
+      'INSERT INTO purchases (id, store_name, status, mode, budget_cents, started_at, updated_at) VALUES (?,?,?,?,?,?,?)',
+      [id, storeName, mode === 'cart' ? 'active' : 'checked', mode, budgetCents, now, now],
     );
     await this.enqueue('purchases', id);
     return (await this.getPurchase(id))!;
   }
 
-  async updatePurchase(id: string, patch: Partial<Pick<Purchase, 'storeName' | 'storeCnpj' | 'status'>>) {
+  async updatePurchase(id: string, patch: Partial<Pick<Purchase, 'storeName' | 'storeCnpj' | 'status' | 'budgetCents' | 'storeLocationId'>>) {
     const prev = await this.getPurchase(id);
     if (!prev) throw new Error('Compra não encontrada');
     const now = this.clock.now();
     const next = { ...prev, ...patch };
+    if (next.budgetCents != null && (!Number.isInteger(next.budgetCents) || next.budgetCents <= 0)) throw new Error('Orçamento inválido');
     if (patch.storeName !== undefined) await this.logEdit('purchase', id, 'storeName', prev.storeName, patch.storeName);
-    await this.db.run('UPDATE purchases SET store_name=?, store_cnpj=?, status=?, closed_at=?, updated_at=? WHERE id=?', [
+    if (patch.budgetCents !== undefined) await this.logEdit('purchase', id, 'budgetCents', prev.budgetCents, patch.budgetCents);
+    await this.db.run('UPDATE purchases SET store_name=?, store_cnpj=?, store_location_id=?, budget_cents=?, status=?, closed_at=?, updated_at=? WHERE id=?', [
       next.storeName,
       next.storeCnpj,
+      next.storeLocationId,
+      next.budgetCents,
       next.status,
       next.status === 'active' ? null : prev.closedAt ?? now,
       now,
       id,
     ]);
     await this.enqueue('purchases', id);
+    // O supermercado da compra vale para os preços registrados nela.
+    if (patch.storeName !== undefined || patch.storeLocationId !== undefined) {
+      const rows = await this.db.all<{ id: string }>('SELECT id FROM price_history WHERE purchase_id = ? AND deleted_at IS NULL', [id]);
+      for (const r of rows) {
+        await this.db.run('UPDATE price_history SET store_name = ?, store_location_id = ?, shared_at = NULL, updated_at = ? WHERE id = ?', [next.storeName, next.storeLocationId, now, r.id]);
+        await this.enqueue('price_history', r.id);
+      }
+    }
   }
 
   /** Exclusão lógica da compra e de tudo que pertence a ela (propagada na sincronização). */
@@ -317,17 +365,30 @@ export class Repository {
   private async summarize(purchase: Purchase): Promise<PurchaseSummary> {
     const items = await this.listCartItems(purchase.id);
     const receipt = await this.db.first<Row>(
-      'SELECT id, status, total_cents FROM receipts WHERE purchase_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1',
+      'SELECT id, status, total_cents, discount_cents, unassigned_discount_cents FROM receipts WHERE purchase_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1',
       [purchase.id],
     );
+    const totals = cartTotals(items);
+    const receiptTotal = (receipt?.total_cents as number) ?? null;
+    let savings = itemsSavings(items);
+    if (purchase.mode === 'receipt_only' && receipt) {
+      // Sem carrinho, a economia registrada é o desconto impresso na nota.
+      const lines = await this.db.first<{ d: number | null }>('SELECT SUM(discount_cents) AS d FROM receipt_items WHERE receipt_id = ? AND deleted_at IS NULL', [receipt.id]);
+      savings = (receipt.discount_cents as number) ?? (lines?.d ?? 0) + ((receipt.unassigned_discount_cents as number) ?? 0);
+    }
+    const finalTotal = receiptTotal ?? totals.totalCents;
     const report = receipt
       ? await this.db.first<Row>('SELECT id, overall, complete, open_count FROM reports WHERE receipt_id = ? AND deleted_at IS NULL', [receipt.id])
       : null;
     return {
       purchase,
       itemCount: items.length,
-      cartTotalCents: cartTotals(items).totalCents,
-      receiptTotalCents: (receipt?.total_cents as number) ?? null,
+      cartTotalCents: totals.totalCents,
+      receiptTotalCents: receiptTotal,
+      discountCents: totals.discountCents,
+      savingsCents: savings,
+      finalTotalCents: finalTotal,
+      budgetDiffCents: purchase.budgetCents != null ? finalTotal - purchase.budgetCents : null,
       reportOverall: (report?.overall as Severity) ?? null,
       reportComplete: report ? !!report.complete : null,
       openDivergences: (report?.open_count as number) ?? 0,
@@ -358,9 +419,9 @@ export class Repository {
     const existing = await this.db.first<Row>('SELECT id FROM cart_items WHERE id = ?', [id]);
     if (existing) return (await this.getCartItem(id))!;
     await this.db.run(
-      `INSERT INTO cart_items (id, purchase_id, product_id, barcode, name, brand, package_label, sale_unit, quantity_milli, unit_price_cents, discount_cents, price_source, promo_note, added_via, created_at, updated_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [id, input.purchaseId, input.productId, input.barcode, input.name.trim(), input.brand, input.packageLabel, input.saleUnit, input.quantityMilli, input.unitPriceCents, input.discountCents ?? 0, input.priceSource, input.promoNote ?? null, input.addedVia, now, now],
+      `INSERT INTO cart_items (id, purchase_id, product_id, barcode, name, brand, package_label, sale_unit, quantity_milli, unit_price_cents, discount_cents, price_source, regular_price_cents, promo_note, added_via, created_at, updated_at)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      [id, input.purchaseId, input.productId, input.barcode, input.name.trim(), input.brand, input.packageLabel, input.saleUnit, input.quantityMilli, input.unitPriceCents, input.discountCents ?? 0, input.priceSource, input.regularPriceCents ?? null, input.promoNote ?? null, input.addedVia, now, now],
     );
     await this.enqueue('cart_items', id);
     await this.touchPurchase(input.purchaseId);
@@ -373,18 +434,18 @@ export class Repository {
     const prev = await this.getCartItem(id);
     if (!prev) throw new Error('Item não encontrado');
     const next = { ...prev, ...patch };
-    for (const f of ['name', 'quantityMilli', 'unitPriceCents', 'discountCents', 'priceSource', 'saleUnit', 'promoNote', 'productId'] as const) {
+    for (const f of ['name', 'quantityMilli', 'unitPriceCents', 'discountCents', 'priceSource', 'saleUnit', 'promoNote', 'productId', 'regularPriceCents'] as const) {
       await this.logEdit('cart_item', id, f, prev[f], next[f]);
     }
     const now = this.clock.now();
     await this.db.run(
-      `UPDATE cart_items SET product_id=?, barcode=?, name=?, brand=?, package_label=?, sale_unit=?, quantity_milli=?, unit_price_cents=?, discount_cents=?, price_source=?, promo_note=?, updated_at=? WHERE id=?`,
-      [next.productId, next.barcode, next.name.trim(), next.brand, next.packageLabel, next.saleUnit, next.quantityMilli, next.unitPriceCents, next.discountCents, next.priceSource, next.promoNote, now, id],
+      `UPDATE cart_items SET product_id=?, barcode=?, name=?, brand=?, package_label=?, sale_unit=?, quantity_milli=?, unit_price_cents=?, discount_cents=?, price_source=?, regular_price_cents=?, promo_note=?, updated_at=? WHERE id=?`,
+      [next.productId, next.barcode, next.name.trim(), next.brand, next.packageLabel, next.saleUnit, next.quantityMilli, next.unitPriceCents, next.discountCents, next.priceSource, next.regularPriceCents, next.promoNote, now, id],
     );
     await this.enqueue('cart_items', id);
     await this.touchPurchase(prev.purchaseId);
     const item = (await this.getCartItem(id))!;
-    if (prev.unitPriceCents !== item.unitPriceCents || prev.productId !== item.productId) await this.recordPriceForItem(item);
+    if (prev.unitPriceCents !== item.unitPriceCents || prev.productId !== item.productId || prev.regularPriceCents !== item.regularPriceCents || prev.promoNote !== item.promoNote) await this.recordPriceForItem(item);
     return item;
   }
 
@@ -416,32 +477,153 @@ export class Repository {
     const now = this.clock.now();
     const existing = await this.db.first<{ id: string }>('SELECT id FROM price_history WHERE cart_item_id = ?', [item.id]);
     const id = existing?.id ?? this.newId();
+    const promo = item.promoNote || (item.regularPriceCents != null && item.regularPriceCents > item.unitPriceCents) ? 1 : 0;
     await this.db.run(
-      `INSERT INTO price_history (id, product_id, purchase_id, cart_item_id, store_name, sale_unit, unit_price_cents, source, promo, recorded_at, updated_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?)
-       ON CONFLICT(id) DO UPDATE SET product_id=excluded.product_id, unit_price_cents=excluded.unit_price_cents, source=excluded.source, promo=excluded.promo, sale_unit=excluded.sale_unit, updated_at=excluded.updated_at, deleted_at=NULL`,
-      [id, item.productId, item.purchaseId, item.id, purchase?.storeName ?? null, item.saleUnit, item.unitPriceCents, item.priceSource, item.promoNote ? 1 : 0, item.createdAt, now],
+      `INSERT INTO price_history (id, product_id, purchase_id, cart_item_id, store_name, store_location_id, sale_unit, unit_price_cents, regular_price_cents, source, promo, recorded_at, updated_at)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+       ON CONFLICT(id) DO UPDATE SET product_id=excluded.product_id, unit_price_cents=excluded.unit_price_cents, regular_price_cents=excluded.regular_price_cents, source=excluded.source,
+         promo=excluded.promo, sale_unit=excluded.sale_unit, store_name=excluded.store_name, store_location_id=excluded.store_location_id, shared_at=NULL, updated_at=excluded.updated_at, deleted_at=NULL`,
+      [id, item.productId, item.purchaseId, item.id, purchase?.storeName ?? null, purchase?.storeLocationId ?? null, item.saleUnit, item.unitPriceCents, item.regularPriceCents, item.priceSource, promo, item.createdAt, now],
     );
     await this.enqueue('price_history', id);
   }
 
-  async listPriceHistory(productId: string): Promise<PriceRecord[]> {
-    const rows = await this.db.all<Row>(
-      `SELECT ph.*, COALESCE(p.store_name, ph.store_name) AS store FROM price_history ph LEFT JOIN purchases p ON p.id = ph.purchase_id
-       WHERE ph.product_id = ? AND ph.deleted_at IS NULL ORDER BY ph.recorded_at DESC`,
-      [productId],
+  /**
+   * Registra um preço visto na gôndola sem colocar o produto no carrinho
+   * (ex.: foto do produto com a etiqueta só para acompanhar o preço).
+   */
+  async recordPriceObservation(o: {
+    productId: string;
+    storeName: string | null;
+    storeLocationId?: string | null;
+    saleUnit: SaleUnit;
+    unitPriceCents: Cents;
+    regularPriceCents?: Cents | null;
+    promo?: boolean;
+    source: PriceSource;
+  }): Promise<string> {
+    if (!Number.isInteger(o.unitPriceCents) || o.unitPriceCents <= 0) throw new Error('Informe um preço válido.');
+    const id = this.newId();
+    const now = this.clock.now();
+    await this.db.run(
+      `INSERT INTO price_history (id, product_id, purchase_id, cart_item_id, store_name, store_location_id, sale_unit, unit_price_cents, regular_price_cents, source, promo, recorded_at, updated_at)
+       VALUES (?,?,NULL,NULL,?,?,?,?,?,?,?,?,?)`,
+      [id, o.productId, o.storeName?.trim() || null, o.storeLocationId ?? null, o.saleUnit, o.unitPriceCents, o.regularPriceCents ?? null, o.source, o.promo ? 1 : 0, now, now],
     );
-    return rows.map((r) => ({
+    await this.enqueue('price_history', id);
+    return id;
+  }
+
+  async removePriceRecord(id: string) {
+    const now = this.clock.now();
+    await this.db.run('UPDATE price_history SET deleted_at = ?, updated_at = ? WHERE id = ?', [now, now, id]);
+    await this.enqueue('price_history', id);
+  }
+
+  private toPriceRecord(r: Row): PriceRecord {
+    return {
       id: r.id as string,
       productId: r.product_id as string,
       purchaseId: (r.purchase_id as string) ?? null,
       storeName: (r.store as string) ?? null,
+      storeLocationId: (r.location as string) ?? null,
       saleUnit: r.sale_unit as SaleUnit,
       unitPriceCents: r.unit_price_cents as number,
+      regularPriceCents: (r.regular_price_cents as number) ?? null,
       source: r.source as PriceSource,
       promo: !!r.promo,
       recordedAt: r.recorded_at as string,
+    };
+  }
+
+  async listPriceHistory(productId: string): Promise<PriceRecord[]> {
+    const rows = await this.db.all<Row>(
+      `SELECT ph.*, COALESCE(p.store_name, ph.store_name) AS store, COALESCE(p.store_location_id, ph.store_location_id) AS location
+       FROM price_history ph LEFT JOIN purchases p ON p.id = ph.purchase_id
+       WHERE ph.product_id = ? AND ph.deleted_at IS NULL ORDER BY ph.recorded_at DESC`,
+      [productId],
+    );
+    return rows.map((r) => this.toPriceRecord(r));
+  }
+
+  /** Produtos com o último preço registrado (tela "Preços"). */
+  async listProductPrices(): Promise<ProductPriceRow[]> {
+    const products = await this.listProducts();
+    const rows = await this.db.all<Row>(
+      `SELECT ph.*, COALESCE(p.store_name, ph.store_name) AS store, COALESCE(p.store_location_id, ph.store_location_id) AS location
+       FROM price_history ph LEFT JOIN purchases p ON p.id = ph.purchase_id
+       WHERE ph.deleted_at IS NULL ORDER BY ph.recorded_at DESC`,
+    );
+    const byProduct = new Map<string, PriceRecord[]>();
+    for (const r of rows) {
+      const rec = this.toPriceRecord(r);
+      byProduct.set(rec.productId, [...(byProduct.get(rec.productId) ?? []), rec]);
+    }
+    return products
+      .map((product) => {
+        const list = byProduct.get(product.id) ?? [];
+        return { product, last: list[0] ?? null, storeCount: new Set(list.map((l) => l.storeLocationId ?? l.storeName ?? '')).size };
+      })
+      .filter((r) => r.last)
+      .sort((a, b) => (a.last!.recordedAt < b.last!.recordedAt ? 1 : -1));
+  }
+
+  /** Produto sem código de barras com o mesmo nome, marca e embalagem (evita cadastros repetidos). */
+  async findProductByIdentity(name: string, brand: string | null, packageAmount: number | null, packageUnit: string | null, saleUnit: SaleUnit): Promise<Product | null> {
+    const key = productIdentityKey(name, brand, packageAmount, packageUnit);
+    const rows = await this.db.all<Row>('SELECT * FROM products WHERE deleted_at IS NULL AND barcode IS NULL AND sale_unit = ?', [saleUnit]);
+    const hit = rows.map(toProduct).find((p) => productIdentityKey(p.name, p.brand, p.packageAmount, p.packageUnit) === key);
+    return hit ?? null;
+  }
+
+  /** Preços ainda não enviados à base da comunidade, de compras vinculadas a uma unidade cadastrada. */
+  async listUnsharedPrices(limit = 50): Promise<UnsharedPrice[]> {
+    const rows = await this.db.all<Row>(
+      `SELECT ph.id, COALESCE(p.store_location_id, ph.store_location_id) AS location, pr.barcode, pr.name, pr.brand, pr.package_amount, pr.package_unit,
+              ph.sale_unit, ph.unit_price_cents, ph.regular_price_cents, ph.promo, ph.recorded_at
+       FROM price_history ph JOIN products pr ON pr.id = ph.product_id LEFT JOIN purchases p ON p.id = ph.purchase_id
+       WHERE ph.deleted_at IS NULL AND ph.shared_at IS NULL AND ph.unit_price_cents > 0 AND ph.source <> 'previous'
+         AND COALESCE(p.store_location_id, ph.store_location_id) IS NOT NULL
+       ORDER BY ph.recorded_at DESC LIMIT ?`,
+      [limit],
+    );
+    return rows.map((r) => ({
+      id: r.id as string,
+      locationId: r.location as string,
+      barcode: (r.barcode as string) ?? null,
+      name: r.name as string,
+      brand: (r.brand as string) ?? null,
+      packageAmount: (r.package_amount as number) ?? null,
+      packageUnit: (r.package_unit as string) ?? null,
+      saleUnit: r.sale_unit as SaleUnit,
+      unitPriceCents: r.unit_price_cents as number,
+      regularPriceCents: (r.regular_price_cents as number) ?? null,
+      promo: !!r.promo,
+      recordedAt: r.recorded_at as string,
     }));
+  }
+
+  /** Marca preços como tratados pelo servidor (coluna local; não é sincronizada). */
+  async markPricesShared(ids: string[]) {
+    const now = this.clock.now();
+    for (const id of ids) await this.db.run('UPDATE price_history SET shared_at = ? WHERE id = ?', [now, id]);
+  }
+
+  /* ------------------------------ gastos ---------------------------- */
+
+  /** Compras encerradas com valor, para o resumo financeiro. */
+  async listSpendRecords(): Promise<SpendRecord[]> {
+    const all = await this.listPurchaseSummaries(2000);
+    return all
+      .filter((s) => s.purchase.status !== 'active' && s.finalTotalCents > 0)
+      .map((s) => ({
+        id: s.purchase.id,
+        storeName: s.purchase.storeName,
+        date: s.purchase.startedAt,
+        totalCents: s.finalTotalCents,
+        savingsCents: s.savingsCents,
+        budgetCents: s.purchase.budgetCents,
+      }));
   }
 
   /* ---------------------------- scan events ------------------------- */

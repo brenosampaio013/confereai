@@ -232,6 +232,23 @@ http.createServer(async (req, res) => {
   if (url.pathname.startsWith('/rest/')) return handleRest(req, res, url, uid);
   if (url.pathname.startsWith('/storage/')) return handleStorage(req, res, url, uid);
   if (url.pathname.startsWith('/auth/')) return handleAuth(req, res, url, uid);
+  // Função de leitura de imagens SIMULADA: nenhuma IA é chamada. Devolve uma leitura fixa de um
+  // produto fictício, no mesmo formato da Edge Function real, para exercitar o fluxo do aplicativo.
+  if (url.pathname === '/functions/v1/receipt-ocr' && req.method === 'POST') {
+    if (!uid) return send(res, 401, { error: 'unauthenticated', message: 'Sessão necessária.' });
+    const body = JSON.parse((await readBody(req)).toString() || '{}');
+    if (body.kind !== 'product' || !Array.isArray(body.images) || body.images.length !== 1 || typeof body.images[0].base64 !== 'string') {
+      return send(res, 400, { error: 'invalid_images', message: 'Envie uma única foto do produto com a etiqueta.' });
+    }
+    return send(res, 200, {
+      provider: 'simulado-e2e',
+      parts: [{ lines: ['FEIJAO CARIOCA 1KG', 'DE 9,99 POR 8,49', 'CLUBE'] }],
+      product: {
+        product_name: 'Feijão carioca (teste)', brand: 'Marca Teste', package_text: '1 kg', barcode: null, regular_price: '9,99', promo_price: '8,49',
+        price_basis: 'unit', reference_price: null, reference_per: null, promo_conditions: ['CLUBE'], label_matches_product: 'yes', uncertain_fields: [],
+      },
+    });
+  }
   if (url.pathname === '/__debug/sql') { // somente para o roteiro de teste verificar o banco
     const { sql, params } = JSON.parse((await readBody(req)).toString());
     const run = () => db.query(sql, params);

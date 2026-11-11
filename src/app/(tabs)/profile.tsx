@@ -7,6 +7,7 @@ import { fmtDate } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
 import { REPUTATION_LABEL } from '@/domain/marketplace';
 import { isAdmin, myReputation } from '@/services/marketplace';
+import { isSharingEnabled, SHARE_PRICES_SETTING } from '@/services/prices';
 import { getSupabase } from '@/services/supabase';
 import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, KeyValue, Row, Screen, SectionTitle, Sheet, T } from '@/ui/components';
@@ -18,6 +19,7 @@ export default function Account() {
   const [syncing, setSyncing] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const { data: consent, reload } = useLoad(() => repo.getSetting('ocr_consent'), [version]);
+  const { data: sharing, reload: reloadSharing } = useLoad(() => isSharingEnabled(repo), [version]);
   const { data: products } = useLoad(() => repo.listProducts(), [version, productsOpen]);
   const cloud = isCloudConfigured();
   const signedIn = !!session && !isAnonymous;
@@ -127,6 +129,33 @@ export default function Account() {
           </Card>
         </>
       ) : null}
+
+      <SectionTitle>Preços e gastos</SectionTitle>
+      <Card>
+        <Button title="Preços registrados" icon="trending-down-outline" kind="secondary" onPress={() => router.push('/prices')} />
+        <Button title="Resumo de gastos" icon="stats-chart-outline" kind="secondary" onPress={() => router.push({ pathname: '/purchases', params: { view: 'summary' } })} />
+        {cloud ? (
+          <>
+            <Divider />
+            <T v="bodyStrong">Base de preços da comunidade</T>
+            <T v="small" color={colors.textMuted}>
+              {sharing
+                ? 'Ligada: com conta, os preços que você registra em compras vinculadas a uma unidade cadastrada ajudam outras pessoas a comparar. São enviados o produto, o preço, a data e a unidade — nunca o seu nome, a sua compra ou o seu orçamento.'
+                : 'Desligada: seus preços ficam só no seu histórico.'}
+            </T>
+            <Button
+              title={sharing ? 'Parar de contribuir' : 'Contribuir com meus preços'}
+              icon={sharing ? 'eye-off-outline' : 'people-outline'}
+              kind="ghost"
+              compact
+              onPress={async () => {
+                await repo.setSetting(SHARE_PRICES_SETTING, sharing ? 'off' : null);
+                reloadSharing();
+              }}
+            />
+          </>
+        ) : null}
+      </Card>
 
       <SectionTitle>Seus dados</SectionTitle>
       <Card>

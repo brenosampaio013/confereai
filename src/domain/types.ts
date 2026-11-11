@@ -4,12 +4,14 @@ import type { QuantityMilli, SaleUnit } from './units';
 export type PriceSource =
   | 'manual' // digitado pelo usuário
   | 'label_ocr' // lido da etiqueta e confirmado pelo usuário
+  | 'photo_ai' // identificado pela IA na foto do produto com a etiqueta, confirmado pelo usuário
   | 'previous' // preço registrado anteriormente pelo usuário, reconfirmado
   | 'receipt'; // valor vindo do cupom fiscal (correção a partir da nota)
 
 export const PRICE_SOURCE_LABEL: Record<PriceSource, string> = {
   manual: 'Digitado',
   label_ocr: 'Etiqueta (OCR)',
+  photo_ai: 'Foto (IA)',
   previous: 'Preço anterior',
   receipt: 'Cupom fiscal',
 };
@@ -26,8 +28,8 @@ export interface Product {
   /** Como o produto é vendido. */
   saleUnit: SaleUnit;
   imageUri: string | null;
-  /** Origem do cadastro: usuário ou base pública (Open Food Facts). */
-  source: 'user' | 'open_food_facts';
+  /** Origem do cadastro: usuário, base pública (Open Food Facts) ou base da comunidade do Confere Aí. */
+  source: 'user' | 'open_food_facts' | 'community';
   createdAt: string;
   updatedAt: string;
 }
@@ -48,6 +50,8 @@ export interface CartItem {
   /** Desconto total do item (não por unidade). */
   discountCents: Cents;
   priceSource: PriceSource;
+  /** Preço normal (sem promoção) quando o preço registrado é promocional. */
+  regularPriceCents: Cents | null;
   /** Condições da promoção, quando o preço é promocional. */
   promoNote: string | null;
   addedVia: 'scan' | 'manual';
@@ -61,6 +65,10 @@ export interface Purchase {
   id: string;
   storeName: string | null;
   storeCnpj: string | null;
+  /** Unidade cadastrada (marketplace) à qual a compra foi vinculada, se houver. */
+  storeLocationId: string | null;
+  /** Orçamento planejado para a compra, em centavos. */
+  budgetCents: Cents | null;
   status: PurchaseStatus;
   /** 'cart' quando os produtos foram registrados; 'receipt_only' quando só a nota foi conferida. */
   mode: 'cart' | 'receipt_only';
