@@ -60,6 +60,10 @@ html = html.replace(/<img src="assets\/telas\/([a-z-]+)\.png"([^>]*?)width="\d+"
     `<img src="assets/telas/${nome}-780.webp" srcset="assets/telas/${nome}-390.webp 390w, assets/telas/${nome}-780.webp 780w"` +
     ` sizes="(max-width: 860px) 68vw, 300px"${meio}width="780" height="1688"${fim}>`);
 
+// O filme só entra na página quando o arquivo existe (nada de player vazio).
+const COM_FILME = existsSync(join(origem, 'assets', 'filme', 'meu-carrin.mp4'));
+if (!COM_FILME) html = html.replace(/<!--\[FILME\]-->[\s\S]*?<!--\[\/FILME\]-->/, '');
+
 if (!COM_LISTA) {
   html = html.replace(/<!--\[LISTA\]-->[\s\S]*?<!--\[\/LISTA\]-->/,
     '<p class="plano__nota">O plano ainda não está aberto. Enquanto isso, use o plano gratuito à vontade.</p>');
@@ -146,4 +150,5 @@ writeFileSync(join(saida, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?
 console.log(`\nLanding pronta em site-dist/`);
 console.log(`  site: ${SITE_URL}   app: ${APP_URL}`);
 console.log(`  ${economizados} capturas em WebP (${LARGURAS.join(' e ')} px)`);
+console.log(`  filme: ${COM_FILME ? 'publicado' : 'fora da página (ainda não renderizado)'}`);
 console.log(`  lista de espera do plano pago: ${COM_LISTA ? 'publicada' : 'fora da página (sem Supabase configurado)'}`);

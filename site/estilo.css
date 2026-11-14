@@ -281,3 +281,21 @@ a { color: inherit; }
 .botao--largo { width: 100%; }
 .plano__titulo { margin-top: 14px; }
 .aviso-lista__rotulo { font-weight: 600; font-size: .95rem; }
+
+/* ---------- O filme ---------- */
+.filme {
+  position: relative; border-radius: var(--raio-g); overflow: hidden;
+  background: var(--navy); box-shadow: var(--sombra); aspect-ratio: 16 / 9;
+}
+.filme__video { width: 100%; height: 100%; display: block; object-fit: cover; background: var(--navy); }
+.filme__play {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  width: 92px; height: 92px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--verde); color: #fff; display: grid; place-items: center;
+  box-shadow: 0 16px 40px -10px rgba(10, 31, 53, .65);
+  transition: transform .16s ease, background-color .16s ease;
+}
+.filme__play:hover { background: var(--verde-texto); transform: translate(-50%, -50%) scale(1.05); }
+.filme__play svg { margin-left: 6px; }
+.filme__play[hidden] { display: none; }
+@media (max-width: 560px) { .filme__play { width: 68px; height: 68px; } .filme__play svg { width: 22px; height: 25px; } }

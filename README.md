@@ -267,6 +267,37 @@ cache de um ano e o `_headers` não fica exposto. No Chromium: nenhum erro de co
 fonte carrega, a demonstração do orçamento roda e o maior elemento visível aparece em menos
 de 100 ms. **Não testado:** o deploy real na conta, o domínio próprio e o Safari do iPhone.
 
+### O filme de apresentação
+
+O vídeo da landing é feito em código, no próprio repositório (skill Motion Pro): sete cenas
+de HTML e CSS animadas por uma função do tempo e renderizadas quadro a quadro em MP4. Não há
+serviço de terceiros nem IA de vídeo no meio.
+
+- `motion-pro/meu-carrin/motion.json` — o roteiro: cenas, durações, quadros-chave, batidas e transições;
+- `motion-pro/meu-carrin/cenas/<id>.js|.css` — a composição e o movimento de cada cena;
+- `motion-pro/meu-carrin/marca/tokens.css` — as cores e a fonte da marca dentro do filme;
+- `site/assets/filme/` — o MP4 e a capa que a página publica (o build tira a seção do ar se o arquivo não existir).
+
+As telas do aplicativo que aparecem no filme são **redesenhadas em HTML e funcionam de verdade**
+(o total soma, a barra muda de cor, o aviso sobe), com os mesmos números e as mesmas frases do app.
+
+Para refazer o filme (a skill fica em `~/.claude/skills/.../motion-pro`):
+
+```bash
+node <skill>/scripts/storyboard.mjs motion-pro/meu-carrin
+```
+
+```bash
+node <skill>/scripts/renderizar.mjs motion-pro/meu-carrin --formato 16x9 --fps 30
+```
+
+```bash
+node <skill>/scripts/sons.mjs motion-pro/meu-carrin
+```
+
+O storyboard, o render e o cache não são versionados (são gerados); o roteiro, as cenas, a marca
+e a mídia são.
+
 ### Ainda pendente na landing
 
 - A tela da leitura por foto foi capturada com uma **resposta simulada** no formato da função

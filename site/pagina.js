@@ -115,6 +115,18 @@
     alvos.forEach(function (a) { a.classList.add('visivel'); });
   }
 
+  /* ---------- O filme ---------- */
+  var filme = document.getElementById('video-filme');
+  var play = document.getElementById('filme-play');
+  if (filme && play) {
+    play.addEventListener('click', function () {
+      play.hidden = true;
+      filme.play();
+    });
+    filme.addEventListener('pause', function () { if (filme.currentTime === 0) play.hidden = false; });
+    filme.addEventListener('ended', function () { play.hidden = false; filme.load(); });
+  }
+
   /* ---------- Lista de espera do plano pago ---------- */
   var form = document.getElementById('lista-espera');
   if (form) {
