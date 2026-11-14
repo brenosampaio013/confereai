@@ -59,3 +59,6 @@ google-play-service-account.json
 
 # Arquivos de trabalho das capturas (regerados por scripts/capture-screens.mjs)
 site/assets/telas/_*
+
+# Landing page gerada (npm run build:site)
+site-dist/

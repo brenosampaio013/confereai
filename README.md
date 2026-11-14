@@ -16,17 +16,18 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 4. [Como executar](#como-executar)
 5. [Abrir no celular (câmera)](#abrir-no-celular)
 6. [Publicar no Cloudflare](#publicar-no-cloudflare)
-6. [Publicar na Netlify](#publicar-na-netlify)
-7. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
-7. [Configurar o Supabase](#configurar-o-supabase)
-7. [Configurar o OCR / IA](#configurar-o-ocr--ia)
-8. [Testes](#testes)
-9. [Gerar versões (EAS)](#gerar-versões-eas)
-10. [Regras de negócio importantes](#regras-de-negócio-importantes)
-11. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
-12. [Privacidade e segurança](#privacidade-e-segurança)
-13. [Estado dos testes](#estado-dos-testes)
-14. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
+7. [Landing page (site de apresentação)](#landing-page-site-de-apresentação)
+8. [Publicar na Netlify](#publicar-na-netlify)
+9. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
+10. [Configurar o Supabase](#configurar-o-supabase)
+11. [Configurar o OCR / IA](#configurar-o-ocr--ia)
+12. [Testes](#testes)
+13. [Gerar versões (EAS)](#gerar-versões-eas)
+14. [Regras de negócio importantes](#regras-de-negócio-importantes)
+15. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
+16. [Privacidade e segurança](#privacidade-e-segurança)
+17. [Estado dos testes](#estado-dos-testes)
+18. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
 
 ---
 
@@ -207,6 +208,71 @@ npm run deploy:cf
 ```
 
 **Verificado aqui** com o próprio runtime do Cloudflare (`wrangler dev`, workerd) servindo a pasta `dist`: a página já abre isolada na primeira visita (sem o recarregamento que o GitHub Pages exige), o banco local grava e lê, rotas internas abertas direto (`/prices`, `/offers/<id>`) respondem 200 com o app, os arquivos com hash ficam em cache de longa duração e o `index.html` e o service worker não, os arquivos de configuração não ficam expostos e o Chrome não aponta impedimento para instalar. **Não testado:** o deploy real na conta do Cloudflare e o uso em celular físico.
+
+## Landing page (site de apresentação)
+
+A landing é um site estático separado do aplicativo — HTML, CSS e um pouco de JavaScript,
+**sem nenhuma dependência nova**. O app é uma SPA e não tem conteúdo para o Google; a
+landing tem. São dois Workers no Cloudflare, no mesmo repositório:
+
+| Endereço | O que é | Pasta publicada | Configuração |
+|---|---|---|---|
+| `meucarrin.com` | landing page | `site-dist/` | `wrangler.site.jsonc` |
+| `app.meucarrin.com` | o aplicativo | `dist/` | `wrangler.jsonc` |
+
+Assim o app **não muda de pasta**: nenhum link compartilhado quebra e os cabeçalhos de
+isolamento (COOP/COEP), que a landing não precisa, continuam só no app.
+
+### Arquivos
+
+- `site/` — a página (`index.html`, `estilo.css`, `pagina.js`), os termos de uso, a página 404,
+  a marca, a fonte Archivo (licença OFL junto) e as capturas do app;
+- `scripts/capture-screens.mjs` — gera as capturas dirigindo o **app real** no Chromium, com
+  dados de demonstração criados pelo próprio roteiro (`npm run capturas`);
+- `scripts/build-site.mjs` — monta `site-dist/`: converte as capturas para WebP em dois
+  tamanhos, gera a imagem de compartilhamento, `_headers`, `robots.txt` e `sitemap.xml`;
+- `scripts/check-site.mjs` — confere imagens, links, âncoras, acessibilidade básica,
+  marcadores do build que não foram substituídos e rolagem lateral no celular.
+
+```bash
+npm run build:site && npm run check:site
+```
+
+### Variáveis do build
+
+| Variável | Padrão | Para que serve |
+|---|---|---|
+| `SITE_URL` | `https://meucarrin.com` | endereço canônico, Open Graph e sitemap |
+| `SITE_APP_URL` | `https://app.meucarrin.com` | destino de todos os botões "abrir o app" |
+| `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` | — | quando as duas existem, a lista de espera do plano pago é publicada; sem elas o formulário sai da página (nada de botão que não funciona) |
+
+### Publicar
+
+No painel do Cloudflare, **Create → Workers → Import a repository**, escolhendo o mesmo
+repositório e preenchendo:
+
+| Campo | Valor |
+|---|---|
+| Project name | `meucarrin-site` (igual ao `name` do `wrangler.site.jsonc`) |
+| Build command | `npm run build:site` |
+| Deploy command | `npx wrangler deploy -c wrangler.site.jsonc` |
+
+Do seu computador: `npm run deploy:site`.
+
+**Verificado aqui** com o runtime do Cloudflare (`wrangler dev`, workerd): a página responde
+200 com os cabeçalhos de segurança (incluindo *Content-Security-Policy* que só permite
+script e estilo do próprio site), `/termos` e `/privacidade` abrem sem redirecionamento,
+endereço inexistente devolve a página 404 com status 404, os arquivos de `assets/` ficam em
+cache de um ano e o `_headers` não fica exposto. No Chromium: nenhum erro de console, a
+fonte carrega, a demonstração do orçamento roda e o maior elemento visível aparece em menos
+de 100 ms. **Não testado:** o deploy real na conta, o domínio próprio e o Safari do iPhone.
+
+### Ainda pendente na landing
+
+- A tela da leitura por foto foi capturada com uma **resposta simulada** no formato da função
+  real. Antes de publicar, rode `npm run capturas` com o Supabase e a chave da API no ar para
+  trocá-la por uma leitura verdadeira.
+- A lista de espera do plano pago precisa da função `join_waitlist` no Supabase.
 
 ## Publicar na Netlify
 
@@ -417,6 +483,7 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Orçamento, preços e gastos — banco** | 12 testes novos (55 no total), todos passando: isolamento das compras/orçamento entre usuários, restrições, base compartilhada acessível só por funções, sem identificação de quem informou, idempotência, limite diário, dados inválidos, unidade não aprovada, preço antigo, exclusão de conta, contrato app × banco. |
 | **Orçamento, preços e gastos — ponta a ponta** | 11 passos novos em `npm run test:e2e` (22 no total), todos passando: orçamento ao iniciar, saldo a cada item, avisos em 80%, 100% e 120%, sem aviso ao diminuir, unidade cadastrada, foto → formulário de conferência, Minhas compras, resumo, envio à base da comunidade, isolamento entre contas. **A leitura por IA é simulada** pelo servidor de teste (resposta fixa no formato da função real). |
 | **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada (a parte nova de leitura de produto por foto segue o mesmo padrão de chamada, mas não foi verificada nem executada) contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
+| **Landing page (navegador + runtime do Cloudflare)** | `npm run check:site`: imagens, links, âncoras, um `h1`, textos alternativos, idioma, Open Graph, dados estruturados, marcadores do build e rolagem lateral em 360 px — tudo passando. Com `wrangler dev` (workerd): cabeçalhos de segurança, `/termos` e `/privacidade` sem redirecionamento, 404 com status 404, cache dos arquivos e `_headers` não exposto. Sem erros de console no Chromium. **Não testado:** deploy real, domínio próprio e Safari do iPhone. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |
 

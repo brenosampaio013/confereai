@@ -65,8 +65,12 @@
     "store-art": "node scripts/generate-store-art.mjs",
     "build:web": "node scripts/build-web.mjs",
     "build": "node scripts/build-web.mjs",
+    "build:site": "node scripts/build-site.mjs",
+    "check:site": "node scripts/check-site.mjs",
+    "capturas": "node scripts/capture-screens.mjs",
     "test:e2e": "node e2e/run.mjs",
-    "deploy:cf": "npm run build:web && wrangler deploy"
+    "deploy:cf": "npm run build:web && wrangler deploy",
+    "deploy:site": "npm run build:site && wrangler deploy -c wrangler.site.jsonc"
   },
   "private": true
 }

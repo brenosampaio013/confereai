@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Meu Carrin">
+  <rect width="64" height="64" rx="16" fill="#0E2A47"/>
+  <path d="M12 17h4.4a2.2 2.2 0 0 1 2 1.3L20.5 24" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M20.5 24H51.5L47 41l-5.5-3-5.5 3-5.5-3-5.5 3Z" fill="#FFFFFF"/>
+  <path d="M29 31.6l4.3 4.3 8.7-9.2" stroke="#11915A" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="30" cy="48" r="3.2" fill="#FFFFFF"/>
+  <circle cx="44" cy="48" r="3.2" fill="#FFFFFF"/>
+</svg>
