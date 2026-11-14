@@ -176,7 +176,7 @@ Na tela **Set up your application** (depois de escolher o repositório `brenosam
 | Campo | Valor |
 |---|---|
 | Project name | `confereai` (precisa ser igual ao `name` do `wrangler.jsonc`) |
-| Build command | `node scripts/build-web.mjs` |
+| Build command | `npm run build` — **não deixe em branco** |
 | Deploy command | `npx wrangler deploy` (já vem preenchido) |
 | Preview command | `npx wrangler preview` (já vem preenchido) |
 
@@ -186,6 +186,8 @@ Depois do primeiro deploy, em **Settings → Build → Variables and Secrets**, 
 - `EXPO_PUBLIC_WEB_URL` — endereço final do site (ex.: `https://confereai.<sua-conta>.workers.dev` ou um domínio próprio), usado nos links de ofertas compartilhadas.
 
 Elas são usadas **durante o build**, então precisam estar nas variáveis de build, não nas de runtime. Cada push no `master` publica uma versão nova. No celular, abra o endereço no Chrome e use **Instalar app**.
+
+> **Se o deploy falhar com `The directory specified by the "assets.directory" field in your configuration file does not exist: /opt/buildhome/repo/dist`**, o campo *Build command* ficou vazio e o site não chegou a ser gerado. Preencha em **Settings → Build → Build command** com `npm run build` e use **Retry deployment**.
 
 Para publicar do seu computador, sem o painel:
 
