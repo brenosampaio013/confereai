@@ -1,5 +1,5 @@
-# Configuração do Supabase CLI para o Confere Aí (desenvolvimento local / deploy).
-project_id = "confere-ai"
+# Configuração do Supabase CLI para o Meu Carrin (desenvolvimento local / deploy).
+project_id = "meu-carrin"
 
 [auth]
 enable_signup = true

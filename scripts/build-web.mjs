@@ -1,4 +1,4 @@
-// Gera a versão web instalável (PWA) do Confere Aí em ./dist.
+// Gera a versão web instalável (PWA) do Meu Carrin em ./dist.
 //
 //   EXPO_BASE_URL=/confereai node scripts/build-web.mjs   (GitHub Pages do repositório)
 //   node scripts/build-web.mjs                            (site na raiz do domínio)
@@ -37,9 +37,9 @@ copyFileSync(join(root, 'docs/privacidade.html'), join(dist, 'privacidade.html')
 
 // Manifesto
 const manifest = {
-  name: 'Confere Aí',
-  short_name: 'Confere Aí',
-  description: 'Registre suas compras e confira o cupom fiscal antes de sair do caixa.',
+  name: 'Meu Carrin',
+  short_name: 'Meu Carrin',
+  description: 'Saiba quanto já deu antes de chegar no caixa e confira o cupom.',
   lang: 'pt-BR',
   id: `${base}/`,
   start_url: `${base}/`,
@@ -69,7 +69,7 @@ html = html.replace(
   <meta name="theme-color" content="${NAVY}" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Confere Aí" />
+  <meta name="apple-mobile-web-app-title" content="Meu Carrin" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="manifest" href="${base}/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="${base}/icons/apple-touch-icon.png" />
@@ -77,7 +77,7 @@ html = html.replace(
 </head>`,
 );
 const loader = `
-  <div id="boot"><img src="${base}/icons/pwa-192.png" alt="" /><span>Abrindo o Confere Aí…</span></div>
+  <div id="boot"><img src="${base}/icons/pwa-192.png" alt="" /><span>Abrindo o Meu Carrin…</span></div>
   <script>
   (function () {
     var scripts = ${JSON.stringify(scripts)};
@@ -148,7 +148,7 @@ const version = createHash('sha256').update(files.map((f) => f + statSync(join(d
 const precache = files.map((f) => base + (f === '/index.html' ? '/' : f));
 
 const sw = `// Gerado por scripts/build-web.mjs — versão ${version}
-const CACHE = 'confere-ai-${version}';
+const CACHE = 'meu-carrin-${version}';
 const BASE = '${base}';
 const PRECACHE = ${JSON.stringify(precache)};
 
@@ -159,7 +159,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('confere-ai-') && k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => (k.startsWith('meu-carrin-') || k.startsWith('confere-ai-')) && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });

@@ -1,22 +1,22 @@
 {
   "expo": {
-    "name": "Confere Aí",
-    "slug": "confere-ai",
+    "name": "Meu Carrin",
+    "slug": "meu-carrin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "confereai",
+    "scheme": "meucarrin",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F3F5F8",
     "ios": {
-      "bundleIdentifier": "br.com.confereai.app",
+      "bundleIdentifier": "com.meucarrin.app",
       "supportsTablet": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "br.com.confereai.app",
+      "package": "com.meucarrin.app",
       "adaptiveIcon": {
         "backgroundColor": "#0E2A47",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -51,7 +51,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "O Confere Aí usa a câmera para ler códigos de barras, etiquetas de preço e cupons fiscais.",
+          "cameraPermission": "O Meu Carrin usa a câmera para ler códigos de barras, etiquetas de preço e cupons fiscais.",
           "microphonePermission": false,
           "recordAudioAndroid": false,
           "barcodeScannerEnabled": true
@@ -60,8 +60,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "O Confere Aí acessa suas fotos apenas quando você escolhe uma imagem de cupom ou etiqueta da galeria.",
-          "cameraPermission": "O Confere Aí usa a câmera para fotografar cupons fiscais, etiquetas e embalagens.",
+          "photosPermission": "O Meu Carrin acessa suas fotos apenas quando você escolhe uma imagem de cupom ou etiqueta da galeria.",
+          "cameraPermission": "O Meu Carrin usa a câmera para fotografar cupons fiscais, etiquetas e embalagens.",
           "microphonePermission": false
         }
       ],
@@ -70,7 +70,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "O Confere Aí usa sua localização apenas quando você publica ou confirma uma oferta, para conferir se você está perto do supermercado. Suas coordenadas não são armazenadas.",
+          "locationWhenInUsePermission": "O Meu Carrin usa sua localização apenas quando você publica ou confirma uma oferta, para conferir se você está perto do supermercado. Suas coordenadas não são armazenadas.",
           "isAndroidBackgroundLocationEnabled": false,
           "isIosBackgroundLocationEnabled": false
         }

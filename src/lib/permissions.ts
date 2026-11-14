@@ -21,7 +21,7 @@ export function cameraPermissionView(p: PermissionLike | null | undefined, camer
   if (p.canAskAgain) {
     return {
       kind: 'request',
-      message: 'Para ler códigos de barras e fotografar cupons, o Confere Aí precisa acessar a câmera. As imagens ficam no aparelho, salvo quando você pedir a leitura automática.',
+      message: 'Para ler códigos de barras e fotografar cupons, o Meu Carrin precisa acessar a câmera. As imagens ficam no aparelho, salvo quando você pedir a leitura automática.',
     };
   }
   return {
@@ -50,6 +50,6 @@ export function locationPermissionView(p: PermissionLike | null | undefined): Lo
   return {
     kind: 'blocked',
     message:
-      'A localização está desativada para o Confere Aí. Você ainda pode publicar escolhendo o supermercado manualmente; a oferta passará por análise antes de aparecer para todos.',
+      'A localização está desativada para o Meu Carrin. Você ainda pode publicar escolhendo o supermercado manualmente; a oferta passará por análise antes de aparecer para todos.',
   };
 }

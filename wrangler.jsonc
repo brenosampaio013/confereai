@@ -1,5 +1,5 @@
 /**
- * Publicação da versão web (PWA) do Confere Aí no Cloudflare (Workers com arquivos estáticos).
+ * Publicação da versão web (PWA) do Meu Carrin no Cloudflare (Workers com arquivos estáticos).
  * Só arquivos estáticos: não há código de servidor neste projeto.
  *
  * - "directory": pasta gerada por `npm run build:web`.

@@ -1,8 +1,10 @@
-# Confere Aí
+# Meu Carrin
 
 Aplicativo para conferir compras de supermercado: registre os produtos enquanto compra, fotografe o cupom fiscal no caixa e veja possíveis cobranças duplicadas, diferenças de quantidade, de preço e itens não localizados.
 
 > **Status:** aplicativo funcional, com testes automatizados executados. **Ainda não foi testado em um celular físico** nem com cupons fiscais reais (veja [Estado dos testes](#estado-dos-testes)).
+
+> **Marca:** o aplicativo se chama **Meu Carrin** (endereço: `meucarrin.com`). O repositório no GitHub, o Worker do Cloudflare (`name` em `wrangler.jsonc`) e o caminho `/confereai` do GitHub Pages continuam com o nome anterior: são identificadores de infraestrutura e renomeá-los quebraria a publicação automática. O nome do arquivo do banco local (`confere-ai.db`) também não muda, para não apagar os dados de quem já usa o app.
 
 ---
 
@@ -106,7 +108,7 @@ Fluxo de dados: as telas chamam o `Repository` (SQLite). Toda escrita grava `upd
 Pré-requisitos: Node.js 20+ (testado com 22.22) e npm.
 
 ```bash
-cd confere-ai
+cd confereai
 ```
 
 ```bash
@@ -368,7 +370,7 @@ npx eas-cli@latest build --profile production --platform all
 
 Passo a passo da Google Play (ficha da loja, gráficos, política de privacidade e respostas de “Segurança dos dados”): [`store/android/PUBLICACAO.md`](store/android/PUBLICACAO.md).
 
-Antes de produção: configure as variáveis `EXPO_PUBLIC_*` no EAS (`eas env:create`) ou no `.env`, revise `bundleIdentifier`/`package` em `app.json` (`br.com.confereai.app` é um valor sugerido), preencha o contato de privacidade e revise a política com assessoria jurídica. A publicação nas lojas exige contas Apple Developer / Google Play e etapas manuais (fichas, capturas de tela, classificação, formulário de segurança de dados); nada disso é automático.
+Antes de produção: configure as variáveis `EXPO_PUBLIC_*` no EAS (`eas env:create`) ou no `.env`, revise `bundleIdentifier`/`package` em `app.json` (`com.meucarrin.app` é um valor sugerido), preencha o contato de privacidade e revise a política com assessoria jurídica. A publicação nas lojas exige contas Apple Developer / Google Play e etapas manuais (fichas, capturas de tela, classificação, formulário de segurança de dados); nada disso é automático.
 
 ## Regras de negócio importantes
 

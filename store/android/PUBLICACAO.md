@@ -1,4 +1,4 @@
-# Publicação na Google Play — Confere Aí
+# Publicação na Google Play — Meu Carrin
 
 Guia passo a passo e conteúdo pronto para a ficha da loja. Responsável: Breno Sampaio · contato: atendimentoencantoindiana@gmail.com.
 
@@ -38,7 +38,7 @@ npx eas-cli@latest build --profile production --platform android
 
 ## 3. Criar o app no Play Console
 
-1. **Criar app** → nome `Confere Aí`, idioma padrão Português (Brasil), tipo **App**, **Gratuito**.
+1. **Criar app** → nome `Meu Carrin`, idioma padrão Português (Brasil), tipo **App**, **Gratuito**.
 2. **Testar e lançar → Teste interno → Criar nova versão** → envie o `.aab` (o **primeiro envio tem que ser manual**, pela interface).
 3. Adicione seu e-mail como testador e instale pelo link de teste.
 
@@ -52,22 +52,22 @@ O `eas.json` já está configurado para enviar à faixa **internal** como **rasc
 
 ## 4. Ficha da loja (Presença na loja → Ficha principal)
 
-**Nome do app** (máx. 30): `Confere Aí: confira compras` (27)
+**Nome do app** (máx. 30): `Meu Carrin: confira compras` (27)
 
 **Descrição curta** (máx. 80):
 ```
-Registre suas compras e confira o cupom fiscal antes de sair do caixa.
+Saiba quanto já deu antes de chegar no caixa e confira o cupom.
 ```
 
 **Descrição completa** (máx. 4000):
 ```
-O Confere Aí ajuda você a conferir as compras do supermercado e a encontrar possíveis erros no cupom fiscal: produtos cobrados duas vezes, quantidades diferentes, preços diferentes do anunciado e itens que não aparecem na nota.
+O Meu Carrin ajuda você a conferir as compras do supermercado e a encontrar possíveis erros no cupom fiscal: produtos cobrados duas vezes, quantidades diferentes, preços diferentes do anunciado e itens que não aparecem na nota.
 
 COMO FUNCIONA
 
 1. Durante a compra, escaneie o código de barras dos produtos e informe o preço da etiqueta. O total é atualizado na hora.
 2. No caixa, fotografe o cupom fiscal ou digite os itens.
-3. O Confere Aí compara o que você registrou com o que foi cobrado e mostra o resultado em verde, amarelo ou vermelho, explicando cada ponto em linguagem simples.
+3. O Meu Carrin compara o que você registrou com o que foi cobrado e mostra o resultado em verde, amarelo ou vermelho, explicando cada ponto em linguagem simples.
 
 Não escaneou nada? Tudo bem: você também pode conferir só a nota. O app procura linhas repetidas, contas que não fecham e itens que precisam de revisão.
 
@@ -93,7 +93,7 @@ PRIVACIDADE
 Sem conta, seus dados ficam só no seu celular. As fotos dos cupons não são guardadas na nuvem e só são enviadas para leitura com a sua autorização.
 
 IMPORTANTE
-O Confere Aí é uma ferramenta de apoio. As cores indicam pontos de atenção, não a confirmação de um erro de cobrança. Em caso de dúvida, confira o cupom impresso com o atendente do caixa.
+O Meu Carrin é uma ferramenta de apoio. As cores indicam pontos de atenção, não a confirmação de um erro de cobrança. Em caso de dúvida, confira o cupom impresso com o atendente do caixa.
 ```
 > Se publicar **sem** Supabase/OCR, troque "fotografe o cupom fiscal ou digite os itens" por "digite os itens do cupom" e retire "Leitura da etiqueta de preço pela câmera", "Cupons compridos em várias fotos" e "Conta opcional...". A descrição não pode prometer recursos que não funcionam.
 

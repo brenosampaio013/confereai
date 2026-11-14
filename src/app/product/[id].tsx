@@ -120,7 +120,7 @@ export default function ProductScreen() {
                     detail: `${c.city}/${c.state} · ${FRESH_PILL[f].label.toLowerCase()}, ${ageLabel(c.observed_at, now)}${c.promo ? ' · promoção' : ''} · ${c.reporters <= 1 ? 'informado por 1 pessoa' : `informado por ${c.reporters} pessoas`}`,
                   };
                 })}
-                note="Informações de outros usuários, sem verificação do Confere Aí. Confira o preço na loja."
+                note="Informações de outros usuários, sem verificação do Meu Carrin. Confira o preço na loja."
               />
             ) : null}
           </Card>

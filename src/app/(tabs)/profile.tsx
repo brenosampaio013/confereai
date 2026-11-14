@@ -112,7 +112,7 @@ export default function Account() {
         <Card>
           <T v="heading">Guarde suas compras na nuvem</T>
           <T color={colors.textMuted}>
-            Você pode usar o Confere Aí sem conta: tudo fica salvo neste aparelho. Crie uma conta para fazer cópia de segurança e acessar o histórico em outro celular.
+            Você pode usar o Meu Carrin sem conta: tudo fica salvo neste aparelho. Crie uma conta para fazer cópia de segurança e acessar o histórico em outro celular.
           </T>
           <Button title="Entrar ou criar conta" icon="person-add-outline" onPress={() => router.push('/auth')} />
         </Card>
@@ -179,7 +179,7 @@ export default function Account() {
       </Card>
 
       <View style={{ gap: 2, alignItems: 'center', paddingTop: space.md }}>
-        <T v="small" color={colors.textFaint}>Confere Aí · versão {Constants.expoConfig?.version ?? '—'}</T>
+        <T v="small" color={colors.textFaint}>Meu Carrin · versão {Constants.expoConfig?.version ?? '—'}</T>
         <T v="small" color={colors.textFaint} center>Ferramenta de apoio à conferência. Não substitui a verificação do cupom impresso.</T>
       </View>
 

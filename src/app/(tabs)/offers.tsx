@@ -140,7 +140,7 @@ export default function OffersScreen() {
         {!configured ? (
           <View style={{ paddingHorizontal: space.lg }}>
             <Banner t="yellow" icon="cloud-offline-outline" title="Marketplace indisponível neste aplicativo">
-              As ofertas da comunidade ficam no servidor do Confere Aí, que ainda não foi configurado nesta versão. O restante do app funciona normalmente.
+              As ofertas da comunidade ficam no servidor do Meu Carrin, que ainda não foi configurado nesta versão. O restante do app funciona normalmente.
             </Banner>
           </View>
         ) : (

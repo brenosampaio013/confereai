@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-/** Identidade visual do Confere Aí. */
+/** Identidade visual do Meu Carrin. */
 export const colors = {
   // Marca
   navy: '#0E2A47',

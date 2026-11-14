@@ -162,7 +162,7 @@ export default function CaptureReceipt() {
         </Banner>
       ) : (
         <Banner t="navy" icon="receipt-outline" title="Conferência só da nota">
-          Sem produtos registrados, o Confere Aí analisa a própria nota: linhas repetidas, contas que não fecham e itens ilegíveis.
+          Sem produtos registrados, o Meu Carrin analisa a própria nota: linhas repetidas, contas que não fecham e itens ilegíveis.
         </Banner>
       )}
       {online === false ? (

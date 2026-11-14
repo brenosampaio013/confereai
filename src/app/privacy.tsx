@@ -32,14 +32,14 @@ const SECTIONS: { title: string; body: string[] }[] = [
     title: 'Onde os dados ficam',
     body: [
       'Sem conta, tudo fica apenas no seu aparelho.',
-      'Com conta, os dados são sincronizados com o banco de dados do Confere Aí (Supabase), com acesso restrito a você por regras de segurança por usuário.',
+      'Com conta, os dados são sincronizados com o banco de dados do Meu Carrin (Supabase), com acesso restrito a você por regras de segurança por usuário.',
       'As fotos de cupons não são enviadas para a nuvem para armazenamento. Elas ficam no aparelho até a leitura e são apagadas em seguida. Fotos de embalagens que você tirar ficam apenas no aparelho. (Fotos de ofertas publicadas no marketplace são tratadas na seção própria.)',
     ],
   },
   {
     title: 'Leitura automática de imagens',
     body: [
-      'Quando você pede a leitura automática, a imagem é enviada com conexão criptografada para a função do servidor do Confere Aí, que a repassa ao serviço de reconhecimento de texto configurado (por exemplo, a API da Anthropic ou o Google Cloud Vision). A imagem é usada somente para extrair o texto e não é armazenada pelo Confere Aí.',
+      'Quando você pede a leitura automática, a imagem é enviada com conexão criptografada para a função do servidor do Meu Carrin, que a repassa ao serviço de reconhecimento de texto configurado (por exemplo, a API da Anthropic ou o Google Cloud Vision). A imagem é usada somente para extrair o texto e não é armazenada pelo Meu Carrin.',
       'Os provedores têm suas próprias políticas de retenção, informadas nos respectivos termos. O envio só ocorre após o seu consentimento, que pode ser revogado na aba Conta.',
       'Os cálculos da conferência são feitos por regras fixas no próprio aplicativo; a inteligência artificial não decide valores.',
     ],
@@ -60,7 +60,7 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: 'Limitações',
     body: [
-      'O Confere Aí é uma ferramenta de apoio. Ele não garante a identificação de todos os erros e não substitui a conferência do cupom impresso. Alertas indicam pontos de atenção, não a confirmação de cobrança indevida.',
+      'O Meu Carrin é uma ferramenta de apoio. Ele não garante a identificação de todos os erros e não substitui a conferência do cupom impresso. Alertas indicam pontos de atenção, não a confirmação de cobrança indevida.',
     ],
   },
 ];

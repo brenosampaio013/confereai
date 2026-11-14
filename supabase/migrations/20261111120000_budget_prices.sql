@@ -1,4 +1,4 @@
--- Confere Aí — orçamento da compra, histórico de preços por unidade e base compartilhada de preços.
+-- Meu Carrin — orçamento da compra, histórico de preços por unidade e base compartilhada de preços.
 --
 -- Dados pessoais (compras, orçamento, histórico) continuam protegidos pelas políticas RLS
 -- existentes: cada pessoa lê e grava somente as próprias linhas.

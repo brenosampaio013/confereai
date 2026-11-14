@@ -6,23 +6,24 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const out = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'images');
-const NAVY = '#0E2A47', GREEN = '#11915A', WHITE = '#FFFFFF', FAINT = '#8A97A6';
+const NAVY = '#0E2A47', GREEN = '#11915A', WHITE = '#FFFFFF';
 
-// Recibo + visto, em coordenadas 64×64 (mesmo desenho de src/ui/Logo.tsx)
-const glyph = (receipt = WHITE, lines = FAINT, check = GREEN) => `
-  <path d="M19 13h26a2 2 0 0 1 2 2v34l-5-3-5 3-5-3-5 3-5-3-5 3V15a2 2 0 0 1 2-2z" fill="${receipt}"/>
-  <path d="M23 21h18M23 27h12" stroke="${lines}" stroke-width="3" stroke-linecap="round"/>
-  <path d="M24.5 36.5l5.5 5.5 11-12" stroke="${check}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+// Carrinho com cesto de cupom + visto, em 64×64 (mesmo desenho de src/ui/Logo.tsx)
+const glyph = (cesto = WHITE, visto = GREEN) => `
+  <path d="M12 17h4.4a2.2 2.2 0 0 1 2 1.3L20.5 24" stroke="${cesto}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M20.5 24H51.5L47 41l-5.5-3-5.5 3-5.5-3-5.5 3Z" fill="${cesto}"/>
+  <path d="M29 31.6l4.3 4.3 8.7-9.2" stroke="${visto}" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="30" cy="48" r="3.2" fill="${cesto}"/><circle cx="44" cy="48" r="3.2" fill="${cesto}"/>`;
 
 const svg = (size, inner, bg) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 64 64">${bg ?? ''}${inner}</svg>`;
 // Para ícones adaptativos o desenho deve ficar na área segura central (~66%).
-const scaled = (s, inner) => `<g transform="translate(32 32) scale(${s}) translate(-32 -31)">${inner}</g>`;
+const scaled = (s, inner) => `<g transform="translate(32 32) scale(${s}) translate(-32 -33)">${inner}</g>`;
 
 const targets = [
   { file: 'icon.png', size: 1024, svg: svg(1024, scaled(1.15, glyph()), `<rect width="64" height="64" fill="${NAVY}"/>`) },
   { file: 'android-icon-foreground.png', size: 1024, svg: svg(1024, scaled(0.78, glyph())) },
   { file: 'android-icon-background.png', size: 1024, svg: svg(1024, '', `<rect width="64" height="64" fill="${NAVY}"/>`) },
-  { file: 'android-icon-monochrome.png', size: 1024, svg: svg(1024, scaled(0.78, glyph(WHITE, NAVY, NAVY))) },
+  { file: 'android-icon-monochrome.png', size: 1024, svg: svg(1024, scaled(0.78, glyph(WHITE, NAVY))) },
   { file: 'splash-icon.png', size: 512, svg: svg(512, '', `<rect width="64" height="64" rx="16" fill="${NAVY}"/>${glyph()}`) },
   // Ícones do app instalável (PWA)
   { file: 'pwa-192.png', size: 192, svg: svg(192, '', `<rect width="64" height="64" rx="14" fill="${NAVY}"/>${glyph()}`) },

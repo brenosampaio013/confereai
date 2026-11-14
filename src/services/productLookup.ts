@@ -17,7 +17,7 @@ export interface ProductSuggestion {
   source: 'open_food_facts' | 'community';
 }
 
-/** Sugestão para um código desconhecido: primeiro a base da comunidade do Confere Aí, depois o Open Food Facts. */
+/** Sugestão para um código desconhecido: primeiro a base da comunidade do Meu Carrin, depois o Open Food Facts. */
 export async function lookupPublicProduct(barcode: string): Promise<ProductSuggestion | null> {
   const shared = await lookupCommunityProduct(barcode);
   if (shared) {
@@ -35,7 +35,7 @@ async function lookupOpenFoodFacts(barcode: string): Promise<ProductSuggestion |
   try {
     const res = await fetch(
       `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_pt,brands,quantity`,
-      { signal: controller.signal, headers: { 'User-Agent': 'ConfereAi/1.0 (app de conferência de compras)' } },
+      { signal: controller.signal, headers: { 'User-Agent': 'MeuCarrin/1.0 (app de conferência de compras)' } },
     );
     if (!res.ok) return null;
     const data = await res.json();

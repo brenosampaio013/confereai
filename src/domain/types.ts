@@ -28,7 +28,7 @@ export interface Product {
   /** Como o produto é vendido. */
   saleUnit: SaleUnit;
   imageUri: string | null;
-  /** Origem do cadastro: usuário, base pública (Open Food Facts) ou base da comunidade do Confere Aí. */
+  /** Origem do cadastro: usuário, base pública (Open Food Facts) ou base da comunidade do Meu Carrin. */
   source: 'user' | 'open_food_facts' | 'community';
   createdAt: string;
   updatedAt: string;

@@ -41,7 +41,7 @@ export default function PublishOffer() {
   }, []);
 
   if (!isCloudConfigured()) {
-    return <Screen><Banner t="yellow" icon="cloud-offline-outline" title="Marketplace indisponível">O servidor do Confere Aí ainda não foi configurado neste aplicativo.</Banner></Screen>;
+    return <Screen><Banner t="yellow" icon="cloud-offline-outline" title="Marketplace indisponível">O servidor do Meu Carrin ainda não foi configurado neste aplicativo.</Banner></Screen>;
   }
   if (account === null) return <Loading />;
   if (!account) {

@@ -1,5 +1,5 @@
 {
-  "name": "confere-ai",
+  "name": "meu-carrin",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
@@ -62,6 +62,7 @@
     "test:db": "node --test supabase/tests/*.test.mjs",
     "test:all": "npm run typecheck && jest && node --test supabase/tests/*.test.mjs",
     "icons": "node scripts/generate-icons.mjs",
+    "store-art": "node scripts/generate-store-art.mjs",
     "build:web": "node scripts/build-web.mjs",
     "build": "node scripts/build-web.mjs",
     "test:e2e": "node e2e/run.mjs",

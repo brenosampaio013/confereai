@@ -1,4 +1,4 @@
--- Confere Aí — esquema inicial (Supabase / PostgreSQL)
+-- Meu Carrin — esquema inicial (Supabase / PostgreSQL)
 -- Todas as tabelas de dados pertencem a um usuário (user_id = auth.uid()) e são protegidas por RLS.
 -- Os ids (uuid) são gerados no aparelho para permitir uso offline e reenvio idempotente.
 

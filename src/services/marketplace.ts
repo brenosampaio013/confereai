@@ -18,7 +18,7 @@ export class MarketplaceError extends Error {
 function client() {
   const sb = getSupabase();
   if (!sb || !isCloudConfigured()) {
-    throw new MarketplaceError('O marketplace precisa do servidor do Confere Aí, que ainda não foi configurado neste aplicativo.', 'not_configured');
+    throw new MarketplaceError('O marketplace precisa do servidor do Meu Carrin, que ainda não foi configurado neste aplicativo.', 'not_configured');
   }
   return sb;
 }

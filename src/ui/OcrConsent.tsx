@@ -31,7 +31,7 @@ export function useOcrConsent() {
   const sheet = (
     <Sheet visible={open} onClose={() => answer(false)} title="Leitura automática de imagens">
       <T>
-        Para ler o texto da foto, a imagem é enviada com conexão segura ao servidor do Confere Aí, que a repassa ao serviço de
+        Para ler o texto da foto, a imagem é enviada com conexão segura ao servidor do Meu Carrin, que a repassa ao serviço de
         reconhecimento de texto configurado pelo operador do aplicativo (inteligência artificial ou OCR em nuvem).
       </T>
       <Banner t="navy" icon="shield-checkmark-outline">

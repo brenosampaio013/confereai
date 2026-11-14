@@ -1,4 +1,4 @@
--- Confere Aí — marketplace colaborativo de promoções com geolocalização.
+-- Meu Carrin — marketplace colaborativo de promoções com geolocalização.
 --
 -- Princípios:
 --  * Escritas importantes acontecem apenas por funções (RPC) que validam tudo no servidor:
