@@ -11,8 +11,8 @@
 //    GitHub Pages não permitem configurar esses cabeçalhos;
 //  - só carrega o app depois que a página está isolada (na 1ª visita recarrega uma vez);
 //  - copia a política de privacidade e cria 404.html e .nojekyll para o GitHub Pages;
-//  - cria _headers e _redirects (Cloudflare Pages e Netlify): com cabeçalhos reais de
-//    isolamento, o app abre direto, sem o recarregamento da primeira visita.
+//  - cria _headers (Cloudflare e Netlify): com cabeçalhos reais de isolamento, o app abre
+//    direto, sem o recarregamento da primeira visita.
 import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -103,7 +103,7 @@ writeFileSync(join(dist, 'index.html'), html);
 writeFileSync(join(dist, '404.html'), html); // rotas internas abertas diretamente (ex.: /cart)
 writeFileSync(join(dist, '.nojekyll'), '');
 
-// Cabeçalhos e rotas para hospedagens que leem _headers/_redirects (Cloudflare Pages, Netlify).
+// Cabeçalhos para hospedagens que leem _headers (Cloudflare, Netlify).
 // Onde não houver suporte (GitHub Pages), os arquivos são ignorados e o service worker cuida disso.
 writeFileSync(
   join(dist, '_headers'),
@@ -130,16 +130,18 @@ ${base}/_expo/*
   Cache-Control: public, max-age=31536000, immutable
 `,
 );
-// Rotas internas (ex.: /offers/123) abertas diretamente devolvem o app, com status 200.
-writeFileSync(join(dist, '_redirects'), `${base || ''}/*  ${base}/index.html  200\n`);
 // Arquivos de configuração não são publicados como páginas do site (Cloudflare Workers).
-writeFileSync(join(dist, '.assetsignore'), '_headers\n_redirects\n.assetsignore\n');
+writeFileSync(join(dist, '.assetsignore'), '_headers\n.assetsignore\n');
+// Observação: não geramos _redirects. No Cloudflare, as rotas internas (ex.: /offers/123) são
+// tratadas por "not_found_handling" no wrangler.jsonc — e a regra "/* -> /index.html 200" em
+// _redirects é recusada pelo próprio Cloudflare ("Infinite loop detected in this rule").
+// Na Netlify a mesma regra está no netlify.toml; no GitHub Pages, o 404.html contém o app.
 
 // Service worker
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
 const files = walk(dist)
   .map((f) => '/' + relative(dist, f).split('\\').join('/'))
-  .filter((f) => !['/sw.js', '/404.html', '/.nojekyll', '/metadata.json', '/_headers', '/_redirects', '/.assetsignore'].includes(f))
+  .filter((f) => !['/sw.js', '/404.html', '/.nojekyll', '/metadata.json', '/_headers', '/.assetsignore'].includes(f))
   // Das fontes de ícones, só a Ionicons é usada pelo app.
   .filter((f) => !f.endsWith('.ttf') || f.includes('Ionicons'));
 const version = createHash('sha256').update(files.map((f) => f + statSync(join(dist, f)).size).join('|')).digest('hex').slice(0, 12);

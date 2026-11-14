@@ -168,7 +168,7 @@ npm run build:web
 O painel do Cloudflare hoje cria sites estáticos como **Workers**. O repositório já tem o que falta:
 
 - `wrangler.jsonc` — diz que o site é a pasta `dist` e que as rotas internas do app (ex.: `/offers/123`) abertas direto devolvem o app;
-- `dist/_headers` (gerado pelo build) — cabeçalhos de isolamento (COOP/COEP) de que o banco local precisa, e o cache;
+- `dist/_headers` (gerado pelo build) — cabeçalhos de isolamento (COOP/COEP) de que o banco local precisa, e o cache. Não é gerado `_redirects`: as rotas internas são tratadas pelo `wrangler.jsonc`, e a regra `/* → /index.html 200` é recusada pelo Cloudflare (*Infinite loop detected in this rule*);
 - `.node-version` — Node 22 no build.
 
 Na tela **Set up your application** (depois de escolher o repositório `brenosampaio013/confereai`):
@@ -187,7 +187,12 @@ Depois do primeiro deploy, em **Settings → Build → Variables and Secrets**, 
 
 Elas são usadas **durante o build**, então precisam estar nas variáveis de build, não nas de runtime. Cada push no `master` publica uma versão nova. No celular, abra o endereço no Chrome e use **Instalar app**.
 
-> **Se o deploy falhar com `The directory specified by the "assets.directory" field in your configuration file does not exist: /opt/buildhome/repo/dist`**, o campo *Build command* ficou vazio e o site não chegou a ser gerado. Preencha em **Settings → Build → Build command** com `npm run build` e use **Retry deployment**.
+Erros já encontrados no painel e o que significam:
+
+| Mensagem no log | Causa e correção |
+|---|---|
+| `The directory specified by the "assets.directory" field ... does not exist: /opt/buildhome/repo/dist` | O campo *Build command* ficou vazio e o site não chegou a ser gerado. Preencha **Settings → Build → Build command** com `npm run build` e use **Retry deployment**. |
+| `Invalid _redirects configuration: Line 1: Infinite loop detected in this rule` | Versão anterior gerava `dist/_redirects`; o Cloudflare recusa a regra `/* → /index.html 200`. Já corrigido: o arquivo não é mais gerado e as rotas internas vêm do `not_found_handling` do `wrangler.jsonc`. |
 
 Para publicar do seu computador, sem o painel:
 
@@ -199,7 +204,7 @@ npx wrangler login
 npm run deploy:cf
 ```
 
-**Verificado aqui** com o próprio runtime do Cloudflare (`wrangler dev`, workerd) servindo a pasta `dist`: a página já abre isolada na primeira visita (sem o recarregamento que o GitHub Pages exige), o banco local grava e lê, `/prices` aberto direto responde 200 com o app, os arquivos com hash ficam em cache de longa duração e o `index.html` e o service worker não, os arquivos de configuração não ficam expostos e o Chrome não aponta impedimento para instalar. **Não testado:** o deploy real na conta do Cloudflare e o uso em celular físico.
+**Verificado aqui** com o próprio runtime do Cloudflare (`wrangler dev`, workerd) servindo a pasta `dist`: a página já abre isolada na primeira visita (sem o recarregamento que o GitHub Pages exige), o banco local grava e lê, rotas internas abertas direto (`/prices`, `/offers/<id>`) respondem 200 com o app, os arquivos com hash ficam em cache de longa duração e o `index.html` e o service worker não, os arquivos de configuração não ficam expostos e o Chrome não aponta impedimento para instalar. **Não testado:** o deploy real na conta do Cloudflare e o uso em celular físico.
 
 ## Publicar na Netlify
 
