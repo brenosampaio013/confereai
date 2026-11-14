@@ -13,6 +13,7 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 3. [Arquitetura e pastas](#arquitetura-e-pastas)
 4. [Como executar](#como-executar)
 5. [Abrir no celular (câmera)](#abrir-no-celular)
+6. [Publicar no Cloudflare Pages](#publicar-no-cloudflare-pages)
 6. [Publicar na Netlify](#publicar-na-netlify)
 7. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
 7. [Configurar o Supabase](#configurar-o-supabase)
@@ -162,9 +163,31 @@ Para gerar e testar localmente:
 npm run build:web
 ```
 
+## Publicar no Cloudflare Pages
+
+O `scripts/build-web.mjs` gera, junto com o site, os arquivos `_headers` e `_redirects` que o Cloudflare Pages lê: cabeçalhos de isolamento (COOP/COEP) de que o banco local precisa, cache e rotas internas do app. Com os cabeçalhos reais, a página abre direto, sem o recarregamento da primeira visita que o GitHub Pages exige.
+
+1. Em <https://dash.cloudflare.com> → **Workers & Pages → Create → Pages → Connect to Git** e escolha `brenosampaio013/confereai`.
+2. Nas configurações de build:
+
+   | Campo | Valor |
+   |---|---|
+   | Framework preset | None |
+   | Build command | `EXPO_PUBLIC_WEB_URL=${EXPO_PUBLIC_WEB_URL:-$CF_PAGES_URL} node scripts/build-web.mjs` |
+   | Build output directory | `dist` |
+   | Root directory | *(vazio)* |
+
+   A versão do Node vem do arquivo `.node-version` (22) do repositório.
+3. Em **Settings → Variables and secrets**, para o marketplace e a leitura de imagens, cadastre `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` (os mesmos do `.env`) e refaça o deploy. Sem elas, o app funciona só no aparelho. Cadastre também `EXPO_PUBLIC_WEB_URL` com o endereço final do site (ex.: `https://confereai.pages.dev` ou seu domínio), para que os links de ofertas compartilhadas apontem sempre para ele; sem essa variável, é usado o endereço daquele deploy.
+4. Cada push no `master` publica uma nova versão automaticamente. Domínio próprio em **Custom domains**.
+
+No celular, abra o endereço no Chrome e use **Instalar app**.
+
+Verificado localmente com um servidor que aplica o `_headers` e o `_redirects` do mesmo jeito: a página já abre isolada na primeira visita, uma rota interna aberta direto (`/offers/<id>`) responde 200 com o app, o banco local funciona, os arquivos com hash ficam em cache de longa duração e o `index.html` não, e o Chrome não aponta impedimento para instalar. **Não testado** o deploy real no Cloudflare nem em celular físico.
+
 ## Publicar na Netlify
 
-O arquivo `netlify.toml` já tem tudo: comando de build, pasta publicada, rotas do app e os cabeçalhos de isolamento de que o banco local precisa (na Netlify a página abre direto, sem o recarregamento da primeira visita que o GitHub Pages exige).
+O arquivo `netlify.toml` já tem tudo: comando de build, pasta publicada, rotas do app e os cabeçalhos de isolamento de que o banco local precisa (como no Cloudflare Pages, a página abre direto, sem o recarregamento da primeira visita que o GitHub Pages exige).
 
 1. Em <https://app.netlify.com>: **Add new site → Import an existing project → GitHub** e escolha `brenosampaio013/confereai`. Os campos de build já vêm do `netlify.toml`; não altere.
 2. Para o marketplace e a leitura de cupons, em **Site configuration → Environment variables** cadastre `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` (os mesmos do `.env`) e faça um novo deploy (**Deploys → Trigger deploy**). Sem elas, o app funciona só no aparelho.
