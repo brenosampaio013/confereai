@@ -34,8 +34,12 @@ const lcp = await pagina.evaluate(() => new Promise((r) => {
 }));
 // Rola a página inteira para disparar o carregamento preguiçoso e espera as imagens.
 await pagina.evaluate(async () => {
-  for (let y = 0; y < document.body.scrollHeight; y += 600) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 90)); }
-  window.scrollTo(0, 0);
+  // scrollTo instantâneo: a página usa rolagem suave e os pulos se cancelariam
+  for (let y = 0; y < document.body.scrollHeight; y += 600) {
+    window.scrollTo({ top: y, behavior: 'instant' });
+    await new Promise((r) => setTimeout(r, 90));
+  }
+  window.scrollTo({ top: 0, behavior: 'instant' });
 });
 await pagina.waitForFunction(() => [...document.images].every((i) => i.complete), null, { timeout: 15000 })
   .catch(() => falhas.push('alguma imagem não terminou de carregar em 15 s'));

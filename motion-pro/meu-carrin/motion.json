@@ -90,12 +90,14 @@
         {
           "t": 0,
           "tipo": "objeto",
-          "texto": "Três etiquetas amarelas atravessam a frente, grandes e desfocadas, da direita para a esquerda, em 1,2 s."
+          "texto": "Três etiquetas amarelas atravessam a frente, grandes e desfocadas, da direita para a esquerda, em 1,2 s.",
+          "som": "whoosh"
         },
         {
           "t": 0.3,
           "tipo": "objeto",
-          "texto": "O número do caixa rola em tambor sem parar, com desfoque só vertical, como quem não sabe onde vai parar."
+          "texto": "O número do caixa rola em tambor sem parar, com desfoque só vertical, como quem não sabe onde vai parar.",
+          "som": "riser"
         },
         {
           "t": 1,
@@ -145,7 +147,8 @@
         {
           "t": 0.05,
           "tipo": "objeto",
-          "texto": "O celular chega da profundidade girando 34°, com mola curta, e assenta quase de frente, seguindo em giro lento."
+          "texto": "O celular chega da profundidade girando 34°, com mola curta, e assenta quase de frente, seguindo em giro lento.",
+          "som": "impacto"
         },
         {
           "t": 0.5,
@@ -155,7 +158,8 @@
         {
           "t": 0.95,
           "tipo": "tipo",
-          "texto": "O símbolo acende primeiro; \"Meu Carrin\" sai do desfoque, letra a letra, a partir dele."
+          "texto": "O símbolo acende primeiro; \"Meu Carrin\" sai do desfoque, letra a letra, a partir dele.",
+          "som": "brilho"
         },
         {
           "t": 1.9,
@@ -207,7 +211,8 @@
         {
           "t": 0.1,
           "tipo": "objeto",
-          "texto": "O cartão do orçamento entra de baixo com mola curta e assenta."
+          "texto": "O cartão do orçamento entra de baixo com mola curta e assenta.",
+          "som": "clique"
         },
         {
           "t": 0.6,
@@ -227,7 +232,8 @@
         {
           "t": 3.15,
           "tipo": "objeto",
-          "texto": "O aviso sobe por baixo do cartão, sem desfoque, como um pop-up de verdade."
+          "texto": "O aviso sobe por baixo do cartão, sem desfoque, como um pop-up de verdade.",
+          "som": "notificacao"
         }
       ],
       "saida": {
@@ -279,12 +285,14 @@
         {
           "t": 1.05,
           "tipo": "luz",
-          "texto": "Flash curto de 80 ms; a etiqueta recua para o canto, menor."
+          "texto": "Flash curto de 80 ms; a etiqueta recua para o canto, menor.",
+          "som": "carimbo"
         },
         {
           "t": 1.35,
           "tipo": "tipo",
-          "texto": "Os campos se escrevem sozinhos, de cima para baixo, a 38 caracteres por segundo."
+          "texto": "Os campos se escrevem sozinhos, de cima para baixo, a 38 caracteres por segundo.",
+          "som": "digitacao"
         },
         {
           "t": 2.7,
@@ -330,22 +338,26 @@
         {
           "t": 0,
           "tipo": "objeto",
-          "texto": "A fita do cupom desce do alto do quadro, serrilhada nas duas pontas, com sombra macia."
+          "texto": "A fita do cupom desce do alto do quadro, serrilhada nas duas pontas, com sombra macia.",
+          "som": "papel"
         },
         {
           "t": 0.9,
           "tipo": "objeto",
-          "texto": "As linhas acendem em verde uma a uma, 180 ms entre elas, com um tique curto."
+          "texto": "As linhas acendem em verde uma a uma, 180 ms entre elas, com um tique curto.",
+          "som": "tique"
         },
         {
           "t": 2.6,
           "tipo": "objeto",
-          "texto": "Uma linha trava: o fundo vira vermelho e a fita estremece 6 px."
+          "texto": "Uma linha trava: o fundo vira vermelho e a fita estremece 6 px.",
+          "som": "grave"
         },
         {
           "t": 3.05,
           "tipo": "tipo",
-          "texto": "Os dois preços sobem lado a lado e a diferença conta até + R$ 2,00."
+          "texto": "Os dois preços sobem lado a lado e a diferença conta até + R$ 2,00.",
+          "som": "impacto"
         },
         {
           "t": 4.6,
@@ -402,12 +414,14 @@
         {
           "t": 1.2,
           "tipo": "tipo",
-          "texto": "O número conta e trava na batida, com um estalo de 6 %."
+          "texto": "O número conta e trava na batida, com um estalo de 6 %.",
+          "som": "tique"
         },
         {
           "t": 2,
           "tipo": "luz",
-          "texto": "Uma onda de luz verde atravessa o número no instante em que ele trava."
+          "texto": "Uma onda de luz verde atravessa o número no instante em que ele trava.",
+          "som": "brilho"
         },
         {
           "t": 2.75,
@@ -458,7 +472,8 @@
         {
           "t": 0,
           "tipo": "objeto",
-          "texto": "O ponto de luz abre no cesto do carrinho, que se monta de baixo para cima em 420 ms."
+          "texto": "O ponto de luz abre no cesto do carrinho, que se monta de baixo para cima em 420 ms.",
+          "som": "brilho"
         },
         {
           "t": 0.75,
@@ -478,7 +493,8 @@
         {
           "t": 2.5,
           "tipo": "luz",
-          "texto": "A luz atrás do símbolo passa a pulsar na batida, a cada duas, bem de leve."
+          "texto": "A luz atrás do símbolo passa a pulsar na batida, a cada duas, bem de leve.",
+          "som": "moeda"
         },
         {
           "t": 3.4,
@@ -501,7 +517,17 @@
     "aprovadoEm": "2026-11-14",
     "revisaoAprovada": 8
   },
-  "versoes": [],
+  "versoes": [
+    {
+      "v": 1,
+      "data": "2026-11-14",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "primeira versão do filme"
+    }
+  ],
   "criadoEm": "2026-11-14",
   "cartaz": "Quanto já deu?",
   "acabamento": {
