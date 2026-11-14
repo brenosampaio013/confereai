@@ -1,0 +1,17 @@
+/**
+ * Publicação da versão web (PWA) do Confere Aí no Cloudflare (Workers com arquivos estáticos).
+ * Só arquivos estáticos: não há código de servidor neste projeto.
+ *
+ * - "directory": pasta gerada por `npm run build:web`.
+ * - "not_found_handling": rotas internas do app (ex.: /offers/123) abertas direto devolvem o app.
+ * - Os cabeçalhos de isolamento (COOP/COEP), de que o banco local no navegador precisa, e o
+ *   cache vêm do arquivo `dist/_headers`, gerado pelo build.
+ */
+{
+  "name": "confereai",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

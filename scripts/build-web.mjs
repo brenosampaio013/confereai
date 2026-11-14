@@ -132,12 +132,14 @@ ${base}/_expo/*
 );
 // Rotas internas (ex.: /offers/123) abertas diretamente devolvem o app, com status 200.
 writeFileSync(join(dist, '_redirects'), `${base || ''}/*  ${base}/index.html  200\n`);
+// Arquivos de configuração não são publicados como páginas do site (Cloudflare Workers).
+writeFileSync(join(dist, '.assetsignore'), '_headers\n_redirects\n.assetsignore\n');
 
 // Service worker
 const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
 const files = walk(dist)
   .map((f) => '/' + relative(dist, f).split('\\').join('/'))
-  .filter((f) => !['/sw.js', '/404.html', '/.nojekyll', '/metadata.json', '/_headers', '/_redirects'].includes(f))
+  .filter((f) => !['/sw.js', '/404.html', '/.nojekyll', '/metadata.json', '/_headers', '/_redirects', '/.assetsignore'].includes(f))
   // Das fontes de ícones, só a Ionicons é usada pelo app.
   .filter((f) => !f.endsWith('.ttf') || f.includes('Ionicons'));
 const version = createHash('sha256').update(files.map((f) => f + statSync(join(dist, f)).size).join('|')).digest('hex').slice(0, 12);

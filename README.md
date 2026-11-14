@@ -13,7 +13,7 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 3. [Arquitetura e pastas](#arquitetura-e-pastas)
 4. [Como executar](#como-executar)
 5. [Abrir no celular (câmera)](#abrir-no-celular)
-6. [Publicar no Cloudflare Pages](#publicar-no-cloudflare-pages)
+6. [Publicar no Cloudflare](#publicar-no-cloudflare)
 6. [Publicar na Netlify](#publicar-na-netlify)
 7. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
 7. [Configurar o Supabase](#configurar-o-supabase)
@@ -163,31 +163,45 @@ Para gerar e testar localmente:
 npm run build:web
 ```
 
-## Publicar no Cloudflare Pages
+## Publicar no Cloudflare
 
-O `scripts/build-web.mjs` gera, junto com o site, os arquivos `_headers` e `_redirects` que o Cloudflare Pages lê: cabeçalhos de isolamento (COOP/COEP) de que o banco local precisa, cache e rotas internas do app. Com os cabeçalhos reais, a página abre direto, sem o recarregamento da primeira visita que o GitHub Pages exige.
+O painel do Cloudflare hoje cria sites estáticos como **Workers**. O repositório já tem o que falta:
 
-1. Em <https://dash.cloudflare.com> → **Workers & Pages → Create → Pages → Connect to Git** e escolha `brenosampaio013/confereai`.
-2. Nas configurações de build:
+- `wrangler.jsonc` — diz que o site é a pasta `dist` e que as rotas internas do app (ex.: `/offers/123`) abertas direto devolvem o app;
+- `dist/_headers` (gerado pelo build) — cabeçalhos de isolamento (COOP/COEP) de que o banco local precisa, e o cache;
+- `.node-version` — Node 22 no build.
 
-   | Campo | Valor |
-   |---|---|
-   | Framework preset | None |
-   | Build command | `EXPO_PUBLIC_WEB_URL=${EXPO_PUBLIC_WEB_URL:-$CF_PAGES_URL} node scripts/build-web.mjs` |
-   | Build output directory | `dist` |
-   | Root directory | *(vazio)* |
+Na tela **Set up your application** (depois de escolher o repositório `brenosampaio013/confereai`):
 
-   A versão do Node vem do arquivo `.node-version` (22) do repositório.
-3. Em **Settings → Variables and secrets**, para o marketplace e a leitura de imagens, cadastre `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` (os mesmos do `.env`) e refaça o deploy. Sem elas, o app funciona só no aparelho. Cadastre também `EXPO_PUBLIC_WEB_URL` com o endereço final do site (ex.: `https://confereai.pages.dev` ou seu domínio), para que os links de ofertas compartilhadas apontem sempre para ele; sem essa variável, é usado o endereço daquele deploy.
-4. Cada push no `master` publica uma nova versão automaticamente. Domínio próprio em **Custom domains**.
+| Campo | Valor |
+|---|---|
+| Project name | `confereai` (precisa ser igual ao `name` do `wrangler.jsonc`) |
+| Build command | `node scripts/build-web.mjs` |
+| Deploy command | `npx wrangler deploy` (já vem preenchido) |
+| Preview command | `npx wrangler preview` (já vem preenchido) |
 
-No celular, abra o endereço no Chrome e use **Instalar app**.
+Depois do primeiro deploy, em **Settings → Build → Variables and Secrets**, cadastre e refaça o deploy:
 
-Verificado localmente com um servidor que aplica o `_headers` e o `_redirects` do mesmo jeito: a página já abre isolada na primeira visita, uma rota interna aberta direto (`/offers/<id>`) responde 200 com o app, o banco local funciona, os arquivos com hash ficam em cache de longa duração e o `index.html` não, e o Chrome não aponta impedimento para instalar. **Não testado** o deploy real no Cloudflare nem em celular físico.
+- `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` — necessárias para o marketplace, a conta e a leitura de imagens. Sem elas o app funciona só no aparelho.
+- `EXPO_PUBLIC_WEB_URL` — endereço final do site (ex.: `https://confereai.<sua-conta>.workers.dev` ou um domínio próprio), usado nos links de ofertas compartilhadas.
+
+Elas são usadas **durante o build**, então precisam estar nas variáveis de build, não nas de runtime. Cada push no `master` publica uma versão nova. No celular, abra o endereço no Chrome e use **Instalar app**.
+
+Para publicar do seu computador, sem o painel:
+
+```bash
+npx wrangler login
+```
+
+```bash
+npm run deploy:cf
+```
+
+**Verificado aqui** com o próprio runtime do Cloudflare (`wrangler dev`, workerd) servindo a pasta `dist`: a página já abre isolada na primeira visita (sem o recarregamento que o GitHub Pages exige), o banco local grava e lê, `/prices` aberto direto responde 200 com o app, os arquivos com hash ficam em cache de longa duração e o `index.html` e o service worker não, os arquivos de configuração não ficam expostos e o Chrome não aponta impedimento para instalar. **Não testado:** o deploy real na conta do Cloudflare e o uso em celular físico.
 
 ## Publicar na Netlify
 
-O arquivo `netlify.toml` já tem tudo: comando de build, pasta publicada, rotas do app e os cabeçalhos de isolamento de que o banco local precisa (como no Cloudflare Pages, a página abre direto, sem o recarregamento da primeira visita que o GitHub Pages exige).
+O arquivo `netlify.toml` já tem tudo: comando de build, pasta publicada, rotas do app e os cabeçalhos de isolamento de que o banco local precisa (como no Cloudflare, a página abre direto, sem o recarregamento da primeira visita que o GitHub Pages exige).
 
 1. Em <https://app.netlify.com>: **Add new site → Import an existing project → GitHub** e escolha `brenosampaio013/confereai`. Os campos de build já vêm do `netlify.toml`; não altere.
 2. Para o marketplace e a leitura de cupons, em **Site configuration → Environment variables** cadastre `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` (os mesmos do `.env`) e faça um novo deploy (**Deploys → Trigger deploy**). Sem elas, o app funciona só no aparelho.

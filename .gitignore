@@ -53,3 +53,6 @@ google-play-service-account.json
 *.jks
 *.keystore
 /e2e-output
+
+# Estado local do wrangler (Cloudflare)
+.wrangler/

@@ -48,7 +48,8 @@
     "eslint-config-expo": "^58.0.4",
     "jest": "^30.5.2",
     "jest-expo": "^58.0.13",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "wrangler": "^4.162.0"
   },
   "scripts": {
     "start": "expo start",
@@ -62,7 +63,8 @@
     "test:all": "npm run typecheck && jest && node --test supabase/tests/*.test.mjs",
     "icons": "node scripts/generate-icons.mjs",
     "build:web": "node scripts/build-web.mjs",
-    "test:e2e": "node e2e/run.mjs"
+    "test:e2e": "node e2e/run.mjs",
+    "deploy:cf": "npm run build:web && wrangler deploy"
   },
   "private": true
 }
