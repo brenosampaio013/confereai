@@ -62,3 +62,10 @@ site/assets/telas/_*
 
 # Landing page gerada (npm run build:site)
 site-dist/
+
+# Filme (motion-pro): fontes versionadas, saídas geradas não
+motion-pro/*/.cache/
+motion-pro/*/storyboard/
+motion-pro/*/render/
+motion-pro/*/filme/
+motion-pro/*/previa.html
