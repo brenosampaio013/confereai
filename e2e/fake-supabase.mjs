@@ -240,6 +240,9 @@ http.createServer(async (req, res) => {
     if (body.kind !== 'product' || !Array.isArray(body.images) || body.images.length !== 1 || typeof body.images[0].base64 !== 'string') {
       return send(res, 400, { error: 'invalid_images', message: 'Envie uma única foto do produto com a etiqueta.' });
     }
+    // scripts/capture-screens.mjs troca o produto devolvido por FAKE_OCR_PRODUCT; o teste usa o padrão.
+    const sobrescrita = process.env.FAKE_OCR_PRODUCT ? JSON.parse(process.env.FAKE_OCR_PRODUCT) : null;
+    if (sobrescrita) return send(res, 200, { provider: 'simulado-e2e', ...sobrescrita });
     return send(res, 200, {
       provider: 'simulado-e2e',
       parts: [{ lines: ['FEIJAO CARIOCA 1KG', 'DE 9,99 POR 8,49', 'CLUBE'] }],

@@ -16,3 +16,15 @@ export function fmtReceiptDate(local: string | null) {
 export function plural(n: number, one: string, many: string) {
   return `${n} ${n === 1 ? one : many}`;
 }
+
+/**
+ * Nome de produto na mesma convenção que o app usa nos campos digitados: caixa de
+ * frase ("Café torrado e moído", "Arroz branco tipo 1"), com siglas preservadas.
+ * Nomes vindos de leitura por foto, código de barras ou cupom chegam em MAIÚSCULAS.
+ */
+const SIGLAS = new Set(['uht', 'pet', 'led', 'tv', 'pvc', 'abs']);
+
+export function productNameCase(s: string): string {
+  const texto = s.toLowerCase().replace(/\p{L}+/gu, (p) => (SIGLAS.has(p) ? p.toUpperCase() : p));
+  return texto.replace(/^\s*\p{L}/u, (c) => c.toUpperCase());
+}

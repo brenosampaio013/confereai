@@ -1,3 +1,4 @@
+import { productNameCase } from '@/lib/format';
 import { budgetAlertOnChange, budgetMessage, budgetStatus, DEFAULT_THRESHOLDS, parseThresholds, validateThresholds } from '../../src/domain/budget';
 import { cartTotals } from '../../src/domain/cart';
 import { comparePurchases, itemsSavings, monthKey, monthlySeries, shiftMonth, spendByStore, summarizeMonth, SpendRecord } from '../../src/domain/finance';
@@ -238,5 +239,22 @@ describe('leitura da foto do produto com a etiqueta', () => {
   it('identidade de produto sem código ignora acentos e caixa, mas distingue embalagens', () => {
     expect(productIdentityKey('Feijão Carioca', 'KICALDO', 1000, 'g')).toBe(productIdentityKey(' feijao  carioca ', 'Kicaldo', 1000, 'g'));
     expect(productIdentityKey('Feijão', 'Kicaldo', 1000, 'g')).not.toBe(productIdentityKey('Feijão', 'Kicaldo', 2000, 'g'));
+  });
+});
+
+describe('nome de produto na convenção do app', () => {
+  it('usa caixa de frase, como os campos digitados', () => {
+    expect(productNameCase('CAFE TORRADO E MOIDO')).toBe('Cafe torrado e moido');
+    expect(productNameCase('ARROZ BRANCO TIPO 1')).toBe('Arroz branco tipo 1');
+    expect(productNameCase('agua de coco')).toBe('Agua de coco');
+  });
+
+  it('preserva siglas conhecidas', () => {
+    expect(productNameCase('LEITE UHT INTEGRAL 1L')).toBe('Leite UHT integral 1l');
+  });
+
+  it('preserva os espaços e os números originais', () => {
+    expect(productNameCase('CAFE  500G')).toBe('Cafe  500g');
+    expect(productNameCase('  detergente')).toBe('  Detergente');
   });
 });

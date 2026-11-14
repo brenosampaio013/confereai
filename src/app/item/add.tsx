@@ -9,7 +9,7 @@ import { compareWithLastPrice, PriceComparison } from '@/domain/priceHistory';
 import type { PriceSource, Product } from '@/domain/types';
 import { extractPackageMeasure, formatPackageMeasure, isWeighed, lineSubtotal, MILLI, parseQuantity, SaleUnit } from '@/domain/units';
 import { persistProductPhoto } from '@/lib/files';
-import { fmtDate } from '@/lib/format';
+import { fmtDate, productNameCase } from '@/lib/format';
 import { newId } from '@/lib/id';
 import { lookupPublicProduct, ProductSuggestion } from '@/services/productLookup';
 import { useApp } from '@/state/AppContext';
@@ -110,7 +110,7 @@ export default function AddItem() {
       if (r.referencePrice && !r.soldByWeight) {
         notes.push(`Preço de referência: ${formatBRL(r.referencePrice.cents)} por ${r.referencePrice.per === 'l' ? 'litro' : r.referencePrice.per}.`);
       }
-      if (!name && r.productName) setName(titleCase(r.productName));
+      if (!name && r.productName) setName(productNameCase(r.productName));
       if (!pkg && r.packageMeasure) setPkg(formatPackageMeasure(r.packageMeasure));
       setLabelInfo(notes);
     }, [labelToken, name, pkg, brand, photo]),
@@ -459,8 +459,4 @@ export default function AddItem() {
       <StoreSheet visible={priceOnlyOpen} onClose={() => setPriceOnlyOpen(false)} initial={priceOnlyStore} onSave={savePriceOnly} />
     </Screen>
   );
-}
-
-function titleCase(s: string) {
-  return s.toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase());
 }

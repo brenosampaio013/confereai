@@ -56,3 +56,6 @@ google-play-service-account.json
 
 # Estado local do wrangler (Cloudflare)
 .wrangler/
+
+# Arquivos de trabalho das capturas (regerados por scripts/capture-screens.mjs)
+site/assets/telas/_*
