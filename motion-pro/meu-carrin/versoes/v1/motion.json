@@ -1,0 +1,547 @@
+{
+  "versao": 1,
+  "titulo": "Meu Carrin",
+  "slug": "meu-carrin",
+  "fps": 60,
+  "bpm": 120,
+  "formatoBase": "16x9",
+  "formatos": [
+    "16x9"
+  ],
+  "estilo": "ui-app",
+  "movimento": {
+    "curvaEntrada": [
+      0.16,
+      1,
+      0.3,
+      1
+    ],
+    "cascataLetra": 0.026,
+    "cascataPalavra": 0.045,
+    "entrada": 0.6,
+    "opacidade": 0.18,
+    "subida": 0.18,
+    "desfoque": 0.14,
+    "saida": 0.25,
+    "camera": 0.012
+  },
+  "linguagem": [
+    {
+      "titulo": "Fio condutor",
+      "texto": "A fita verde atravessa o filme: é a barra do orçamento, o feixe que lê a etiqueta, a borda do cupom, a primeira barra do gráfico e, no fim, o visto da marca."
+    },
+    {
+      "titulo": "Ritmo",
+      "texto": "120 BPM: uma batida = 0,5 s. Entradas e trocas caem na batida; um acontecimento visível a cada uma ou duas."
+    },
+    {
+      "titulo": "Cor",
+      "texto": "Um destaque por tela, com o significado do app: verde = conferido, âmbar = etiqueta e atenção, vermelho = cobrado a mais. O palco é o azul-marinho da marca, nunca preto puro."
+    },
+    {
+      "titulo": "Texto",
+      "texto": "Do desfoque para o foco, subida curta, 26 ms entre letras. Tipografia de leitura não quica; mola e estalo são de objeto e de número."
+    },
+    {
+      "titulo": "Interface",
+      "texto": "As telas do app são redesenhadas e funcionam de verdade: o total rola, a barra enche, o aviso sobe. Nada de print parado deslizando."
+    },
+    {
+      "titulo": "Câmera",
+      "texto": "Nunca parada: push-in de 3 a 6 % no plano, passando por 1,0 no quadro aprovado."
+    },
+    {
+      "titulo": "Hold",
+      "texto": "Legível por pelo menos 0,8 s e vivo: a luz respira, as etiquetas continuam passando, o celular gira um fio."
+    }
+  ],
+  "referencias": [],
+  "cenas": [
+    {
+      "id": "gancho",
+      "tipo": "palavra-gigante",
+      "papel": "gancho",
+      "titulo": "A pergunta",
+      "dur": 4,
+      "ideia": "As etiquetas atravessam a câmera e o número do caixa sobe sozinho; a pergunta fica parada no meio, sem resposta.",
+      "camera": "Push-in lento de 4 %, com etiquetas passando na frente, grandes e desfocadas.",
+      "quadros": [
+        {
+          "id": "inicio",
+          "rotulo": "Início",
+          "legenda": "As primeiras etiquetas entram e o número começa a subir",
+          "t": 0.35
+        },
+        {
+          "id": "meio",
+          "rotulo": "Passo 2",
+          "legenda": "A pergunta chega ao centro",
+          "t": 1.9
+        },
+        {
+          "id": "fim",
+          "rotulo": "Fim",
+          "legenda": "O número travou alto e a pergunta fica sozinha",
+          "t": 3.5,
+          "aprovado": true
+        }
+      ],
+      "batidas": [
+        {
+          "t": 0,
+          "tipo": "objeto",
+          "texto": "Três etiquetas amarelas atravessam a frente, grandes e desfocadas, da direita para a esquerda, em 1,2 s.",
+          "som": "whoosh"
+        },
+        {
+          "t": 0.3,
+          "tipo": "objeto",
+          "texto": "O número do caixa rola em tambor sem parar, com desfoque só vertical, como quem não sabe onde vai parar.",
+          "som": "riser"
+        },
+        {
+          "t": 1,
+          "tipo": "tipo",
+          "texto": "A pergunta sai do desfoque palavra a palavra, 45 ms entre palavras, subindo de pertinho."
+        },
+        {
+          "t": 2.4,
+          "tipo": "vida",
+          "texto": "Hold: a luz do fundo respira e as etiquetas continuam passando, mais longe e mais lentas."
+        },
+        {
+          "t": 3.6,
+          "tipo": "transicao",
+          "texto": "O número apaga e a câmera avança; tudo desfoca para a próxima."
+        }
+      ],
+      "saida": {
+        "tipo": "avancar-desfocar",
+        "texto": "A câmera avança e desfoca: do corredor para o produto."
+      }
+    },
+    {
+      "id": "marca",
+      "tipo": "aparelho",
+      "papel": "apresentação",
+      "titulo": "A marca",
+      "dur": 3,
+      "ideia": "O celular chega da profundidade girando, a tela acende e a marca se escreve a partir do símbolo.",
+      "camera": "Recua 3 % na chegada do celular e volta a avançar, passando por 1,0 no quadro aprovado.",
+      "quadros": [
+        {
+          "id": "inicio",
+          "rotulo": "Início",
+          "legenda": "O celular chega girado, vindo da profundidade",
+          "t": 0.4
+        },
+        {
+          "id": "fim",
+          "rotulo": "Fim",
+          "legenda": "O celular quase de frente e a marca ao lado",
+          "t": 2.6,
+          "aprovado": true
+        }
+      ],
+      "batidas": [
+        {
+          "t": 0.05,
+          "tipo": "objeto",
+          "texto": "O celular chega da profundidade girando 34°, com mola curta, e assenta quase de frente, seguindo em giro lento.",
+          "som": "impacto"
+        },
+        {
+          "t": 0.5,
+          "tipo": "luz",
+          "texto": "A tela acende de dentro para fora e o reflexo do estúdio varre a moldura."
+        },
+        {
+          "t": 0.95,
+          "tipo": "tipo",
+          "texto": "O símbolo acende primeiro; \"Meu Carrin\" sai do desfoque, letra a letra, a partir dele.",
+          "som": "brilho"
+        },
+        {
+          "t": 1.9,
+          "tipo": "vida",
+          "texto": "Hold: o celular continua girando um fio e a luz verde atrás respira."
+        },
+        {
+          "t": 2.75,
+          "tipo": "transicao",
+          "texto": "A câmera mergulha na tela do celular até ela cobrir o quadro."
+        }
+      ],
+      "saida": {
+        "tipo": "mergulho",
+        "alvo": ".fone",
+        "alvoTexto": "na tela do celular"
+      }
+    },
+    {
+      "id": "orcamento",
+      "tipo": "livre",
+      "papel": "o que ele faz",
+      "titulo": "O total em tempo real",
+      "dur": 4.5,
+      "ideia": "Cada produto que entra empurra o total para cima, até a barra mudar de cor e o aviso subir.",
+      "camera": "Push-in de 3 % no cartão; tremor curto de 2 quadros quando o aviso chega.",
+      "quadros": [
+        {
+          "id": "inicio",
+          "rotulo": "Início",
+          "legenda": "Close no total, ainda em R$ 0,00",
+          "t": 0.45
+        },
+        {
+          "id": "meio",
+          "rotulo": "Passo 2",
+          "legenda": "A câmera abriu: o cartão inteiro e três produtos",
+          "t": 2.3
+        },
+        {
+          "id": "fim",
+          "rotulo": "Fim",
+          "legenda": "Barra âmbar e o aviso aberto",
+          "t": 4,
+          "aprovado": true
+        }
+      ],
+      "batidas": [
+        {
+          "t": 0.1,
+          "tipo": "objeto",
+          "texto": "O cartão do orçamento entra de baixo com mola curta e assenta.",
+          "som": "clique"
+        },
+        {
+          "t": 0.6,
+          "tipo": "objeto",
+          "texto": "Os produtos caem na lista em accelerando (420 → 260 ms), cada um com um estalo pequeno."
+        },
+        {
+          "t": 0.65,
+          "tipo": "tipo",
+          "texto": "O total rola em tambor a cada produto e trava no valor, da esquerda para a direita."
+        },
+        {
+          "t": 2.9,
+          "tipo": "luz",
+          "texto": "A barra passa de verde para âmbar ao cruzar 75 %, com um pulso de luz que corre por ela."
+        },
+        {
+          "t": 3.15,
+          "tipo": "objeto",
+          "texto": "O aviso sobe por baixo do cartão, sem desfoque, como um pop-up de verdade.",
+          "som": "notificacao"
+        }
+      ],
+      "saida": {
+        "tipo": "empurrar",
+        "direcao": "cima",
+        "texto": "O cartão sobe e dá lugar à etiqueta."
+      }
+    },
+    {
+      "id": "leitura",
+      "tipo": "livre",
+      "papel": "o que ele faz",
+      "titulo": "A etiqueta vira preço",
+      "dur": 4,
+      "ideia": "A etiqueta é fotografada e os campos do formulário se escrevem sozinhos, um a um.",
+      "camera": "Fecha 6 % enquanto as guias do enquadramento se aproximam; relaxa depois do flash.",
+      "quadros": [
+        {
+          "id": "inicio",
+          "rotulo": "Início",
+          "legenda": "A etiqueta amarela grande, cortada pela borda",
+          "t": 0.35
+        },
+        {
+          "id": "meio",
+          "rotulo": "Passo 2",
+          "legenda": "O enquadramento fecha e dispara",
+          "t": 1.3
+        },
+        {
+          "id": "fim",
+          "rotulo": "Fim",
+          "legenda": "Os campos preenchidos e o preço promocional aceso",
+          "t": 3.5,
+          "aprovado": true
+        }
+      ],
+      "batidas": [
+        {
+          "t": 0,
+          "tipo": "objeto",
+          "texto": "A etiqueta amarela ocupa dois terços do quadro, cortada pela borda, girada 4°, com sombra macia."
+        },
+        {
+          "t": 0.55,
+          "tipo": "camera",
+          "texto": "As guias do enquadramento fecham nos cantos e piscam uma vez."
+        },
+        {
+          "t": 1.05,
+          "tipo": "luz",
+          "texto": "Flash curto de 80 ms; a etiqueta recua para o canto, menor.",
+          "som": "carimbo"
+        },
+        {
+          "t": 1.35,
+          "tipo": "tipo",
+          "texto": "Os campos se escrevem sozinhos, de cima para baixo, a 38 caracteres por segundo.",
+          "som": "digitacao"
+        },
+        {
+          "t": 2.7,
+          "tipo": "objeto",
+          "texto": "O quadro do preço promocional sobe em âmbar e o valor trava com um estalo."
+        }
+      ],
+      "saida": {
+        "tipo": "avancar-desfocar",
+        "texto": "A câmera avança e desfoca: do produto para o caixa."
+      }
+    },
+    {
+      "id": "cupom",
+      "tipo": "montagem",
+      "papel": "climax",
+      "titulo": "A conferência",
+      "dur": 5,
+      "ideia": "A fita do cupom desce e cada linha acende em verde, até uma travar em vermelho.",
+      "camera": "Desce junto com a fita e para quando a linha vermelha trava; depois fecha 4 % nela.",
+      "quadros": [
+        {
+          "id": "inicio",
+          "rotulo": "Início",
+          "legenda": "A fita começa a descer do alto",
+          "t": 0.5
+        },
+        {
+          "id": "meio",
+          "rotulo": "Passo 2",
+          "legenda": "Metade das linhas já conferidas em verde",
+          "t": 2.5
+        },
+        {
+          "id": "fim",
+          "rotulo": "Fim",
+          "legenda": "A linha vermelha aberta, com a diferença",
+          "t": 4.5,
+          "aprovado": true
+        }
+      ],
+      "batidas": [
+        {
+          "t": 0,
+          "tipo": "objeto",
+          "texto": "A fita do cupom desce do alto do quadro, serrilhada nas duas pontas, com sombra macia.",
+          "som": "papel"
+        },
+        {
+          "t": 0.9,
+          "tipo": "objeto",
+          "texto": "As linhas acendem em verde uma a uma, 180 ms entre elas, com um tique curto.",
+          "som": "tique"
+        },
+        {
+          "t": 2.6,
+          "tipo": "objeto",
+          "texto": "Uma linha trava: o fundo vira vermelho e a fita estremece 6 px.",
+          "som": "grave"
+        },
+        {
+          "t": 3.05,
+          "tipo": "tipo",
+          "texto": "Os dois preços sobem lado a lado e a diferença conta até + R$ 2,00.",
+          "som": "impacto"
+        },
+        {
+          "t": 4.6,
+          "tipo": "transicao",
+          "texto": "A fita se recolhe e vira a primeira barra do gráfico da próxima cena."
+        }
+      ],
+      "saida": {
+        "tipo": "ponte",
+        "nome": "fita",
+        "texto": "A fita vira a primeira barra do gráfico."
+      }
+    },
+    {
+      "id": "economia",
+      "tipo": "livre",
+      "papel": "o ganho",
+      "titulo": "O mês fechado",
+      "dur": 4,
+      "ideia": "As barras sobem do chão e o número trava na batida, em verde.",
+      "camera": "Sobe 3 % com as barras e assenta no número.",
+      "quadros": [
+        {
+          "id": "inicio",
+          "rotulo": "Início",
+          "legenda": "A barra que veio da fita assenta no gráfico",
+          "t": 0.4
+        },
+        {
+          "id": "meio",
+          "rotulo": "Passo 2",
+          "legenda": "As outras barras sobem em cascata",
+          "t": 1.6
+        },
+        {
+          "id": "fim",
+          "rotulo": "Fim",
+          "legenda": "O número travado acima das barras",
+          "t": 3.5,
+          "aprovado": true
+        }
+      ],
+      "batidas": [
+        {
+          "t": 0,
+          "tipo": "objeto",
+          "texto": "A barra que veio da fita assenta no chão do gráfico e acende."
+        },
+        {
+          "t": 0.45,
+          "tipo": "objeto",
+          "texto": "As outras barras sobem em cascata, 80 ms entre elas, com outExpo."
+        },
+        {
+          "t": 1.2,
+          "tipo": "tipo",
+          "texto": "O número conta e trava na batida, com um estalo de 6 %.",
+          "som": "tique"
+        },
+        {
+          "t": 2,
+          "tipo": "luz",
+          "texto": "Uma onda de luz verde atravessa o número no instante em que ele trava.",
+          "som": "brilho"
+        },
+        {
+          "t": 2.75,
+          "tipo": "objeto",
+          "texto": "A barra de novembro dá um pulso curto e a sombra dela assenta."
+        },
+        {
+          "t": 3.4,
+          "tipo": "vida",
+          "texto": "Hold: as barras respiram e a luz de trás deriva devagar."
+        }
+      ],
+      "saida": {
+        "tipo": "ponto-de-luz",
+        "texto": "Tudo converge num ponto de luz, de onde nasce a marca."
+      }
+    },
+    {
+      "id": "fecho",
+      "tipo": "marca-em-etapas",
+      "papel": "convite",
+      "titulo": "A marca",
+      "dur": 4,
+      "ideia": "O ponto de luz abre no carrinho da marca, o visto se desenha e o endereço assenta embaixo.",
+      "camera": "Push-in mínimo de 2 %, quase parado, para a marca ficar sólida.",
+      "quadros": [
+        {
+          "id": "inicio",
+          "rotulo": "Início",
+          "legenda": "O ponto de luz abre no cesto do carrinho",
+          "t": 0.4
+        },
+        {
+          "id": "meio",
+          "rotulo": "Passo 2",
+          "legenda": "O visto verde se desenha",
+          "t": 1.3
+        },
+        {
+          "id": "fim",
+          "rotulo": "Fim",
+          "legenda": "A marca inteira e o endereço",
+          "t": 3.4,
+          "aprovado": true
+        }
+      ],
+      "batidas": [
+        {
+          "t": 0,
+          "tipo": "objeto",
+          "texto": "O ponto de luz abre no cesto do carrinho, que se monta de baixo para cima em 420 ms.",
+          "som": "brilho"
+        },
+        {
+          "t": 0.75,
+          "tipo": "objeto",
+          "texto": "O visto verde se desenha em 320 ms, da esquerda para a direita."
+        },
+        {
+          "t": 1.25,
+          "tipo": "tipo",
+          "texto": "\"Meu Carrin\" sai do desfoque a partir do símbolo, letra a letra."
+        },
+        {
+          "t": 2.05,
+          "tipo": "tipo",
+          "texto": "\"meucarrin.com\" assenta embaixo, menor, com o tracking fechando."
+        },
+        {
+          "t": 2.5,
+          "tipo": "luz",
+          "texto": "A luz atrás do símbolo passa a pulsar na batida, a cada duas, bem de leve.",
+          "som": "moeda"
+        },
+        {
+          "t": 3.4,
+          "tipo": "vida",
+          "texto": "Hold: a luz verde respira atrás e o símbolo flutua um fio."
+        }
+      ],
+      "saida": {
+        "tipo": "esmaecer",
+        "texto": "A luz fecha e o filme termina na marca."
+      }
+    }
+  ],
+  "capa": {
+    "cena": "fecho",
+    "quadro": "fim"
+  },
+  "storyboard": {
+    "revisao": 8,
+    "aprovadoEm": "2026-11-14",
+    "revisaoAprovada": 8
+  },
+  "versoes": [
+    {
+      "v": 1,
+      "data": "2026-11-14",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "primeira versão do filme"
+    }
+  ],
+  "criadoEm": "2026-11-14",
+  "cartaz": "Quanto já deu?",
+  "acabamento": {
+    "grao": 0.26,
+    "vinheta": 0.26,
+    "bloom": 0.16,
+    "limiar": 0.82,
+    "aberracao": 0.22,
+    "contraste": 1.03,
+    "saturacao": 1.04,
+    "calor": 0
+  },
+  "borrao": {
+    "obturador": 0.5,
+    "max": 5
+  }
+}

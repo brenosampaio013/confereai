@@ -1,0 +1,70 @@
+.cena-leitura .etq-w { position: absolute; inset: 0; }
+.cena-leitura .etq-mov { position: absolute; left: 22cqw; top: 50%; translate: -50% -50%; width: 66cqmin; }
+.cena-leitura .etq {
+  container-type: inline-size;
+  background: #FFE24D; color: #14161a; border-radius: 2cqw; padding: 7cqw 7cqw 6cqw;
+  box-shadow: 0 5cqmin 9cqmin rgba(0, 0, 0, .5);
+}
+.cena-leitura .etq-nome { font-size: 6.4cqw; font-weight: 700; line-height: 1.2; }
+.cena-leitura .etq-de { font-size: 5cqw; margin-top: 3cqw; text-decoration: line-through; opacity: .62; }
+.cena-leitura .etq-preco {
+  font-size: 26cqw; font-weight: 800; letter-spacing: -0.045em; line-height: 1; margin-top: 0.5cqw;
+  font-variant-numeric: tabular-nums;
+}
+.cena-leitura .etq-preco span { font-size: 0.33em; margin-right: 0.1em; vertical-align: 0.55em; }
+.cena-leitura .etq-cond {
+  display: inline-block; margin-top: 3cqw; color: #14161a;
+  border: 0.4cqw solid #14161a; border-radius: 0.8cqw;
+  font-size: 4.2cqw; font-weight: 700; padding: 1.2cqw 2.4cqw;
+}
+.cena-leitura .etq-codigo {
+  margin-top: 4cqw; height: 5cqw;
+  background: repeating-linear-gradient(90deg, #14161a 0 0.6cqw, transparent 0.6cqw 1.4cqw, #14161a 1.4cqw 1.7cqw, transparent 1.7cqw 2.8cqw);
+}
+
+.cena-leitura .guias { position: absolute; inset: -6%; }
+.cena-leitura .guias i {
+  position: absolute; width: 7cqmin; height: 7cqmin; border: 0.55cqmin solid var(--verde-claro);
+}
+.cena-leitura .guias .g1 { left: 0; top: 0; border-right: 0; border-bottom: 0; }
+.cena-leitura .guias .g2 { right: 0; top: 0; border-left: 0; border-bottom: 0; }
+.cena-leitura .guias .g3 { left: 0; bottom: 0; border-right: 0; border-top: 0; }
+.cena-leitura .guias .g4 { right: 0; bottom: 0; border-left: 0; border-top: 0; }
+
+.cena-leitura .flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+
+.cena-leitura .forma-w { position: absolute; inset: 0; }
+.cena-leitura .forma-mov { position: absolute; left: 71cqw; top: 50%; translate: -50% -50%; width: 54cqmin; }
+.cena-leitura .cartao {
+  container-type: inline-size;
+  background: var(--branco); border-radius: 5cqw; overflow: hidden; padding: 5cqw 6cqw 6cqw;
+  box-shadow: 0 4cqmin 9cqmin rgba(0, 0, 0, .55); font-family: var(--fonte-ui); color: var(--tinta);
+}
+.cena-leitura .cab {
+  display: flex; align-items: center; gap: 2cqw; background: #E7EEF6; color: var(--navy);
+  font-size: 3.4cqw; font-weight: 700; border-radius: 2.6cqw; padding: 3cqw 3.6cqw; margin-bottom: 4.4cqw;
+}
+.cena-leitura .ia { color: var(--verde); font-size: 4.4cqw; }
+.cena-leitura .campo { margin-bottom: 3.6cqw; }
+.cena-leitura .campo label { display: block; font-size: 3cqw; font-weight: 700; color: var(--tinta); margin-bottom: 1.4cqw; }
+.cena-leitura .valor {
+  border: 0.3cqw solid var(--borda); border-radius: 2.4cqw; padding: 3cqw 3.4cqw;
+  font-size: 4.2cqw; background: var(--branco); min-height: 5cqw;
+}
+.cena-leitura .promo {
+  display: grid; gap: 1.2cqw; background: var(--ambar-suave); color: var(--ambar-texto);
+  border-radius: 2.6cqw; padding: 3.4cqw 3.6cqw;
+}
+.cena-leitura .promo b { font-size: 3.8cqw; }
+.cena-leitura .promo span { font-size: 3cqw; }
+
+.cena-leitura .frase {
+  position: absolute; left: 50%; top: 8cqh; translate: -50% 0; margin: 0;
+  font-size: 7.4cqmin; color: var(--texto); text-align: center;
+  font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
+  text-shadow: 0 1cqmin 3cqmin rgba(0, 0, 0, .5);
+}
+
+[data-formato="9x16"] .cena-leitura .etq-mov { left: 50cqw; top: 33cqh; width: 66cqmin; }
+[data-formato="9x16"] .cena-leitura .forma-mov { left: 50cqw; top: 62cqh; width: 76cqmin; }
+[data-formato="9x16"] .cena-leitura .frase { top: 13cqh; font-size: 7cqmin; }

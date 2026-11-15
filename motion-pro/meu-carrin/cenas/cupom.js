@@ -1,6 +1,8 @@
 /* cupom — "A conferência" · 5,0 s · o clímax do filme
    Ideia: a fita do cupom desce e cada linha acende em verde, até uma travar em vermelho.
-   Saída: ponte — a fita vira a primeira barra do gráfico da próxima cena. */
+   Entrada: ponte "papel" — a fita que o aplicativo imprimiu na cena anterior abre aqui e
+   traz o palco claro com ela.
+   Saída: ponte "fita" — o corpo da fita vira a primeira barra do gráfico da próxima cena. */
 const LINHAS = [
   { d: 'ARROZ 5KG', q: '1 un x 28,90', v: '28,90' },
   { d: 'CAFE 500G', q: '2 un x 24,90', v: '49,80', erro: true },
@@ -9,8 +11,8 @@ const LINHAS = [
   { d: 'ACUCAR 1KG', q: '1 un x 4,79', v: '4,79' },
   { d: 'DETERGENTE 500ML', q: '3 un x 3,29', v: '9,87' },
 ];
-const T_CONFERE = 0.95;
-const PASSO = 0.22;
+const T_CONFERE = 0.8;
+const PASSO = 0.21;
 
 Motion.cena('cupom', {
   render: (c) => `
@@ -18,9 +20,9 @@ Motion.cena('cupom', {
     <h2 class="frase" data-z="0.2">Pagou o preço da gôndola?</h2>
     <div class="fita-w" data-z="0.06">
       <div class="fita-mov">
-        <div class="fita" data-ponte="fita">
+        <div class="fita" data-ponte="papel">
           <div class="serra serra-topo"></div>
-          <div class="fita-corpo">
+          <div class="fita-corpo" data-ponte="fita">
             <div class="loja">SUPERMERCADO CENTRAL</div>
             <div class="doc">CUPOM FISCAL ELETRONICO</div>
             <div class="tracejado"></div>
@@ -56,16 +58,16 @@ Motion.cena('cupom', {
   quadro(t, el, api) {
     const { ease, prog, lerp, clamp } = api;
 
-    // A fita desce do alto e assenta.
-    const desce = ease.outExpo(prog(t, 0.0, 0.95));
-    const treme = api.tremor(t, 2.6, { forca: 0.55, freq: 11, amortecimento: 9 });
-    api.set(el.$('.fita-mov'), { y: lerp(-62, 0, desce) + treme.y, x: treme.x, r: treme.giro * 0.2 });
+    // A fita chega do mergulho da cena anterior: aqui ela só assenta.
+    const assenta = ease.outExpo(prog(t, 0.0, 0.55));
+    const treme = api.tremor(t, 2.4, { forca: 0.55, freq: 11, amortecimento: 9 });
+    api.set(el.$('.fita-mov'), { y: lerp(-11, 0, assenta) + treme.y, x: treme.x, r: treme.giro * 0.2 });
 
     // As linhas conferem uma a uma; a do café trava em vermelho.
     el.lins.forEach((lin, i) => {
       const t0 = T_CONFERE + i * PASSO;
       const ok = ease.outBack(1.6)(prog(t, t0, t0 + 0.26));
-      const erro = LINHAS[i].erro ? ease.outCubic(prog(t, 2.6, 2.9)) : 0;
+      const erro = LINHAS[i].erro ? ease.outCubic(prog(t, 2.4, 2.72)) : 0;
       api.set(lin, {
         style: {
           background: erro > 0.02 ? `color-mix(in srgb, var(--vermelho-suave) ${Math.round(erro * 100)}%, transparent)` : 'transparent',
@@ -80,11 +82,11 @@ Motion.cena('cupom', {
     });
 
     // O quadro da diferença sobe e o valor conta até + R$ 2,00.
-    const d = ease.outBack(1.2)(prog(t, 3.05, 3.6));
-    api.set(el.$('.dif'), { y: lerp(7, 0, d), o: ease.outCubic(prog(t, 3.05, 3.35)), s: lerp(0.94, 1, d) });
-    api.tipo.contar(t, el.$('.conta'), { de: 0, ate: 2, inicio: 3.5, travar: 4.1, casas: 2, prefixo: '+ R$ ' });
+    const d = ease.outBack(1.2)(prog(t, 2.85, 3.4));
+    api.set(el.$('.dif'), { y: lerp(7, 0, d), o: ease.outCubic(prog(t, 2.85, 3.15)), s: lerp(0.94, 1, d) });
+    api.tipo.contar(t, el.$('.conta'), { de: 0, ate: 2, inicio: 3.3, travar: 3.9, casas: 2, prefixo: '+ R$ ' });
 
-    api.tipo.focar(t, el.palavras, { inicio: 0.45, cascata: 0.045 });
+    api.tipo.focar(t, el.palavras, { inicio: 0.55, cascata: 0.045 });
 
     el.cn.quadro(t, { zoom: lerp(1, 1.04, ease.outSine(prog(t, 0, 5.0))) });
   },

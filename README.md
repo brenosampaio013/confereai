@@ -296,7 +296,26 @@ node <skill>/scripts/sons.mjs motion-pro/meu-carrin
 ```
 
 O storyboard, o render e o cache não são versionados (são gerados); o roteiro, as cenas, a marca
-e a mídia são.
+e a mídia são. `motion-pro/meu-carrin/versoes/v1/` guarda uma cópia intacta das cenas e do
+roteiro da primeira versão, antes da remontagem.
+
+**Versão 2 (remontagem de edição).** A v1 tinha a identidade certa e problemas de narrativa:
+o número do gancho girava ao acaso em vez de subir, a marca disputava atenção com a tela do
+aplicativo logo na cena 2, a passagem do azul-marinho para o papel do cupom era um corte seco
+de clima e, na cena do resultado, o número gigante era o gasto do mês em vez do ganho. A v2
+refez essas quatro coisas e mais: entrada de verdade para a etiqueta, etiqueta de "+ R$ x,xx"
+a cada produto que entra na conta, e o posicionamento "Sua compra sob controle." no fecho.
+O detalhe de cada mudança está em `motion-pro/meu-carrin/briefing.md`, em "Rodadas".
+
+Dois verificadores da skill rodam sozinhos e valem a pena antes de renderizar:
+
+```bash
+node <skill>/scripts/quadros.mjs motion-pro/meu-carrin --pureza
+```
+
+`--pureza` confirma que cada cena é função pura do tempo (o mesmo instante dá sempre o mesmo
+quadro); sem isso o render fica não determinístico. O "Diretor", que sai junto do storyboard,
+critica composição, contraste e intervalos sem batida.
 
 ### Ainda pendente na landing
 

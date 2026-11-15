@@ -7,6 +7,7 @@
    TROQUE: LOGO (o nome do arquivo em marca/ativos, sem extensão), CONVITE ('' tira). */
 { // bloco: as constantes desta cena não colidem com as das outras
 const CONVITE = 'meucarrin.com';
+const TAGLINE = 'Sua compra sob controle.';
 
 Motion.cena('fecho', {
   render: (c) => `
@@ -16,6 +17,7 @@ Motion.cena('fecho', {
         <span class="simbolo">${c.svg('simbolo', { classe: 'logo-svg' })}</span>
         <span class="nome">Meu <b>Carrin</b></span>
       </div>
+      ${TAGLINE ? `<p class="tagline">${TAGLINE}</p>` : ''}
       ${CONVITE ? `<p class="apoio convite">${CONVITE}</p>` : ''}
     </div></div>
     <div class="camada c-perto"><div class="atravessa"></div></div>`,
@@ -30,6 +32,8 @@ Motion.cena('fecho', {
     el.marca = el.$('.marca');
     el.simbolo = el.$('.marca .simbolo, .marca [data-simbolo]');
     el.convite = el.$('.convite');
+    el.tagline = el.$('.tagline');
+    el.taglinePal = el.tagline ? api.tipo.dividir(el.tagline, { por: 'palavra' }) : [];
     el.convitePal = el.convite ? api.tipo.dividir(el.convite, { por: 'palavra' }) : [];
     el.luz = el.$('.luz');
     el.luzMarca = el.$('.luz-marca');
@@ -85,8 +89,9 @@ Motion.cena('fecho', {
       // 3. a luz larga atravessa a marca uma vez, no gesto
       const pa = prog(t, b(3), b(3) + 0.9);
       a.set(el.atravessa, { x: lerp(-60, 60, ease.inOutSine(pa)), o: Math.sin(Math.PI * pa) });
-      // 4. o convite, pequeno, palavra a palavra
-      if (el.convitePal.length) a.tipo.focar(t, el.convitePal, { inicio: b(4) });
+      // 4. o posicionamento assenta sob a marca e, por último, o endereço
+      if (el.taglinePal.length) a.tipo.focar(t, el.taglinePal, { inicio: b(3.1), cascata: 0.04 });
+      if (el.convitePal.length) a.tipo.focar(t, el.convitePal, { inicio: b(4.3) });
       // câmera: close no símbolo → recua até o enquadramento; depois push bem lento
       const r = ease.outQuad(prog(t, ini + 0.15, b(3.2)));
       el.cam.pose({ zoom: lerp(1.6, 1, r) * a.viva(t, { v: 0.013 }), x: el.P[0] * (1 - r), y: el.P[1] * (1 - r) });

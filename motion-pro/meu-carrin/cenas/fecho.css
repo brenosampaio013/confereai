@@ -43,3 +43,9 @@
 [data-formato="9x16"] .cena-fecho .nome { font-size: 13cqmin; }
 [data-formato="9x16"] .cena-fecho .simbolo { width: 14cqmin; height: 14cqmin; }
 [data-formato="9x16"] .cena-fecho .convite { font-size: 5cqmin; }
+/* o posicionamento: uma linha só, sob a marca, antes do endereço */
+.cena-fecho .tagline {
+  margin: 0; font-family: var(--fonte-titulo); font-size: 5.2cqmin; font-weight: 600;
+  letter-spacing: -0.01em; color: var(--texto);
+}
+[data-formato="9x16"] .cena-fecho .tagline { font-size: 5.6cqmin; }

@@ -62,27 +62,27 @@
       "tipo": "palavra-gigante",
       "papel": "gancho",
       "titulo": "A pergunta",
-      "dur": 4,
-      "ideia": "As etiquetas atravessam a câmera e o número do caixa sobe sozinho; a pergunta fica parada no meio, sem resposta.",
+      "dur": 3.6,
+      "ideia": "O total do caixa SOBE num odômetro de verdade: os centavos giram e as dezenas carregam. É o gasto se acumulando sem ninguém ver. A pergunta chega depois e fica sem resposta.",
       "camera": "Push-in lento de 4 %, com etiquetas passando na frente, grandes e desfocadas.",
       "quadros": [
         {
           "id": "inicio",
           "rotulo": "Início",
-          "legenda": "As primeiras etiquetas entram e o número começa a subir",
+          "legenda": "As primeiras etiquetas entram e o total começa a subir",
           "t": 0.35
         },
         {
           "id": "meio",
           "rotulo": "Passo 2",
-          "legenda": "A pergunta chega ao centro",
-          "t": 1.9
+          "legenda": "A pergunta chega ao centro enquanto o número sobe",
+          "t": 1.6
         },
         {
           "id": "fim",
           "rotulo": "Fim",
-          "legenda": "O número travou alto e a pergunta fica sozinha",
-          "t": 3.5,
+          "legenda": "O número alto, ainda girando, e a pergunta sozinha",
+          "t": 3.3,
           "aprovado": true
         }
       ],
@@ -94,25 +94,34 @@
           "som": "whoosh"
         },
         {
-          "t": 0.3,
+          "t": 0.1,
           "tipo": "objeto",
-          "texto": "O número do caixa rola em tambor sem parar, com desfoque só vertical, como quem não sabe onde vai parar.",
-          "som": "riser"
+          "texto": "O odômetro do caixa sobe de R$ 0,00 em direção a R$ 139,20 — o carrinho verdadeiro da cena 3. Cada roda tem a velocidade da sua casa: os centavos voam, as dezenas carregam. O desfoque é só vertical.",
+          "som": {
+            "nome": "subindo",
+            "dur": 2.6,
+            "ganho": 0.85
+          }
         },
         {
-          "t": 1,
+          "t": 0.95,
           "tipo": "tipo",
-          "texto": "A pergunta sai do desfoque palavra a palavra, 45 ms entre palavras, subindo de pertinho."
+          "texto": "\"Você sabe quanto já deu?\" sai do desfoque palavra a palavra, 45 ms entre palavras, subindo de pertinho."
         },
         {
-          "t": 2.4,
+          "t": 1.55,
+          "tipo": "objeto",
+          "texto": "A terceira etiqueta cruza a frente do quadro, a maior de todas, e sai; as de trás seguem passando."
+        },
+        {
+          "t": 2.3,
           "tipo": "vida",
-          "texto": "Hold: a luz do fundo respira e as etiquetas continuam passando, mais longe e mais lentas."
+          "texto": "Hold: o número continua subindo e os centavos girando; as etiquetas de trás seguem passando, mais lentas."
         },
         {
-          "t": 3.6,
+          "t": 3.3,
           "tipo": "transicao",
-          "texto": "O número apaga e a câmera avança; tudo desfoca para a próxima."
+          "texto": "O número apaga sem nunca ter travado e a câmera avança; tudo desfoca para a próxima."
         }
       ],
       "saida": {
@@ -123,10 +132,10 @@
     {
       "id": "marca",
       "tipo": "aparelho",
-      "papel": "apresentação",
+      "papel": "marca",
       "titulo": "A marca",
-      "dur": 3,
-      "ideia": "O celular chega da profundidade girando, a tela acende e a marca se escreve a partir do símbolo.",
+      "dur": 3.2,
+      "ideia": "O celular chega da profundidade girando e a tela acende — a cena é do aplicativo. Só com a tela já lida a marca assina ao lado, pequena e calma.",
       "camera": "Recua 3 % na chegada do celular e volta a avançar, passando por 1,0 no quadro aprovado.",
       "quadros": [
         {
@@ -136,10 +145,16 @@
           "t": 0.4
         },
         {
+          "id": "meio",
+          "rotulo": "Passo 2",
+          "legenda": "O celular de frente e a tela acesa, sozinho no quadro — a marca ainda não entrou",
+          "t": 1.25
+        },
+        {
           "id": "fim",
           "rotulo": "Fim",
-          "legenda": "O celular quase de frente e a marca ao lado",
-          "t": 2.6,
+          "legenda": "O celular de frente, lido, e a marca assinando ao lado",
+          "t": 2.8,
           "aprovado": true
         }
       ],
@@ -153,21 +168,21 @@
         {
           "t": 0.5,
           "tipo": "luz",
-          "texto": "A tela acende de dentro para fora e o reflexo do estúdio varre a moldura."
+          "texto": "A tela acende de dentro para fora e o reflexo do estúdio varre a moldura. Até aqui o quadro é só o aplicativo: nada mais entra."
         },
         {
-          "t": 0.95,
+          "t": 1.45,
           "tipo": "tipo",
-          "texto": "O símbolo acende primeiro; \"Meu Carrin\" sai do desfoque, letra a letra, a partir dele.",
+          "texto": "Com a tela já lida, o símbolo acende e \"Meu Carrin\" sai do desfoque a partir dele, letra a letra — em corpo pequeno, assinando, sem disputar com a interface.",
           "som": "brilho"
         },
         {
-          "t": 1.9,
+          "t": 2.3,
           "tipo": "vida",
           "texto": "Hold: o celular continua girando um fio e a luz verde atrás respira."
         },
         {
-          "t": 2.75,
+          "t": 2.95,
           "tipo": "transicao",
           "texto": "A câmera mergulha na tela do celular até ela cobrir o quadro."
         }
@@ -181,29 +196,29 @@
     {
       "id": "orcamento",
       "tipo": "livre",
-      "papel": "o que ele faz",
+      "papel": "desenvolvimento",
       "titulo": "O total em tempo real",
-      "dur": 4.5,
-      "ideia": "Cada produto que entra empurra o total para cima, até a barra mudar de cor e o aviso subir.",
+      "dur": 5.2,
+      "ideia": "Cada produto que entra empurra o total para cima e larga um \"+ R$ x,xx\" verde que sobe e esfria, até a barra virar âmbar e o aviso subir.",
       "camera": "Push-in de 3 % no cartão; tremor curto de 2 quadros quando o aviso chega.",
       "quadros": [
         {
           "id": "inicio",
           "rotulo": "Início",
           "legenda": "Close no total, ainda em R$ 0,00",
-          "t": 0.45
+          "t": 0.5
         },
         {
           "id": "meio",
           "rotulo": "Passo 2",
-          "legenda": "A câmera abriu: o cartão inteiro e três produtos",
-          "t": 2.3
+          "legenda": "A câmera abriu: o cartão inteiro, quatro produtos e o \"+ R$\" subindo",
+          "t": 2.4
         },
         {
           "id": "fim",
           "rotulo": "Fim",
           "legenda": "Barra âmbar e o aviso aberto",
-          "t": 4,
+          "t": 4.6,
           "aprovado": true
         }
       ],
@@ -215,25 +230,49 @@
           "som": "clique"
         },
         {
-          "t": 0.6,
+          "t": 0.72,
           "tipo": "objeto",
-          "texto": "Os produtos caem na lista em accelerando (420 → 260 ms), cada um com um estalo pequeno."
+          "texto": "Os produtos caem na lista em accelerando (540 → 360 ms), cada um com um estalo pequeno."
         },
         {
-          "t": 0.65,
+          "t": 0.84,
           "tipo": "tipo",
-          "texto": "O total rola em tambor a cada produto e trava no valor, da esquerda para a direita."
+          "texto": "A cada produto o total pula um fio e um \"+ R$ x,xx\" verde sobe ao lado dele e esfria: é a conta sendo feita, não um número que muda sozinho.",
+          "som": {
+            "nome": "tique",
+            "ganho": 0.5
+          }
         },
         {
-          "t": 2.9,
+          "t": 1.74,
+          "tipo": "objeto",
+          "texto": "Terceiro produto: o leite entra e o total passa de R$ 70,00 — a barra já cobre dois terços."
+        },
+        {
+          "t": 2.58,
+          "tipo": "objeto",
+          "texto": "Quinto produto: o açúcar entra, o menor valor da lista, e o \"+ R$ 4,79\" sobe curto."
+        },
+        {
+          "t": 2.94,
+          "tipo": "objeto",
+          "texto": "Sexto produto: o detergente fecha a lista em R$ 139,20 e o total trava."
+        },
+        {
+          "t": 3.35,
           "tipo": "luz",
           "texto": "A barra passa de verde para âmbar ao cruzar 75 %, com um pulso de luz que corre por ela."
         },
         {
-          "t": 3.15,
+          "t": 3.6,
           "tipo": "objeto",
-          "texto": "O aviso sobe por baixo do cartão, sem desfoque, como um pop-up de verdade.",
+          "texto": "O aviso sobe por baixo do cartão, sem desfoque, como um pop-up de verdade, e fica 1,2 s no quadro para ser lido.",
           "som": "notificacao"
+        },
+        {
+          "t": 4.4,
+          "tipo": "vida",
+          "texto": "Hold no aviso: a barra âmbar pulsa um fio, o cartão deriva e a frase fica legível até o fim da cena."
         }
       ],
       "saida": {
@@ -245,11 +284,11 @@
     {
       "id": "leitura",
       "tipo": "livre",
-      "papel": "o que ele faz",
+      "papel": "desenvolvimento",
       "titulo": "A etiqueta vira preço",
       "dur": 4,
-      "ideia": "A etiqueta é fotografada e os campos do formulário se escrevem sozinhos, um a um.",
-      "camera": "Fecha 6 % enquanto as guias do enquadramento se aproximam; relaxa depois do flash.",
+      "ideia": "A etiqueta chega da profundidade, é fotografada, os campos se escrevem sozinhos — e no fim o aplicativo imprime a fita do cupom, que sobe em primeiro plano.",
+      "camera": "Fecha 6 % enquanto as guias se aproximam; relaxa depois do flash e empurra 2,5 % enquanto a fita sobe.",
       "quadros": [
         {
           "id": "inicio",
@@ -266,7 +305,7 @@
         {
           "id": "fim",
           "rotulo": "Fim",
-          "legenda": "Os campos preenchidos e o preço promocional aceso",
+          "legenda": "Os campos preenchidos, o preço promocional aceso e a fita subindo",
           "t": 3.5,
           "aprovado": true
         }
@@ -275,7 +314,11 @@
         {
           "t": 0,
           "tipo": "objeto",
-          "texto": "A etiqueta amarela ocupa dois terços do quadro, cortada pela borda, girada 4°, com sombra macia."
+          "texto": "A etiqueta amarela chega da profundidade com peso — 16 % maior, girada 5,5° a mais, saindo do desfoque em 300 ms — e assenta ocupando dois terços do quadro, cortada pela borda.",
+          "som": {
+            "nome": "swoosh",
+            "ganho": 0.7
+          }
         },
         {
           "t": 0.55,
@@ -295,14 +338,42 @@
           "som": "digitacao"
         },
         {
+          "t": 2,
+          "tipo": "tipo",
+          "texto": "Segundo campo: o peso da embalagem se escreve, \"500 g\"."
+        },
+        {
+          "t": 2.25,
+          "tipo": "tipo",
+          "texto": "Terceiro campo: o preço por unidade, \"R$ 24,90\", fecha o formulário."
+        },
+        {
           "t": 2.7,
           "tipo": "objeto",
           "texto": "O quadro do preço promocional sobe em âmbar e o valor trava com um estalo."
+        },
+        {
+          "t": 2.72,
+          "tipo": "objeto",
+          "texto": "O aplicativo imprime a fita do cupom: ela sobe por baixo do quadro, em primeiro plano, com sombra dura, e assenta 0,25 s antes de a câmera mergulhar nela — tempo de ser reconhecida como papel. O navy esquenta atrás.",
+          "som": {
+            "nome": "papel",
+            "dur": 0.9
+          }
+        },
+        {
+          "t": 3.45,
+          "tipo": "transicao",
+          "texto": "A câmera mergulha na fita: o papel cresce até cobrir o quadro e entrega o filme na cena do cupom já claro."
         }
       ],
       "saida": {
-        "tipo": "avancar-desfocar",
-        "texto": "A câmera avança e desfoca: do produto para o caixa."
+        "tipo": "mergulho",
+        "alvo": ".recibo",
+        "ponte": "papel",
+        "escurecer": 0,
+        "alvoTexto": "na fita que o aplicativo imprimiu",
+        "texto": "A câmera mergulha na fita impressa até o papel cobrir o quadro: é o papel claro que invade o navy, em vez de o filme trocar de clima num corte."
       }
     },
     {
@@ -311,26 +382,26 @@
       "papel": "climax",
       "titulo": "A conferência",
       "dur": 5,
-      "ideia": "A fita do cupom desce e cada linha acende em verde, até uma travar em vermelho.",
-      "camera": "Desce junto com a fita e para quando a linha vermelha trava; depois fecha 4 % nela.",
+      "ideia": "A fita chega do mergulho já cobrindo o quadro, assenta, e cada linha acende em verde até uma travar em vermelho.",
+      "camera": "Assenta com a fita e fecha 4 % na linha vermelha.",
       "quadros": [
         {
           "id": "inicio",
           "rotulo": "Início",
-          "legenda": "A fita começa a descer do alto",
-          "t": 0.5
+          "legenda": "A fita acabou de cobrir o quadro e assenta",
+          "t": 0.4
         },
         {
           "id": "meio",
           "rotulo": "Passo 2",
           "legenda": "Metade das linhas já conferidas em verde",
-          "t": 2.5
+          "t": 2.2
         },
         {
           "id": "fim",
           "rotulo": "Fim",
           "legenda": "A linha vermelha aberta, com a diferença",
-          "t": 4.5,
+          "t": 4.3,
           "aprovado": true
         }
       ],
@@ -338,47 +409,70 @@
         {
           "t": 0,
           "tipo": "objeto",
-          "texto": "A fita do cupom desce do alto do quadro, serrilhada nas duas pontas, com sombra macia.",
-          "som": "papel"
+          "texto": "A fita chega do mergulho da cena anterior e só assenta — 11 cqw de acomodação, sem cair do alto, porque ela já estava no quadro.",
+          "som": {
+            "nome": "papel",
+            "ganho": 0.7
+          }
         },
         {
-          "t": 0.9,
+          "t": 0.8,
           "tipo": "objeto",
-          "texto": "As linhas acendem em verde uma a uma, 180 ms entre elas, com um tique curto.",
+          "texto": "As linhas acendem em verde uma a uma, 210 ms entre elas, com um tique curto.",
           "som": "tique"
         },
         {
-          "t": 2.6,
+          "t": 1.22,
+          "tipo": "objeto",
+          "texto": "Terceira linha confere: o visto verde entra com mola e o tique cai na batida."
+        },
+        {
+          "t": 1.64,
+          "tipo": "objeto",
+          "texto": "Quinta e sexta linhas conferem e o total da fita fica inteiro em verde."
+        },
+        {
+          "t": 2.4,
           "tipo": "objeto",
           "texto": "Uma linha trava: o fundo vira vermelho e a fita estremece 6 px.",
           "som": "grave"
         },
         {
-          "t": 3.05,
+          "t": 2.85,
           "tipo": "tipo",
-          "texto": "Os dois preços sobem lado a lado e a diferença conta até + R$ 2,00.",
+          "texto": "Os dois preços sobem lado a lado e a diferença conta até + R$ 2,00, travando com 1,1 s de hold para ser lida.",
           "som": "impacto"
         },
         {
-          "t": 4.6,
+          "t": 3.6,
+          "tipo": "vida",
+          "texto": "Hold na diferença: a fita respira, a borda vermelha fica acesa e o quadro de + R$ 2,00 continua lido."
+        },
+        {
+          "t": 4.1,
+          "tipo": "camera",
+          "texto": "A câmera fecha os últimos 4 % na linha vermelha antes de a fita se recolher."
+        },
+        {
+          "t": 4.5,
           "tipo": "transicao",
-          "texto": "A fita se recolhe e vira a primeira barra do gráfico da próxima cena."
+          "texto": "A fita se recolhe e o corpo dela vira a primeira barra do gráfico da próxima cena."
         }
       ],
       "saida": {
         "tipo": "ponte",
         "nome": "fita",
-        "texto": "A fita vira a primeira barra do gráfico."
+        "texto": "O corpo da fita vira a primeira barra do gráfico."
       }
     },
     {
       "id": "economia",
       "tipo": "livre",
-      "papel": "o ganho",
+      "papel": "prova",
       "titulo": "O mês fechado",
-      "dur": 4,
-      "ideia": "As barras sobem do chão e o número trava na batida, em verde.",
-      "camera": "Sobe 3 % com as barras e assenta no número.",
+      "dur": 4.2,
+      "ideia": "Primeiro a prova: as barras dos dois meses sobem do chão. Só então a conclusão: a diferença trava em verde, grande, como herói do quadro.",
+      "camera": "Sobe 3 % com as barras e assenta no ganho.",
       "quadros": [
         {
           "id": "inicio",
@@ -389,14 +483,14 @@
         {
           "id": "meio",
           "rotulo": "Passo 2",
-          "legenda": "As outras barras sobem em cascata",
+          "legenda": "As duas barras de pé, com os valores dos meses",
           "t": 1.6
         },
         {
           "id": "fim",
           "rotulo": "Fim",
-          "legenda": "O número travado acima das barras",
-          "t": 3.5,
+          "legenda": "O ganho travado em verde, acima da prova",
+          "t": 3.7,
           "aprovado": true
         }
       ],
@@ -404,32 +498,45 @@
         {
           "t": 0,
           "tipo": "objeto",
-          "texto": "A barra que veio da fita assenta no chão do gráfico e acende."
+          "texto": "A barra que veio da fita assenta no chão do gráfico e acende.",
+          "som": {
+            "nome": "barras",
+            "dur": 1.2,
+            "ganho": 0.7
+          }
         },
         {
           "t": 0.45,
           "tipo": "objeto",
-          "texto": "As outras barras sobem em cascata, 80 ms entre elas, com outExpo."
+          "texto": "A barra de novembro sobe atrás dela, com outExpo, e os valores dos dois meses entram em cascata — em corpo grande o bastante para serem lidos em celular."
         },
         {
-          "t": 1.2,
+          "t": 1.35,
           "tipo": "tipo",
-          "texto": "O número conta e trava na batida, com um estalo de 6 %.",
-          "som": "tique"
+          "texto": "O ganho conta de R$ 0,00 a R$ 9,58 e trava na batida, com estalo de 7 %. Ele é o número grande da cena; o gasto do mês (R$ 229,48) continua escrito na barra de novembro.",
+          "som": {
+            "nome": "contagem",
+            "dur": 0.8
+          }
         },
         {
-          "t": 2,
+          "t": 2.15,
           "tipo": "luz",
-          "texto": "Uma onda de luz verde atravessa o número no instante em que ele trava.",
+          "texto": "Uma onda de luz verde atravessa o ganho no instante em que ele trava.",
           "som": "brilho"
         },
         {
-          "t": 2.75,
+          "t": 2.4,
+          "tipo": "tipo",
+          "texto": "\"a menos que em outubro\" sai do desfoque palavra a palavra, logo abaixo."
+        },
+        {
+          "t": 2.9,
           "tipo": "objeto",
           "texto": "A barra de novembro dá um pulso curto e a sombra dela assenta."
         },
         {
-          "t": 3.4,
+          "t": 3.6,
           "tipo": "vida",
           "texto": "Hold: as barras respiram e a luz de trás deriva devagar."
         }
@@ -445,7 +552,7 @@
       "papel": "convite",
       "titulo": "A marca",
       "dur": 4,
-      "ideia": "O ponto de luz abre no carrinho da marca, o visto se desenha e o endereço assenta embaixo.",
+      "ideia": "O ponto de luz abre no carrinho da marca, o visto se desenha, o posicionamento assenta e o endereço fecha.",
       "camera": "Push-in mínimo de 2 %, quase parado, para a marca ficar sólida.",
       "quadros": [
         {
@@ -463,8 +570,8 @@
         {
           "id": "fim",
           "rotulo": "Fim",
-          "legenda": "A marca inteira e o endereço",
-          "t": 3.4,
+          "legenda": "A marca inteira, o posicionamento e o endereço",
+          "t": 3.5,
           "aprovado": true
         }
       ],
@@ -486,18 +593,26 @@
           "texto": "\"Meu Carrin\" sai do desfoque a partir do símbolo, letra a letra."
         },
         {
-          "t": 2.05,
+          "t": 1.55,
           "tipo": "tipo",
-          "texto": "\"meucarrin.com\" assenta embaixo, menor, com o tracking fechando."
+          "texto": "\"Sua compra sob controle.\" assenta sob a marca, palavra a palavra."
         },
         {
-          "t": 2.5,
+          "t": 2.15,
+          "tipo": "tipo",
+          "texto": "\"meucarrin.com\" fecha embaixo, menor, com o tracking fechando.",
+          "som": {
+            "nome": "moeda",
+            "ganho": 0.6
+          }
+        },
+        {
+          "t": 2.6,
           "tipo": "luz",
-          "texto": "A luz atrás do símbolo passa a pulsar na batida, a cada duas, bem de leve.",
-          "som": "moeda"
+          "texto": "A luz atrás do símbolo passa a pulsar na batida, a cada duas, bem de leve."
         },
         {
-          "t": 3.4,
+          "t": 3.5,
           "tipo": "vida",
           "texto": "Hold: a luz verde respira atrás e o símbolo flutua um fio."
         }
@@ -513,9 +628,9 @@
     "quadro": "fim"
   },
   "storyboard": {
-    "revisao": 8,
+    "revisao": 12,
     "aprovadoEm": "2026-11-14",
-    "revisaoAprovada": 8
+    "revisaoAprovada": 12
   },
   "versoes": [
     {
@@ -526,10 +641,19 @@
       ],
       "fps": 30,
       "nota": "primeira versão do filme"
+    },
+    {
+      "v": 90,
+      "data": "2026-11-14",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "teste da passagem"
     }
   ],
   "criadoEm": "2026-11-14",
-  "cartaz": "Quanto já deu?",
+  "cartaz": "Você sabe quanto já deu?",
   "acabamento": {
     "grao": 0.26,
     "vinheta": 0.26,

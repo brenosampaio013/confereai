@@ -1,0 +1,45 @@
+.cena-economia .luz-w { position: absolute; inset: 0; }
+.cena-economia .luz {
+  position: absolute; left: 50%; top: 54%; width: 76cqmin; height: 76cqmin; translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--verde) 20%, transparent) 0%, transparent 62%);
+}
+
+.cena-economia .bloco { position: absolute; inset: 0; }
+.cena-economia .bloco-mov {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  display: grid; justify-items: center; gap: 1.1cqh; width: 74cqw;
+}
+.cena-economia .rotulo { font-size: 2.2cqmin; letter-spacing: 0.3em; color: var(--texto-suave); font-weight: 700; }
+.cena-economia .numero {
+  font-size: 13cqmin; font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--texto);
+  font-variant-numeric: tabular-nums; text-shadow: 0 1cqmin 4cqmin rgba(0, 0, 0, .45);
+}
+.cena-economia .compara {
+  display: flex; align-items: center; gap: 0.8cqmin;
+  font-size: 3.2cqmin; color: #EAF6F0; font-weight: 600; margin-top: 0.4cqh;
+  text-shadow: 0 0.4cqmin 1.8cqmin rgba(0, 0, 0, .65);
+}
+.cena-economia .seta { font-style: normal; font-size: 3.4cqmin; }
+
+.cena-economia .grafico {
+  display: flex; align-items: flex-end; justify-content: center; gap: 9cqmin;
+  height: 34cqh; margin-top: 2cqh;
+}
+.cena-economia .col {
+  display: grid; justify-items: center; align-content: end; gap: 0.8cqh;
+  width: 17cqmin; height: 100%;
+  grid-template-rows: 1fr auto auto;
+}
+.cena-economia .barra {
+  width: 100%; align-self: end; border-radius: 1.2cqmin 1.2cqmin 0 0; height: 0;
+  background: linear-gradient(180deg, var(--verde-claro), var(--verde));
+  box-shadow: 0 0 3cqmin color-mix(in srgb, var(--verde) 45%, transparent);
+}
+.cena-economia .barra-out { background: linear-gradient(180deg, #7FA0C0, #44607F); box-shadow: none; }
+.cena-economia .mes { font-size: 2.6cqmin; color: var(--texto-suave); letter-spacing: 0.08em; }
+.cena-economia .val { font-size: 2.4cqmin; color: var(--texto); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+[data-formato="9x16"] .cena-economia .numero { font-size: 11cqmin; }
+[data-formato="9x16"] .cena-economia .grafico { height: 22cqh; gap: 9cqmin; }
+[data-formato="9x16"] .cena-economia .col { width: 22cqmin; }

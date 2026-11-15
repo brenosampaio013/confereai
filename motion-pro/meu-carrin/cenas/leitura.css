@@ -68,3 +68,45 @@
 [data-formato="9x16"] .cena-leitura .etq-mov { left: 50cqw; top: 33cqh; width: 66cqmin; }
 [data-formato="9x16"] .cena-leitura .forma-mov { left: 50cqw; top: 62cqh; width: 76cqmin; }
 [data-formato="9x16"] .cena-leitura .frase { top: 13cqh; font-size: 7cqmin; }
+
+/* A fita que o aplicativo imprime no fim da cena: ela é a ponte para o clímax.
+   O papel claro sobe em primeiro plano e, no mergulho, vira o quadro inteiro — o filme
+   troca de clima por um objeto, não por um corte. */
+.cena-leitura .calor-w { position: absolute; inset: 0; }
+.cena-leitura .calor {
+  position: absolute; left: 50%; top: 86cqh; width: 92cqmin; height: 92cqmin; translate: -50% -50%;
+  border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, rgba(255, 248, 232, .5) 0%, rgba(255, 243, 214, .18) 38%, transparent 66%);
+}
+.cena-leitura .recibo-w { position: absolute; inset: 0; z-index: 9; }
+.cena-leitura .recibo-mov { position: absolute; left: 34cqw; top: 36cqh; translate: -50% 0; width: 22cqmin; }
+.cena-leitura .recibo {
+  container-type: inline-size;
+  filter: drop-shadow(0 4cqmin 8cqmin rgba(0, 0, 0, .55));
+}
+.cena-leitura .rec-serra {
+  height: 4cqw; background: #FFFDF8;
+  --d: 5.5cqw;
+  -webkit-mask: radial-gradient(var(--d) at 50% 0, #0000 99%, #000 101%) 50% 0 / calc(var(--d) * 2) 100%;
+          mask: radial-gradient(var(--d) at 50% 0, #0000 99%, #000 101%) 50% 0 / calc(var(--d) * 2) 100%;
+}
+.cena-leitura .rec-corpo {
+  background: #FFFDF8; padding: 6cqw 6cqw 6cqw; display: grid; gap: 4.6cqw;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+.cena-leitura .rec-corpo b {
+  font-size: 4cqw; font-weight: 700; text-align: center; color: var(--tinta); letter-spacing: 0.04em;
+}
+.cena-leitura .rec-corpo i {
+  display: block; height: 2.4cqw; border-radius: 1.2cqw;
+  background: color-mix(in srgb, var(--tinta) 16%, transparent);
+}
+.cena-leitura .rec-corpo u {
+  display: block; height: 0; border-top: 0.7cqw dashed color-mix(in srgb, var(--tinta) 30%, transparent);
+}
+.cena-leitura .rec-corpo i:nth-of-type(2n) { width: 86%; }
+.cena-leitura .rec-corpo i:nth-of-type(3n) { width: 68%; }
+.cena-leitura .rec-corpo i:nth-of-type(5n) { width: 94%; }
+.cena-leitura .rec-serra-base { transform: scaleY(-1); }
+
+[data-formato="9x16"] .cena-leitura .recibo-mov { left: 50cqw; width: 32cqmin; top: 30cqh; }

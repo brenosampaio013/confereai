@@ -15,11 +15,20 @@
   box-shadow: 0 4cqmin 9cqmin rgba(0, 0, 0, .55);
   font-family: var(--fonte-ui);
 }
-.cena-orcamento .topo { background: var(--navy); color: var(--branco); padding: 5.6cqw 6cqw 6cqw; }
+.cena-orcamento .topo { position: relative; background: var(--navy); color: var(--branco); padding: 5.6cqw 6cqw 6cqw; }
 .cena-orcamento .rotulo { font-size: 3cqw; letter-spacing: 0.16em; color: #9FB6CD; font-weight: 700; }
+/* A etiqueta do "+ R$" é absoluta e vai para o alto do cartão, na linha do rótulo: em fluxo
+   ela espremia o total (que quebrava em duas linhas) e, ao lado dele, cobria os centavos
+   quando o número ficava largo. No alto, à direita, o lado está livre a cena inteira. */
+.cena-orcamento .total-l { position: static; }
+.cena-orcamento .delta {
+  position: absolute; right: 6cqw; top: 5.1cqw;
+  font-style: normal; font-size: 4.6cqw; font-weight: 800; color: var(--verde-claro);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em; opacity: 0; white-space: nowrap;
+}
 .cena-orcamento .total {
   font-size: 16cqw; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; margin-top: 0.6cqw;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .cena-orcamento .sub {
   display: flex; justify-content: space-between; gap: 3cqw;
@@ -28,6 +37,8 @@
 .cena-orcamento .barra { height: 2.4cqw; border-radius: 1.2cqw; background: #1E3B5C; margin-top: 3.4cqw; overflow: hidden; }
 .cena-orcamento .barra-p { display: block; height: 100%; width: 0; border-radius: 1.2cqw; background: var(--verde); }
 
+.cena-orcamento .aviso-w { display: grid; grid-template-rows: 0fr; }
+.cena-orcamento .aviso { min-height: 0; overflow: hidden; }
 .cena-orcamento .aviso {
   background: var(--ambar-suave); color: var(--ambar-texto); padding: 3.8cqw 6cqw;
   display: grid; gap: 0.8cqw; border-bottom: 0.25cqw solid var(--borda);
