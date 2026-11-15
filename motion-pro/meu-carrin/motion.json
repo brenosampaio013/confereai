@@ -710,6 +710,24 @@
       ],
       "fps": 30,
       "nota": "v3 final"
+    },
+    {
+      "v": 4,
+      "data": "2026-11-15",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "v4 publicitario: narracao, legendas por frase e trilha"
+    },
+    {
+      "v": 91,
+      "data": "2026-11-15",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "teste"
     }
   ],
   "criadoEm": "2026-11-14",

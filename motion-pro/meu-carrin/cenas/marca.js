@@ -17,8 +17,7 @@ Motion.cena('marca', {
       <h2 class="nome">Meu <span class="destaque">Carrin</span></h2>
     </div>
     ${c.bokeh({ n: 5, tamanho: [12, 26], cores: ['#3ACB8B', '#FFFFFF'], classe: 'cn-bokeh-frente', z: 0.7 })}
-    ${c.poeira({ n: 14, semente: 3 })}
-    <div class="leg-w">${c.ui.legenda()}</div>`,
+    ${c.poeira({ n: 14, semente: 3 })}`,
 
   montar(el, api) {
     el.letras = api.tipo.dividir(el.$('.nome'), { por: 'letra' });

@@ -32,8 +32,7 @@ Motion.cena('economia', {
         </div>
       </div>
     </div>
-    ${c.poeira({ n: 14, semente: 9 })}
-    <div class="leg-w">${c.ui.legenda()}</div>`,
+    ${c.poeira({ n: 14, semente: 9 })}`,
 
   montar(el, api) {
     el.compara = api.tipo.dividir(el.$('.compara'), { por: 'palavra' });

@@ -48,8 +48,7 @@ Motion.cena('orcamento', {
       <h2 class="frase">Cada produto entra na conta</h2>
       <p class="apoio">o total, o saldo e a porcentagem mudam na hora</p>
     </div>
-    ${c.poeira({ n: 12, semente: 11 })}
-    <div class="leg-w">${c.ui.legenda()}</div>`,
+    ${c.poeira({ n: 12, semente: 11 })}`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });

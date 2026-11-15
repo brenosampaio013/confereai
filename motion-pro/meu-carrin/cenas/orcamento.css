@@ -1,12 +1,12 @@
 .cena-orcamento .luz-w { position: absolute; inset: 0; }
 .cena-orcamento .luz {
-  position: absolute; left: 66cqw; top: 46%; width: 76cqmin; height: 76cqmin; translate: -50% -50%;
+  position: absolute; left: 66cqw; top: 43%; width: 76cqmin; height: 76cqmin; translate: -50% -50%;
   border-radius: 50%;
   background: radial-gradient(circle, color-mix(in srgb, var(--verde) 34%, transparent) 0%, transparent 64%);
 }
 
 .cena-orcamento .cartao-w { position: absolute; inset: 0; }
-.cena-orcamento .cartao-mov { position: absolute; left: 66cqw; top: 46%; translate: -50% -50%; width: 55cqmin; }
+.cena-orcamento .cartao-mov { position: absolute; left: 66cqw; top: 43%; translate: -50% -50%; width: 53cqmin; }
 
 /* A tela é um contêiner: 1cqw = 1 % da largura do cartão, então tudo escala junto com ele. */
 .cena-orcamento .cartao {

@@ -61,8 +61,7 @@ Motion.cena('gancho', {
       </div>
     </div>
     ${ETIQUETAS.map(etiqueta).filter((_, i) => ETIQUETAS[i].z > 0).join('')}
-    ${c.poeira({ n: 16, semente: 7 })}
-    <div class="leg-w">${c.ui.legenda()}</div>`,
+    ${c.poeira({ n: 16, semente: 7 })}`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });

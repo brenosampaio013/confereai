@@ -20,8 +20,7 @@ Motion.cena('fecho', {
       ${TAGLINE ? `<p class="tagline">${TAGLINE}</p>` : ''}
       ${CONVITE ? `<p class="apoio convite">${CONVITE}</p>` : ''}
     </div></div>
-    <div class="camada c-perto"><div class="atravessa"></div></div>
-    <div class="leg-w">${c.ui.legenda()}</div>`,
+    <div class="camada c-perto"><div class="atravessa"></div></div>`,
 
   poses: {
     inicio: (el, api) => el.etapas(0.5, api, true),

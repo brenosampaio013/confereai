@@ -52,8 +52,7 @@ Motion.cena('leitura', {
         </div>
       </div>
     </div>
-    ${c.poeira({ n: 12, semente: 5 })}
-    <div class="leg-w">${c.ui.legenda()}</div>`,
+    ${c.poeira({ n: 12, semente: 5 })}`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });

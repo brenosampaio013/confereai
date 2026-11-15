@@ -42,7 +42,9 @@
 /* As palavras do briefing: economizar, controle, conferir, preços, a marca.
    Ficam em verde o tempo todo; a palavra falada ainda acende por cima. */
 /* a palavra cresce um fio quando é dita: o pulo vai no span, não na faixa */
-.leg-w .u-pal { transform-origin: 50% 70%; }
+/* a margem é fixa: com o espaço de texto, a palavra que cresce ao ser dita
+   fechava o vão e colava nas vizinhas ("gastando nosupermercado") */
+.leg-w .u-pal { display: inline-block; transform-origin: 50% 70%; margin-inline: 0.1em; }
 .leg-w .u-pal-chave {
   color: #7BE8B4;
 }

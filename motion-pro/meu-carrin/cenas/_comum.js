@@ -4,21 +4,27 @@ window.LEGENDAS = {"fala": [{"t0": 0, "t1": 0.28, "texto": "Você"}, {"t0": 0.28
 
 /* ── legenda do anúncio (escrita à mão; o legendar.mjs só regrava o bloco acima) ──
 
-   O karaokê do motor agrupa de N em N palavras, o que corta no meio da frase
-   ("quando chega ao caixa. Imagine"). Num anúncio a legenda tem de andar por
-   FRASE FALADA: o grupo nasce onde o locutor começa a frase e morre onde ele
-   termina. Então o agrupamento é feito aqui, pela pontuação e pelas pausas da
-   própria narração, e não por contagem de palavras.
+   ONDE ELA VIVE. Não dentro da cena: as transições arrastam a cena inteira, e no
+   empurrar entre o orçamento e a etiqueta a legenda saía do quadro junto com ela.
+   Vive em Motion.camada('legenda'), que o motor pendura no palco ACIMA de todas as
+   cenas e nenhuma transição toca. O motor zera o style dessas camadas a cada
+   quadro, então o estilo é reescrito aqui todo quadro — o conteúdo não.
 
-   As palavras do briefing (economizar, controle, conferir, preços, a marca)
-   ficam em verde o tempo todo; a palavra que está sendo dita acende por cima. */
+   COMO ELA ANDA. Por FRASE FALADA, não de N em N palavras. O karaokê do motor
+   agrupa por contagem e cortava no meio ("quando chega ao caixa. Imagine"). Aqui o
+   grupo nasce onde o locutor começa a frase e morre onde ele termina, pela
+   pontuação e pelas pausas do próprio áudio.
+
+   COR. A palavra sendo dita acende em branco. Verde é só para os termos do
+   briefing — se toda palavra ficasse verde ao ser dita, o destaque não destacaria
+   nada. */
 window.CHAVES = /^(economizar|controle|conferir|confira|compare|preços|gastos|real|corretos|carrin)[.,!?;:]*$/i;
 
 window.LEG = (function () {
   var grupos = null;
   var PAUSA = 0.34;   // silêncio que separa duas frases
-  var MAX = 7;        // palavras por linha, para a faixa não ficar comprida demais
-  var RABO = 0.28;    // a frase fica um instante no quadro depois da última palavra
+  var MAX = 7;        // palavras por linha
+  var RABO = 0.28;    // a frase fica um instante depois da última palavra
 
   function montar() {
     var fala = (window.LEGENDAS || {}).fala || [];
@@ -41,9 +47,15 @@ window.LEG = (function () {
     return gs;
   }
 
-  return function (api, el, t) {
-    var alvo = el.$('.u-legenda');
-    if (!alvo) return;
+  return function (api, t) {
+    var v = Motion.camada('legenda');
+    // o motor zera o style das camadas a cada quadro: reescreve sempre
+    v.style.cssText = 'display:block;position:absolute;inset:0;z-index:60;pointer-events:none';
+    if (!v.__pronto) {
+      v.innerHTML = '<div class="leg-w"><div class="u-legenda"></div></div>';
+      v.__pronto = true;
+    }
+    var alvo = v.querySelector('.u-legenda');
     if (!grupos) grupos = montar();
     var T = api.cena.inicio + t;
 
@@ -57,7 +69,7 @@ window.LEG = (function () {
       alvo.innerHTML = g.palavras.map(function (p) {
         var chave = window.CHAVES.test(p.texto.trim()) ? ' u-pal-chave' : '';
         return '<span class="u-pal' + chave + '">' + p.texto + '</span>';
-      }).join(' ');
+      }).join('');
       alvo.__gi = gi;
     }
 
@@ -74,10 +86,10 @@ window.LEG = (function () {
       var ativa = T >= p.t0 && T < p.t1;
       spans[k].classList.toggle('u-pal-ativa', ativa);
       spans[k].style.opacity = dita ? '1' : '0.5';
-      var pulo = ativa ? 1 + 0.05 * Math.sin(Math.PI * api.clamp((T - p.t0) / Math.max(0.12, p.t1 - p.t0), 0, 1)) : 1;
+      var pulo = ativa ? 1 + 0.04 * Math.sin(Math.PI * api.clamp((T - p.t0) / Math.max(0.12, p.t1 - p.t0), 0, 1)) : 1;
       spans[k].style.transform = 'scale(' + pulo.toFixed(3) + ')';
     }
   };
 })();
 
-window.legendaFilme = function (api, el, t) { window.LEG(api, el, t); };
+window.legendaFilme = function (api, el, t) { window.LEG(api, t); };

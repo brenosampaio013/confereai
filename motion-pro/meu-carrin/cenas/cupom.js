@@ -51,8 +51,7 @@ Motion.cena('cupom', {
         <div class="dif-res"><span>Diferença</span><b class="conta">+ R$ 0,00</b></div>
       </div>
     </div>
-    ${c.poeira({ n: 10, semente: 2 })}
-    <div class="leg-w">${c.ui.legenda()}</div>`,
+    ${c.poeira({ n: 10, semente: 2 })}`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });
