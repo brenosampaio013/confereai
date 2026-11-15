@@ -1,0 +1,68 @@
+/* O clímax muda o clima: o palco fica claro, como papel. */
+.cena-cupom { --fundo: #E9E3D6; --texto: #0F1C2A; --texto-suave: #5A6878; }
+
+.cena-cupom .frase {
+  position: absolute; left: 7cqw; top: 50%; translate: 0 -50%; margin: 0; width: 28cqw;
+  font-size: 7.6cqmin; line-height: var(--titulo-entrelinha); color: var(--navy);
+
+  font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
+}
+
+.cena-cupom .fita-w { position: absolute; inset: 0; }
+.cena-cupom .fita-mov { position: absolute; left: 46cqw; top: 50%; translate: -50% -50%; width: 50cqmin; }
+.cena-cupom .fita {
+  container-type: inline-size;
+  filter: drop-shadow(0 3cqmin 6cqmin rgba(14, 42, 71, .35));
+}
+.cena-cupom .fita-corpo {
+  background: #FFFDF8; color: var(--tinta); padding: 5cqw 5.5cqw 6cqw;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+.cena-cupom .serra {
+  height: 2.6cqw; background: #FFFDF8;
+  --d: 4cqw;
+  -webkit-mask: radial-gradient(var(--d) at 50% 0, #0000 99%, #000 101%) 50% 0 / calc(var(--d) * 2) 100%;
+          mask: radial-gradient(var(--d) at 50% 0, #0000 99%, #000 101%) 50% 0 / calc(var(--d) * 2) 100%;
+}
+.cena-cupom .serra-base { transform: scaleY(-1); }
+
+.cena-cupom .loja { font-size: 4.2cqw; font-weight: 700; text-align: center; letter-spacing: 0.04em; }
+.cena-cupom .doc { font-size: 3cqw; text-align: center; color: var(--cinza); margin-top: 0.8cqw; }
+.cena-cupom .tracejado { border-top: 0.4cqw dashed color-mix(in srgb, var(--tinta) 32%, transparent); margin: 3.4cqw 0; }
+
+.cena-cupom .lin { position: relative; padding: 1.8cqw 7cqw 1.8cqw 1.4cqw; border-radius: 1.4cqw; }
+.cena-cupom .lin-txt { display: flex; justify-content: space-between; gap: 2cqw; font-size: 3.5cqw; }
+.cena-cupom .lin-q { font-size: 2.9cqw; color: var(--cinza); margin-top: 0.4cqw; }
+.cena-cupom .marca-ok {
+  position: absolute; right: 1.4cqw; top: 50%; translate: 0 -50%;
+  font-style: normal; font-size: 4.4cqw; font-weight: 700; color: var(--verde); opacity: 0;
+}
+.cena-cupom .lin-total {
+  display: flex; justify-content: space-between; font-size: 4.4cqw; font-weight: 700; letter-spacing: 0.02em;
+}
+
+.cena-cupom .dif-w { position: absolute; inset: 0; }
+.cena-cupom .dif {
+  position: absolute; left: 69.5cqw; top: 50%; translate: 0 -50%; width: 25cqw;
+  container-type: inline-size;
+  background: var(--branco); border-radius: 3cqw; padding: 4.5cqw 5cqw;
+  border-left: 1.6cqw solid var(--vermelho);
+  box-shadow: 0 3cqmin 7cqmin rgba(14, 42, 71, .3);
+  font-family: var(--fonte-ui); color: var(--tinta);
+}
+.cena-cupom .dif-cab { font-size: 5cqw; font-weight: 700; color: var(--vermelho-texto); line-height: 1.2; }
+.cena-cupom .dif-par {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 2cqw;
+  font-size: 4.4cqw; margin-top: 3.4cqw; color: var(--cinza);
+}
+.cena-cupom .dif-par b { color: var(--tinta); font-size: 5cqw; font-variant-numeric: tabular-nums; }
+.cena-cupom .dif-par .caro { color: var(--vermelho-texto); }
+.cena-cupom .dif-res {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 2cqw;
+  margin-top: 4cqw; padding-top: 3.4cqw; border-top: 0.3cqw solid var(--borda); font-size: 4.4cqw; color: var(--cinza);
+}
+.cena-cupom .dif-res b { font-size: 7cqw; font-weight: 800; color: var(--vermelho); font-variant-numeric: tabular-nums; }
+
+[data-formato="9x16"] .cena-cupom .frase { left: 11cqw; top: 13cqh; width: 78cqw; translate: 0 0; text-align: center; }
+[data-formato="9x16"] .cena-cupom .fita-mov { left: 50cqw; top: 45cqh; width: 58cqmin; }
+[data-formato="9x16"] .cena-cupom .dif { left: 11cqw; top: 80cqh; width: 78cqw; translate: 0 0; }

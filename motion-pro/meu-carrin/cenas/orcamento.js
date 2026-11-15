@@ -39,7 +39,7 @@ Motion.cena('orcamento', {
             </div>
           </div>
           <ul class="itens">
-            ${ITENS.map((i) => `<li><span><b>${i.nome}</b><small>${i.det}</small></span><em>${brl(i.valor)}</em></li>`).join('')}
+            ${ITENS.map((i) => `<li><div class="li-in"><span><b>${i.nome}</b><small>${i.det}</small></span><em>${brl(i.valor)}</em></div></li>`).join('')}
           </ul>
         </div>
       </div>
@@ -54,6 +54,7 @@ Motion.cena('orcamento', {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });
     el.apoio = api.tipo.dividir(el.$('.apoio'), { por: 'palavra' });
     el.lis = el.$$('.itens li');
+    el.lisIn = el.$$('.itens .li-in');
     el.total = el.$('.total');
     el.conta = el.$('.conta');
     el.saldo = el.$('.saldo');
@@ -74,7 +75,10 @@ Motion.cena('orcamento', {
     el.lis.forEach((li, i) => {
       const it = ITENS[i];
       const p = ease.outExpo(prog(t, it.t, it.t + 0.34));
-      api.set(li, { y: lerp(3.2, 0, p), o: p, s: lerp(0.97, 1, p) });
+      // A linha não reserva espaço antes de existir: o cartão CRESCE a cada produto, como a
+      // lista do aplicativo. Antes a metade de baixo ficava branca e vazia, esperando.
+      api.set(li, { style: { gridTemplateRows: `${ease.outQuart(prog(t, it.t, it.t + 0.3))}fr` } });
+      api.set(el.lisIn[i], { y: lerp(3.2, 0, p), o: p, s: lerp(0.97, 1, p) });
       if (t >= it.t + 0.12) { gasto += it.valor; n += 1; }
     });
 

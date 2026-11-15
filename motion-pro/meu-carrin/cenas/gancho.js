@@ -5,11 +5,14 @@
    v2: antes o tambor girava ao acaso (parecia caça-níquel). Agora ele conta, e conta o
    carrinho verdadeiro da cena 3 — a conta que o filme vai mostrar sendo feita.
    Saída: a câmera avança e desfoca.
-   Nota: o movimento vai sempre num embrulho DENTRO do data-z — a câmera é dona da camada. */
+   Nota: o movimento vai sempre num embrulho DENTRO do data-z — a câmera é dona da camada.
+   v3: o desfoque das rodas caiu de 0,26 para 0,085 (os algarismos fantasmavam uns nos
+   outros e o valor não era reconhecível de relance) e as etiquetas da frente saíram da
+   faixa central — elas cruzavam por cima da pergunta e cortavam a leitura dela. */
 const ETIQUETAS = [
-  { nome: 'ARROZ 5KG', preco: '28,90', z: 0.72, topo: 12, giro: -4, atraso: 0.0, dur: 1.9 },
-  { nome: 'CAFE 500G', preco: '22,90', z: 0.62, topo: 56, giro: 5, atraso: 0.42, dur: 2.1 },
-  { nome: 'LEITE 1L', preco: '5,49', z: 0.8, topo: 33, giro: -6, atraso: 1.05, dur: 1.7 },
+  { nome: 'ARROZ 5KG', preco: '28,90', z: 0.72, topo: 9, giro: -4, atraso: 0.0, dur: 1.9 },
+  { nome: 'CAFE 500G', preco: '22,90', z: 0.62, topo: 90, giro: 5, atraso: 0.42, dur: 2.1 },
+  { nome: 'LEITE 1L', preco: '5,49', z: 0.8, topo: 12, giro: -6, atraso: 1.05, dur: 1.7 },
   { nome: 'ACUCAR 1KG', preco: '4,79', z: -0.55, topo: 20, giro: 3, atraso: 0.0, dur: 4.8 },
   { nome: 'DETERGENTE', preco: '3,29', z: -0.62, topo: 68, giro: -3, atraso: 0.8, dur: 5.2 },
 ];
@@ -77,7 +80,7 @@ Motion.cena('gancho', {
       api.set(mov, {
         x: lerp(frente ? 86 : 62, frente ? -92 : -62, p),
         r: e.giro + lerp(-3, 3, p),
-        s: frente ? lerp(1.18, 1.26, p) : 0.58,
+        s: frente ? lerp(1.1, 1.17, p) : 0.58,
         o: (frente ? 0.96 : 0.42) * ease.outQuart(prog(t, e.atraso, e.atraso + 0.2)),
       });
     });
@@ -92,7 +95,7 @@ Motion.cena('gancho', {
       const anda = Math.min(1, (vel / casa) * 0.9); // esta roda ainda está em movimento?
       const carrega = Math.max(0, (volta % 1) - 0.9) * 10 * anda; // só no "vai um", e só andando
       const pos = ((Math.floor(volta) % 10) + carrega + 10) % 10;
-      api.set(rolo, { y: -pos * el.passo, blur: Math.min(0.26, (vel / casa) * 0.055) });
+      api.set(rolo, { y: -pos * el.passo, blur: Math.min(0.085, (vel / casa) * 0.02) });
     });
     const some = ease.inCubic(prog(t, 3.1, 3.6));
     api.set(el.$('.caixa'), { o: lerp(1, 0.1, some), s: lerp(1, 0.96, some) });

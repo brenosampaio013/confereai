@@ -305,7 +305,15 @@ aplicativo logo na cena 2, a passagem do azul-marinho para o papel do cupom era 
 de clima e, na cena do resultado, o número gigante era o gasto do mês em vez do ganho. A v2
 refez essas quatro coisas e mais: entrada de verdade para a etiqueta, etiqueta de "+ R$ x,xx"
 a cada produto que entra na conta, e o posicionamento "Sua compra sob controle." no fecho.
+**Versão 3 (acabamento).** Rodada de refinamento sobre a mesma montagem: visibilidade,
+contraste e escala. O ponto mais importante era o clímax — o palco de papel e o cupom tinham
+1,15:1 de contraste e o comprovante sumia no fundo; o palco virou papel-kraft e a fita ganhou
+sombra de contato. Também caíram o desfoque do odômetro na abertura, a abertura da câmera na
+cena da etiqueta (estava desfocando o que era para ler) e a vinheta global; e a cena final
+deixou de esmaecer, para a marca ficar de pé até o último quadro.
+
 O detalhe de cada mudança está em `motion-pro/meu-carrin/briefing.md`, em "Rodadas".
+`versoes/v1/` e `versoes/v2/` guardam as cenas e o roteiro das versões anteriores.
 
 Dois verificadores da skill rodam sozinhos e valem a pena antes de renderizar:
 

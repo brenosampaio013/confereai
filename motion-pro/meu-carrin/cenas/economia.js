@@ -45,25 +45,27 @@ Motion.cena('economia', {
     api.set(el.$('.rotulo'), { o: ease.outCubic(prog(t, 0.3, 0.65)) });
 
     // Primeiro a prova: a barra que veio da fita assenta e a de novembro sobe atrás dela.
-    const a = ease.outExpo(prog(t, 0.0, 0.6));
-    const b = ease.outExpo(prog(t, 0.45, 1.15));
+    // As barras sobem mais devagar e uma de cada vez, e o valor de cada mês entra junto com
+    // a SUA barra — antes os dois rótulos apareciam quase ao mesmo tempo, no meio da subida.
+    const a = ease.outExpo(prog(t, 0.0, 0.78));
+    const b = ease.outExpo(prog(t, 0.5, 1.4));
     api.set(el.$('.barra-out'), { style: { height: `${lerp(0, 100, a)}%` } });
     api.set(el.$('.barra-nov'), { style: { height: `${lerp(0, 96, b)}%` } });
-    el.$$('.col .val').forEach((m, i) => api.set(m, { o: ease.outCubic(prog(t, 0.55 + i * 0.14, 0.9 + i * 0.14)) }));
-    el.$$('.col .mes').forEach((m, i) => api.set(m, { o: ease.outCubic(prog(t, 0.7 + i * 0.14, 1.05 + i * 0.14)) }));
+    el.$$('.col .val').forEach((m, i) => api.set(m, { o: ease.outCubic(prog(t, 0.68 + i * 0.5, 0.98 + i * 0.5)) }));
+    el.$$('.col .mes').forEach((m, i) => api.set(m, { o: ease.outCubic(prog(t, 0.82 + i * 0.5, 1.12 + i * 0.5)) }));
 
     // Só então a conclusão: a diferença conta e trava na batida.
-    api.tipo.contar(t, el.$('.numero'), { de: 0, ate: 9.58, inicio: 1.35, travar: 2.15, casas: 2, prefixo: 'R$ ' });
-    const entra = ease.outBack(1.2)(prog(t, 1.25, 1.75));
-    const estalo = 1 + 0.07 * (1 - ease.outQuart(prog(t, 2.15, 2.5))) * (t >= 2.15 ? 1 : 0);
+    api.tipo.contar(t, el.$('.numero'), { de: 0, ate: 9.58, inicio: 1.6, travar: 2.3, casas: 2, prefixo: 'R$ ' });
+    const entra = ease.outBack(1.2)(prog(t, 1.5, 2.0));
+    const estalo = 1 + 0.07 * (1 - ease.outQuart(prog(t, 2.3, 2.65))) * (t >= 2.3 ? 1 : 0);
     api.set(el.$('.ganho'), {
       s: lerp(0.9, 1, entra) * estalo,
-      o: ease.outCubic(prog(t, 1.25, 1.55)),
+      o: ease.outCubic(prog(t, 1.5, 1.8)),
       y: lerp(1.4, 0, entra),
-      bright: lerp(1.5, 1, ease.outCubic(prog(t, 2.15, 2.7))),
+      bright: lerp(1.5, 1, ease.outCubic(prog(t, 2.3, 2.85))),
     });
 
-    api.tipo.focar(t, el.compara, { inicio: 2.4, cascata: 0.03 });
+    api.tipo.focar(t, el.compara, { inicio: 2.55, cascata: 0.03 });
 
     // A barra de novembro dá um pulso curto na batida e assenta.
     const pulso = 1 - 0.05 * Math.sin(Math.PI * prog(t, 2.9, 3.2));
@@ -71,7 +73,7 @@ Motion.cena('economia', {
 
     // No hold, uma lâmina de luz atravessa o gráfico. Sem ela o quadro quase não mudava
     // por 1,4 s — a câmera viva sozinha não se sente, e o fim da cena ficava morto.
-    const varre = prog(t, 2.2, 3.7);
+    const varre = prog(t, 2.6, 4.05);
     api.set(el.$('.varre'), { x: lerp(-66, 66, ease.inOutSine(varre)), o: Math.sin(Math.PI * varre) });
 
     // E a luz de trás deriva de lado a cena inteira, sem nunca parar: é o que mantém o

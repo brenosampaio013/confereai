@@ -6,7 +6,7 @@
 }
 
 .cena-orcamento .cartao-w { position: absolute; inset: 0; }
-.cena-orcamento .cartao-mov { position: absolute; left: 66cqw; top: 50%; translate: -50% -50%; width: 54cqmin; }
+.cena-orcamento .cartao-mov { position: absolute; left: 66cqw; top: 50%; translate: -50% -50%; width: 59cqmin; }
 
 /* A tela é um contêiner: 1cqw = 1 % da largura do cartão, então tudo escala junto com ele. */
 .cena-orcamento .cartao {
@@ -22,8 +22,8 @@
    quando o número ficava largo. No alto, à direita, o lado está livre a cena inteira. */
 .cena-orcamento .total-l { position: static; }
 .cena-orcamento .delta {
-  position: absolute; right: 6cqw; top: 5.1cqw;
-  font-style: normal; font-size: 4.6cqw; font-weight: 800; color: var(--verde-claro);
+  position: absolute; right: 6cqw; top: 4.6cqw;
+  font-style: normal; font-size: 5.6cqw; font-weight: 800; color: var(--verde-claro);
   font-variant-numeric: tabular-nums; letter-spacing: -0.01em; opacity: 0; white-space: nowrap;
 }
 .cena-orcamento .total {
@@ -46,8 +46,10 @@
 .cena-orcamento .aviso b { font-size: 4cqw; }
 .cena-orcamento .aviso-txt { font-size: 3.4cqw; line-height: 1.35; }
 
-.cena-orcamento .itens { list-style: none; margin: 0; padding: 1.2cqw 0; }
-.cena-orcamento .itens li {
+.cena-orcamento .itens { list-style: none; margin: 0; padding: 1.6cqw 0 2.4cqw; }
+.cena-orcamento .itens li { display: grid; grid-template-rows: 0fr; }
+.cena-orcamento .itens .li-in {
+  min-height: 0; overflow: hidden;
   display: flex; align-items: center; justify-content: space-between; gap: 3cqw;
   padding: 2.4cqw 6cqw; color: var(--tinta);
 }
@@ -62,7 +64,8 @@
   margin: 0; font-size: 8cqmin; line-height: var(--titulo-entrelinha); color: var(--texto);
   font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
 }
-.cena-orcamento .apoio { margin: 2.6cqh 0 0; font-size: 2.9cqmin; color: var(--texto-suave); line-height: 1.35; }
+.cena-orcamento .apoio { margin: 2.6cqh 0 0; font-size: 3.2cqmin; color: #C7DAEC; line-height: 1.35;
+  text-shadow: 0 0.4cqmin 1.6cqmin rgba(3, 14, 26, .8); }
 
 [data-formato="9x16"] .cena-orcamento .cartao-mov { left: 50cqw; top: 42cqh; width: 80cqmin; }
 [data-formato="9x16"] .cena-orcamento .luz { left: 50cqw; }

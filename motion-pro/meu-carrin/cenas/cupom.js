@@ -1,5 +1,7 @@
 /* cupom — "A conferência" · 5,0 s · o clímax do filme
    Ideia: a fita do cupom desce e cada linha acende em verde, até uma travar em vermelho.
+   O quadro da diferença saiu de z 0,26 para z 0,07: a abertura da câmera o deixava fora do
+   plano focal e ele chegava desfocado — logo ele, que carrega o número da cena.
    Entrada: ponte "papel" — a fita que o aplicativo imprimiu na cena anterior abre aqui e
    traz o palco claro com ela.
    Saída: ponte "fita" — o corpo da fita vira a primeira barra do gráfico da próxima cena. */
@@ -39,7 +41,7 @@ Motion.cena('cupom', {
         </div>
       </div>
     </div>
-    <div class="dif-w" data-z="0.26">
+    <div class="dif-w" data-z="0.07">
       <div class="dif">
         <div class="dif-cab">Preço diferente do registrado</div>
         <div class="dif-par"><span>Na gôndola</span><b>R$ 22,90</b></div>
@@ -58,10 +60,12 @@ Motion.cena('cupom', {
   quadro(t, el, api) {
     const { ease, prog, lerp, clamp } = api;
 
-    // A fita chega do mergulho da cena anterior: aqui ela só assenta.
-    const assenta = ease.outExpo(prog(t, 0.0, 0.55));
+    // A fita chega do mergulho da cena anterior: aqui ela só assenta. O deslocamento é
+    // curto de propósito — ela já estava no quadro, e um movimento grande aqui reabriria a
+    // sensação de que são dois objetos diferentes.
+    const assenta = ease.outExpo(prog(t, 0.0, 0.5));
     const treme = api.tremor(t, 2.4, { forca: 0.55, freq: 11, amortecimento: 9 });
-    api.set(el.$('.fita-mov'), { y: lerp(-11, 0, assenta) + treme.y, x: treme.x, r: treme.giro * 0.2 });
+    api.set(el.$('.fita-mov'), { y: lerp(-7, 0, assenta) + treme.y, x: treme.x, r: treme.giro * 0.2 });
 
     // As linhas conferem uma a uma; a do café trava em vermelho.
     el.lins.forEach((lin, i) => {

@@ -94,7 +94,7 @@ Motion.cena('fecho', {
       if (el.convitePal.length) a.tipo.focar(t, el.convitePal, { inicio: b(4.3) });
       // câmera: close no símbolo → recua até o enquadramento; depois push bem lento
       const r = ease.outQuad(prog(t, ini + 0.15, b(3.2)));
-      el.cam.pose({ zoom: lerp(1.6, 1, r) * a.viva(t, { v: 0.013 }), x: el.P[0] * (1 - r), y: el.P[1] * (1 - r) });
+      el.cam.pose({ zoom: lerp(1.32, 1, r) * a.viva(t, { v: 0.013 }), x: el.P[0] * (1 - r), y: el.P[1] * (1 - r) });
       if (!pose) a.fx.respirar(t, el.luz, { periodo: 3.6, amp: 0.09, base: 1 + 0.2 * pulsa });
     };
   },

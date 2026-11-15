@@ -1,0 +1,29 @@
+.cena-marca .halo {
+  position: absolute; left: 50%; top: 50%; width: 78cqmin; height: 78cqmin; translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--verde) 30%, transparent) 0%, transparent 62%);
+}
+
+.cena-marca .fone-w { position: absolute; left: 33cqw; top: 50%; translate: -50% -50%; }
+.cena-marca .fone { width: 34cqmin; }
+.cena-marca .fone .m-mockup-tela { position: relative; }
+.cena-marca .fone .m-mockup-tela img { width: 100%; display: block; }
+.cena-marca .acende { position: absolute; inset: 0; background: var(--branco); }
+
+.cena-marca .assinatura {
+  position: absolute; left: 62cqw; top: 50%; translate: 0 -50%;
+  display: grid; justify-items: start; gap: 1.8cqh; width: 33cqw;
+}
+.cena-marca .simbolo { width: 9.6cqmin; height: 9.6cqmin; }
+.cena-marca .simbolo-svg { width: 100%; height: 100%; display: block;
+  filter: drop-shadow(0 1.6cqmin 2.6cqmin rgba(0, 0, 0, .45)); }
+.cena-marca .nome {
+  margin: 0; font-size: 8.4cqmin; line-height: 1; color: var(--texto);
+  font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
+}
+.cena-marca .nome .destaque { color: var(--verde-claro); }
+
+[data-formato="9x16"] .cena-marca .fone-w { left: 50cqw; top: 42cqh; }
+[data-formato="9x16"] .cena-marca .fone { width: 52cqmin; }
+[data-formato="9x16"] .cena-marca .assinatura { left: 11cqw; top: 82cqh; width: 78cqw; justify-items: center; text-align: center; }
+[data-formato="9x16"] .cena-marca .nome { font-size: 9.4cqmin; }

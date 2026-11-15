@@ -13,7 +13,7 @@
 }
 .cena-fecho .nome b { color: var(--verde-claro); font-weight: inherit; }
 .cena-fecho .convite {
-  font-family: var(--fonte-titulo); font-size: 4.4cqmin; letter-spacing: 0.02em; color: var(--texto-suave);
+  font-family: var(--fonte-titulo); font-size: 5.6cqmin; font-weight: 500; letter-spacing: 0.02em; color: #C6D8EA;
 }
 /* a luz atrás do símbolo: o --left/--top vem medido do montar */
 .cena-fecho .luz-marca {
@@ -42,10 +42,10 @@
 }
 [data-formato="9x16"] .cena-fecho .nome { font-size: 13cqmin; }
 [data-formato="9x16"] .cena-fecho .simbolo { width: 14cqmin; height: 14cqmin; }
-[data-formato="9x16"] .cena-fecho .convite { font-size: 5cqmin; }
+[data-formato="9x16"] .cena-fecho .convite { font-size: 6cqmin; }
 /* o posicionamento: uma linha só, sob a marca, antes do endereço */
 .cena-fecho .tagline {
-  margin: 0; font-family: var(--fonte-titulo); font-size: 5.2cqmin; font-weight: 600;
-  letter-spacing: -0.01em; color: var(--texto);
+  margin: 0; font-family: var(--fonte-titulo); font-size: 6.4cqmin; font-weight: 700;
+  letter-spacing: -0.015em; color: var(--texto);
 }
-[data-formato="9x16"] .cena-fecho .tagline { font-size: 5.6cqmin; }
+[data-formato="9x16"] .cena-fecho .tagline { font-size: 6.6cqmin; }

@@ -1,0 +1,70 @@
+.cena-orcamento .luz-w { position: absolute; inset: 0; }
+.cena-orcamento .luz {
+  position: absolute; left: 66cqw; top: 50%; width: 76cqmin; height: 76cqmin; translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--verde) 34%, transparent) 0%, transparent 64%);
+}
+
+.cena-orcamento .cartao-w { position: absolute; inset: 0; }
+.cena-orcamento .cartao-mov { position: absolute; left: 66cqw; top: 50%; translate: -50% -50%; width: 54cqmin; }
+
+/* A tela é um contêiner: 1cqw = 1 % da largura do cartão, então tudo escala junto com ele. */
+.cena-orcamento .cartao {
+  container-type: inline-size;
+  background: var(--branco); border-radius: 5cqw; overflow: hidden;
+  box-shadow: 0 4cqmin 9cqmin rgba(0, 0, 0, .55);
+  font-family: var(--fonte-ui);
+}
+.cena-orcamento .topo { position: relative; background: var(--navy); color: var(--branco); padding: 5.6cqw 6cqw 6cqw; }
+.cena-orcamento .rotulo { font-size: 3cqw; letter-spacing: 0.16em; color: #9FB6CD; font-weight: 700; }
+/* A etiqueta do "+ R$" é absoluta e vai para o alto do cartão, na linha do rótulo: em fluxo
+   ela espremia o total (que quebrava em duas linhas) e, ao lado dele, cobria os centavos
+   quando o número ficava largo. No alto, à direita, o lado está livre a cena inteira. */
+.cena-orcamento .total-l { position: static; }
+.cena-orcamento .delta {
+  position: absolute; right: 6cqw; top: 5.1cqw;
+  font-style: normal; font-size: 4.6cqw; font-weight: 800; color: var(--verde-claro);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em; opacity: 0; white-space: nowrap;
+}
+.cena-orcamento .total {
+  font-size: 16cqw; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; margin-top: 0.6cqw;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.cena-orcamento .sub {
+  display: flex; justify-content: space-between; gap: 3cqw;
+  font-size: 3.5cqw; color: #AFC3D8; margin-top: 1.6cqw;
+}
+.cena-orcamento .barra { height: 2.4cqw; border-radius: 1.2cqw; background: #1E3B5C; margin-top: 3.4cqw; overflow: hidden; }
+.cena-orcamento .barra-p { display: block; height: 100%; width: 0; border-radius: 1.2cqw; background: var(--verde); }
+
+.cena-orcamento .aviso-w { display: grid; grid-template-rows: 0fr; }
+.cena-orcamento .aviso { min-height: 0; overflow: hidden; }
+.cena-orcamento .aviso {
+  background: var(--ambar-suave); color: var(--ambar-texto); padding: 3.8cqw 6cqw;
+  display: grid; gap: 0.8cqw; border-bottom: 0.25cqw solid var(--borda);
+}
+.cena-orcamento .aviso b { font-size: 4cqw; }
+.cena-orcamento .aviso-txt { font-size: 3.4cqw; line-height: 1.35; }
+
+.cena-orcamento .itens { list-style: none; margin: 0; padding: 1.2cqw 0; }
+.cena-orcamento .itens li {
+  display: flex; align-items: center; justify-content: space-between; gap: 3cqw;
+  padding: 2.4cqw 6cqw; color: var(--tinta);
+}
+.cena-orcamento .itens b { display: block; font-size: 3.9cqw; font-weight: 600; }
+.cena-orcamento .itens small { display: block; font-size: 3cqw; color: var(--cinza-fraco); }
+.cena-orcamento .itens em {
+  font-style: normal; font-size: 4.1cqw; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+
+.cena-orcamento .texto-w { position: absolute; left: 7cqw; top: 50%; translate: 0 -50%; width: 30cqw; }
+.cena-orcamento .frase {
+  margin: 0; font-size: 8cqmin; line-height: var(--titulo-entrelinha); color: var(--texto);
+  font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
+}
+.cena-orcamento .apoio { margin: 2.6cqh 0 0; font-size: 2.9cqmin; color: var(--texto-suave); line-height: 1.35; }
+
+[data-formato="9x16"] .cena-orcamento .cartao-mov { left: 50cqw; top: 42cqh; width: 80cqmin; }
+[data-formato="9x16"] .cena-orcamento .luz { left: 50cqw; }
+[data-formato="9x16"] .cena-orcamento .texto-w { left: 11cqw; top: 80cqh; width: 78cqw; translate: 0 0; text-align: center; }
+[data-formato="9x16"] .cena-orcamento .frase { font-size: 7cqmin; }

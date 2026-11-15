@@ -1,0 +1,69 @@
+.cena-economia .luz-w { position: absolute; inset: 0; }
+.cena-economia .luz {
+  position: absolute; left: 50%; top: 54%; width: 76cqmin; height: 76cqmin; translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--verde) 20%, transparent) 0%, transparent 62%);
+}
+
+.cena-economia .bloco { position: absolute; inset: 0; }
+.cena-economia .bloco-mov {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  display: grid; justify-items: center; gap: 1cqh; width: 74cqw;
+}
+.cena-economia .rotulo { font-size: 2.4cqmin; letter-spacing: 0.34em; color: var(--texto-suave); font-weight: 700; }
+
+/* O herói do quadro é o ganho, não o gasto. */
+.cena-economia .ganho {
+  display: flex; align-items: center; gap: 1.4cqmin; color: var(--verde-claro);
+  text-shadow: 0 1cqmin 4cqmin rgba(0, 0, 0, .5);
+}
+.cena-economia .seta { font-style: normal; font-size: 9cqmin; line-height: 1; font-weight: 800; }
+.cena-economia .numero {
+  font-size: 15cqmin; font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.cena-economia .compara {
+  font-size: 3.8cqmin; color: #EAF6F0; font-weight: 600; margin-top: 0.2cqh;
+  text-shadow: 0 0.4cqmin 1.8cqmin rgba(0, 0, 0, .65);
+}
+
+.cena-economia .grafico {
+  display: flex; align-items: flex-end; justify-content: center; gap: 11cqmin;
+  height: 34cqh; margin-top: 2cqh;
+}
+.cena-economia .col {
+  display: grid; justify-items: center; align-content: end; gap: 0.7cqh;
+  width: 14cqmin; height: 100%;
+  grid-template-rows: 1fr auto auto;
+}
+.cena-economia .barra {
+  width: 100%; align-self: end; border-radius: 1.2cqmin 1.2cqmin 0 0; height: 0;
+  background: linear-gradient(180deg, var(--verde-claro), var(--verde));
+  box-shadow: 0 0 3cqmin color-mix(in srgb, var(--verde) 45%, transparent);
+}
+.cena-economia .barra-out { background: linear-gradient(180deg, #7FA0C0, #44607F); box-shadow: none; }
+.cena-economia .val {
+  font-size: 3.2cqmin; color: var(--texto); font-variant-numeric: tabular-nums; font-weight: 700;
+  text-shadow: 0 0.4cqmin 1.6cqmin rgba(0, 0, 0, .6);
+  /* a coluna é mais estreita que o rótulo: sem isto o valor quebra em duas linhas */
+  white-space: nowrap;
+}
+.cena-economia .mes { white-space: nowrap; font-size: 2.8cqmin; color: var(--texto-suave); letter-spacing: 0.06em; }
+
+.cena-economia .varre-w { position: absolute; inset: 0; overflow: hidden; }
+.cena-economia .varre {
+  position: absolute; inset: -16% 32%; rotate: 11deg; opacity: 0;
+  mix-blend-mode: plus-lighter; filter: blur(2.6cqmin);
+  background: linear-gradient(90deg, transparent,
+    color-mix(in srgb, var(--verde-claro) 16%, transparent) 40%,
+    color-mix(in srgb, var(--brilho) 24%, transparent) 50%,
+    color-mix(in srgb, var(--verde-claro) 16%, transparent) 60%, transparent);
+}
+
+[data-formato="9x16"] .cena-economia .numero { font-size: 13cqmin; }
+[data-formato="9x16"] .cena-economia .seta { font-size: 8cqmin; }
+[data-formato="9x16"] .cena-economia .compara { font-size: 4.2cqmin; }
+[data-formato="9x16"] .cena-economia .grafico { height: 22cqh; gap: 10cqmin; }
+[data-formato="9x16"] .cena-economia .col { width: 19cqmin; }
+[data-formato="9x16"] .cena-economia .val { font-size: 3.8cqmin; }
+[data-formato="9x16"] .cena-economia .mes { font-size: 3.2cqmin; }

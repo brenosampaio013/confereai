@@ -1,0 +1,58 @@
+/* Meu Carrin · tokens do filme.
+   As cores são as do aplicativo e carregam significado: verde = conferido,
+   âmbar = etiqueta e atenção, vermelho = cobrado a mais. O palco é o azul-marinho
+   da marca — nunca preto puro. */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fontes/archivo.woff2") format("woff2-variations");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --cenario: estudio;
+  --fundo: #0A1F35;
+  --texto: #FFFFFF;
+  --texto-suave: #AFC3D8;
+  --destaque: #11915A;
+  --destaque-grad: linear-gradient(100deg, #3ACB8B, #11915A);
+  --luz-1: #0E2A47;
+  --luz-2: #11915A;
+  --luz-3: #15497A;
+  --brilho: #FFFFFF;
+  --linha: color-mix(in srgb, #FFFFFF 14%, transparent);
+
+  --fonte-titulo: 'Archivo', 'Inter Tight', system-ui, sans-serif;
+  --fonte-texto: 'Archivo', 'Inter Tight', system-ui, sans-serif;
+  --fonte-ui: 'Archivo', 'Inter Tight', system-ui, sans-serif;
+  --titulo-peso: 800;
+  --titulo-tracking: -0.035em;
+  --titulo-entrelinha: 0.95;
+
+  --raio: 2cqmin;
+  --mockup-moldura: #0A1829;
+  --mockup-raio: 3.4cqmin;
+  --mockup-sombra: #000000;
+
+  /* as mesmas cores da interface do app */
+  --navy: #0E2A47;
+  --navy-claro: #13365A;
+  --verde: #11915A;
+  --verde-claro: #3ACB8B;
+  --verde-suave: #E4F4EC;
+  --verde-texto: #0A6B42;
+  --ambar: #E8A400;
+  --ambar-suave: #FFF5D9;
+  --ambar-texto: #7A5600;
+  --vermelho: #D23B3B;
+  --vermelho-suave: #FCEBEB;
+  --vermelho-texto: #A12626;
+  --papel-app: #F3F5F8;
+  --branco: #FFFFFF;
+  --tinta: #0F1C2A;
+  --cinza: #5A6878;
+  --cinza-fraco: #8A97A6;
+  --borda: #DFE5EC;
+}

@@ -34,7 +34,7 @@
 .cena-leitura .flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
 
 .cena-leitura .forma-w { position: absolute; inset: 0; }
-.cena-leitura .forma-mov { position: absolute; left: 71cqw; top: 50%; translate: -50% -50%; width: 54cqmin; }
+.cena-leitura .forma-mov { position: absolute; left: 70cqw; top: 50%; translate: -50% -50%; width: 61cqmin; }
 .cena-leitura .cartao {
   container-type: inline-size;
   background: var(--branco); border-radius: 5cqw; overflow: hidden; padding: 5cqw 6cqw 6cqw;
@@ -58,11 +58,21 @@
 .cena-leitura .promo b { font-size: 3.8cqw; }
 .cena-leitura .promo span { font-size: 3cqw; }
 
+.cena-leitura .frase-w { position: absolute; inset: 0; }
 .cena-leitura .frase {
   position: absolute; left: 50%; top: 8cqh; translate: -50% 0; margin: 0;
   font-size: 7.4cqmin; color: var(--texto); text-align: center;
   font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
   text-shadow: 0 1cqmin 3cqmin rgba(0, 0, 0, .5);
+}
+
+.cena-leitura .voa-w { position: absolute; inset: 0; z-index: 12; }
+.cena-leitura .voa {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  font-size: 11cqmin; font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+  font-variant-numeric: tabular-nums; color: #14161a; opacity: 0;
+  background: #FFE24D; border-radius: 1.4cqmin; padding: 1cqmin 2cqmin 1.2cqmin;
+  box-shadow: 0 2.4cqmin 5cqmin rgba(0, 0, 0, .45);
 }
 
 [data-formato="9x16"] .cena-leitura .etq-mov { left: 50cqw; top: 33cqh; width: 66cqmin; }
@@ -79,7 +89,7 @@
   background: radial-gradient(circle, rgba(255, 248, 232, .5) 0%, rgba(255, 243, 214, .18) 38%, transparent 66%);
 }
 .cena-leitura .recibo-w { position: absolute; inset: 0; z-index: 9; }
-.cena-leitura .recibo-mov { position: absolute; left: 34cqw; top: 36cqh; translate: -50% 0; width: 22cqmin; }
+.cena-leitura .recibo-mov { position: absolute; left: 34cqw; top: 30cqh; translate: -50% 0; width: 27cqmin; }
 .cena-leitura .recibo {
   container-type: inline-size;
   filter: drop-shadow(0 4cqmin 8cqmin rgba(0, 0, 0, .55));

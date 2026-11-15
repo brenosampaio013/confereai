@@ -11,17 +11,17 @@
   font-variant-numeric: tabular-nums; line-height: 1;
   text-shadow: 0 1cqmin 3cqmin rgba(0, 0, 0, .5);
 }
-.cena-gancho .cifra { font-size: 0.42em; margin-right: 0.3em; color: var(--texto-suave); }
+.cena-gancho .cifra { font-size: 0.42em; margin-right: 0.3em; color: #CBDDEF; }
 .cena-gancho .virgula { margin: 0 0.02em; }
 .cena-gancho .tambor { display: inline-block; height: 1em; overflow: hidden; width: 0.63em; }
 .cena-gancho .rolo { display: block; }
 .cena-gancho .rolo i { display: block; height: 1em; font-style: normal; text-align: center; }
 
 .cena-gancho .frase {
-  margin: 0; font-size: 8.6cqmin; color: var(--texto); text-align: center;
-  width: 58cqw; line-height: 1.04; text-wrap: balance;
+  margin: 0; font-size: 9.6cqmin; color: var(--texto); text-align: center;
+  width: 62cqw; line-height: 1.02; text-wrap: balance;
   font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
-  text-shadow: 0 1cqmin 3.4cqmin rgba(0, 0, 0, .55);
+  text-shadow: 0 1cqmin 2.4cqmin rgba(3, 14, 26, .85);
 }
 
 .cena-gancho .etq-w { position: absolute; inset: 0; }
@@ -42,5 +42,5 @@
 }
 
 [data-formato="9x16"] .cena-gancho .caixa-valor { font-size: 12cqmin; }
-[data-formato="9x16"] .cena-gancho .frase { font-size: 9.4cqmin; width: 82cqw; }
+[data-formato="9x16"] .cena-gancho .frase { font-size: 10cqmin; width: 84cqw; }
 [data-formato="9x16"] .cena-gancho .etq-mov { width: 42cqmin; }
