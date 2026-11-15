@@ -1,6 +1,7 @@
 .cena-gancho .centro { position: absolute; inset: 0; }
 .cena-gancho .centro-mov {
   position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 4cqh;
+  padding-bottom: 11cqh; /* abre o rodapé para a legenda */
 }
 
 .cena-gancho .caixa { display: grid; justify-items: center; gap: 2.4cqh; }

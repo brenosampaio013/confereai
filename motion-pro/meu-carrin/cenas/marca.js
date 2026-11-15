@@ -17,7 +17,8 @@ Motion.cena('marca', {
       <h2 class="nome">Meu <span class="destaque">Carrin</span></h2>
     </div>
     ${c.bokeh({ n: 5, tamanho: [12, 26], cores: ['#3ACB8B', '#FFFFFF'], classe: 'cn-bokeh-frente', z: 0.7 })}
-    ${c.poeira({ n: 14, semente: 3 })}`,
+    ${c.poeira({ n: 14, semente: 3 })}
+    <div class="leg-w">${c.ui.legenda()}</div>`,
 
   montar(el, api) {
     el.letras = api.tipo.dividir(el.$('.nome'), { por: 'letra' });
@@ -25,6 +26,7 @@ Motion.cena('marca', {
   },
 
   quadro(t, el, api) {
+    window.legendaFilme(api, el, t);
     const { ease, prog, lerp } = api;
 
     // O celular chega da profundidade girando e assenta quase de frente, sem parar nunca.
@@ -53,6 +55,6 @@ Motion.cena('marca', {
       s: lerp(0.86, 1.02, ease.outCubic(prog(t, 0, 1.6))),
     });
 
-    el.cn.quadro(t, { zoom: lerp(0.97, 1.02, ease.outSine(prog(t, 0, 3.2))) });
+    el.cn.quadro(t, { zoom: lerp(0.97, 1.025, ease.outSine(prog(t, 0, 4.25))) });
   },
 });

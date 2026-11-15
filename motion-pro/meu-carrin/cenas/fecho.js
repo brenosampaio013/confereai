@@ -20,7 +20,8 @@ Motion.cena('fecho', {
       ${TAGLINE ? `<p class="tagline">${TAGLINE}</p>` : ''}
       ${CONVITE ? `<p class="apoio convite">${CONVITE}</p>` : ''}
     </div></div>
-    <div class="camada c-perto"><div class="atravessa"></div></div>`,
+    <div class="camada c-perto"><div class="atravessa"></div></div>
+    <div class="leg-w">${c.ui.legenda()}</div>`,
 
   poses: {
     inicio: (el, api) => el.etapas(0.5, api, true),
@@ -100,6 +101,7 @@ Motion.cena('fecho', {
   },
 
   quadro(t, el, api) {
+    window.legendaFilme(api, el, t);
     el.ar.quadro(t);
     el.etapas(t);
     // Segunda passagem da luz, no hold. A primeira cai em b(3); depois dela o quadro ficava

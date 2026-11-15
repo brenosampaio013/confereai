@@ -51,7 +51,8 @@ Motion.cena('cupom', {
         <div class="dif-res"><span>Diferença</span><b class="conta">+ R$ 0,00</b></div>
       </div>
     </div>
-    ${c.poeira({ n: 10, semente: 2 })}`,
+    ${c.poeira({ n: 10, semente: 2 })}
+    <div class="leg-w">${c.ui.legenda()}</div>`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });
@@ -60,6 +61,7 @@ Motion.cena('cupom', {
   },
 
   quadro(t, el, api) {
+    window.legendaFilme(api, el, t);
     const { ease, prog, lerp, clamp } = api;
 
     // A fita chega do mergulho da cena anterior: aqui ela só assenta. O deslocamento é
@@ -98,9 +100,9 @@ Motion.cena('cupom', {
     // gráfico. Antes, a ponte tinha de atravessar bege e navy ao mesmo tempo e o meio da
     // passagem virava uma lavagem cinza-esverdeada, sem leitura. Agora, quando a fita vira
     // barra, os dois palcos já são a mesma cor — a ponte só carrega a forma.
-    api.set(el.$('.frase'), { o: 1 - ease.inCubic(prog(t, 4.1, 4.5)) });
-    api.set(el.$('.noite'), { o: ease.inOutSine(prog(t, 4.25, 4.9)) });
+    api.set(el.$('.frase'), { o: 1 - ease.inCubic(prog(t, 3.85, 4.25)) });
+    api.set(el.$('.noite'), { o: ease.inOutSine(prog(t, 4.0, 4.65)) });
 
-    el.cn.quadro(t, { zoom: lerp(1, 1.04, ease.outSine(prog(t, 0, 5.0))) });
+    el.cn.quadro(t, { zoom: lerp(1, 1.04, ease.outSine(prog(t, 0, 4.75))) });
   },
 });

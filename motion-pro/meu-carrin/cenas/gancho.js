@@ -13,11 +13,11 @@
    de voltas por segundo e nenhum ajuste de desfoque a torna legível. O que resolve é dar ao
    espectador quase um segundo com o número PARADO e nítido antes de a cena virar. */
 const ETIQUETAS = [
-  { nome: 'ARROZ 5KG', preco: '28,90', z: 0.72, topo: 9, giro: -4, atraso: 0.0, dur: 1.9 },
-  { nome: 'CAFE 500G', preco: '22,90', z: 0.62, topo: 90, giro: 5, atraso: 0.42, dur: 2.1 },
-  { nome: 'LEITE 1L', preco: '5,49', z: 0.8, topo: 12, giro: -6, atraso: 1.05, dur: 1.7 },
-  { nome: 'ACUCAR 1KG', preco: '4,79', z: -0.55, topo: 20, giro: 3, atraso: 0.0, dur: 4.8 },
-  { nome: 'DETERGENTE', preco: '3,29', z: -0.62, topo: 68, giro: -3, atraso: 0.8, dur: 5.2 },
+  { nome: 'ARROZ 5KG', preco: '28,90', z: 0.72, topo: 9, giro: -4, atraso: 0.0, dur: 2.3 },
+  { nome: 'CAFE 500G', preco: '22,90', z: 0.62, topo: 90, giro: 5, atraso: 0.6, dur: 2.5 },
+  { nome: 'LEITE 1L', preco: '5,49', z: 0.8, topo: 12, giro: -6, atraso: 1.5, dur: 2.2 },
+  { nome: 'ACUCAR 1KG', preco: '4,79', z: -0.55, topo: 20, giro: 3, atraso: 0.0, dur: 6.2 },
+  { nome: 'DETERGENTE', preco: '3,29', z: -0.62, topo: 68, giro: -3, atraso: 1.1, dur: 6.6 },
 ];
 
 const etiqueta = (e, i) => `
@@ -61,7 +61,8 @@ Motion.cena('gancho', {
       </div>
     </div>
     ${ETIQUETAS.map(etiqueta).filter((_, i) => ETIQUETAS[i].z > 0).join('')}
-    ${c.poeira({ n: 16, semente: 7 })}`,
+    ${c.poeira({ n: 16, semente: 7 })}
+    <div class="leg-w">${c.ui.legenda()}</div>`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });
@@ -73,6 +74,7 @@ Motion.cena('gancho', {
   },
 
   quadro(t, el, api) {
+    window.legendaFilme(api, el, t);
     const { ease, prog, lerp, clamp } = api;
 
     // As etiquetas atravessam o quadro; as da frente, grandes e rápidas.
@@ -100,12 +102,12 @@ Motion.cena('gancho', {
       const pos = ((Math.floor(volta) % 10) + carrega + 10) % 10;
       api.set(rolo, { y: -pos * el.passo, blur: Math.min(0.085, (vel / casa) * 0.02) });
     });
-    const some = ease.inCubic(prog(t, 3.28, 3.6));
+    const some = ease.inCubic(prog(t, 4.7, 5.1));
     api.set(el.$('.caixa'), { o: lerp(1, 0.1, some), s: lerp(1, 0.96, some) });
 
     // A pergunta sai do desfoque, palavra a palavra, e fica.
     api.tipo.focar(t, el.palavras, { inicio: 0.95, cascata: 0.045 });
 
-    el.cn.quadro(t, { zoom: lerp(1, 1.045, ease.outSine(prog(t, 0, 3.6))) });
+    el.cn.quadro(t, { zoom: lerp(1, 1.05, ease.outSine(prog(t, 0, 5.1))) });
   },
 });

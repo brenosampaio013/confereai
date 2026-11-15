@@ -32,7 +32,8 @@ Motion.cena('economia', {
         </div>
       </div>
     </div>
-    ${c.poeira({ n: 14, semente: 9 })}`,
+    ${c.poeira({ n: 14, semente: 9 })}
+    <div class="leg-w">${c.ui.legenda()}</div>`,
 
   montar(el, api) {
     el.compara = api.tipo.dividir(el.$('.compara'), { por: 'palavra' });
@@ -40,6 +41,7 @@ Motion.cena('economia', {
   },
 
   quadro(t, el, api) {
+    window.legendaFilme(api, el, t);
     const { ease, prog, lerp } = api;
 
     api.set(el.$('.rotulo'), { o: ease.outCubic(prog(t, 0.3, 0.65)) });
@@ -73,7 +75,7 @@ Motion.cena('economia', {
 
     // No hold, uma lâmina de luz atravessa o gráfico. Sem ela o quadro quase não mudava
     // por 1,4 s — a câmera viva sozinha não se sente, e o fim da cena ficava morto.
-    const varre = prog(t, 2.6, 4.05);
+    const varre = prog(t, 2.5, 3.9);
     api.set(el.$('.varre'), { x: lerp(-66, 66, ease.inOutSine(varre)), o: Math.sin(Math.PI * varre) });
 
     // E a luz de trás deriva de lado a cena inteira, sem nunca parar: é o que mantém o
@@ -83,6 +85,6 @@ Motion.cena('economia', {
       s: lerp(0.9, 1.04, ease.outCubic(prog(t, 0, 2))),
       x: lerp(-7, 7, t / 4.2),
     });
-    el.cn.quadro(t, { zoom: lerp(0.98, 1.02, ease.outSine(prog(t, 0, 4.2))) });
+    el.cn.quadro(t, { zoom: lerp(0.98, 1.02, ease.outSine(prog(t, 0, 4.0))) });
   },
 });

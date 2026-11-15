@@ -34,7 +34,7 @@
 .cena-leitura .flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
 
 .cena-leitura .forma-w { position: absolute; inset: 0; }
-.cena-leitura .forma-mov { position: absolute; left: 70cqw; top: 50%; translate: -50% -50%; width: 61cqmin; }
+.cena-leitura .forma-mov { position: absolute; left: 70cqw; top: 46%; translate: -50% -50%; width: 58cqmin; }
 .cena-leitura .cartao {
   container-type: inline-size;
   background: var(--branco); border-radius: 5cqw; overflow: hidden; padding: 5cqw 6cqw 6cqw;

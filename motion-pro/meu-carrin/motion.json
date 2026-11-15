@@ -62,7 +62,7 @@
       "tipo": "palavra-gigante",
       "papel": "gancho",
       "titulo": "A pergunta",
-      "dur": 3.6,
+      "dur": 5.1,
       "ideia": "O total do caixa SOBE num odômetro de verdade: os centavos giram e as dezenas carregam. É o gasto se acumulando sem ninguém ver. A pergunta chega depois e fica sem resposta.",
       "camera": "Push-in lento de 4 %, com etiquetas passando na frente, grandes e desfocadas.",
       "quadros": [
@@ -82,7 +82,7 @@
           "id": "fim",
           "rotulo": "Fim",
           "legenda": "O número alto, ainda girando, e a pergunta sozinha",
-          "t": 3.3,
+          "t": 4.6,
           "aprovado": true
         }
       ],
@@ -127,14 +127,22 @@
       "saida": {
         "tipo": "avancar-desfocar",
         "texto": "A câmera avança e desfoca: do corredor para o produto."
-      }
+      },
+      "sons": [
+        {
+          "t": 0,
+          "nome": "pulso",
+          "dur": 28.599999999999998,
+          "ganho": 0.26
+        }
+      ]
     },
     {
       "id": "marca",
       "tipo": "aparelho",
       "papel": "marca",
       "titulo": "A marca",
-      "dur": 3.2,
+      "dur": 4.25,
       "ideia": "O celular chega da profundidade girando e a tela acende — a cena é do aplicativo. Só com a tela já lida a marca assina ao lado, pequena e calma.",
       "camera": "Recua 3 % na chegada do celular e volta a avançar, passando por 1,0 no quadro aprovado.",
       "quadros": [
@@ -154,7 +162,7 @@
           "id": "fim",
           "rotulo": "Fim",
           "legenda": "O celular de frente, lido, e a marca assinando ao lado",
-          "t": 2.8,
+          "t": 3.8,
           "aprovado": true
         }
       ],
@@ -198,7 +206,7 @@
       "tipo": "livre",
       "papel": "desenvolvimento",
       "titulo": "O total em tempo real",
-      "dur": 5.2,
+      "dur": 5.7,
       "ideia": "Cada produto que entra empurra o total para cima e larga um \"+ R$ x,xx\" verde que sobe e esfria, até a barra virar âmbar e o aviso subir.",
       "camera": "Push-in de 3 % no cartão; tremor curto de 2 quadros quando o aviso chega.",
       "quadros": [
@@ -218,7 +226,7 @@
           "id": "fim",
           "rotulo": "Fim",
           "legenda": "Barra âmbar e o aviso aberto",
-          "t": 4.6,
+          "t": 5.2,
           "aprovado": true
         }
       ],
@@ -286,7 +294,7 @@
       "tipo": "livre",
       "papel": "desenvolvimento",
       "titulo": "A etiqueta vira preço",
-      "dur": 4,
+      "dur": 3.95,
       "ideia": "A etiqueta chega com peso, é fotografada, os campos se escrevem sozinhos e o preço promocional voa da etiqueta para o cartão. No fim o aplicativo imprime a fita e o resto sai de quadro.",
       "camera": "Fecha 6 % enquanto as guias se aproximam; relaxa depois do flash e empurra 2,5 % enquanto a fita sobe.",
       "quadros": [
@@ -399,7 +407,7 @@
       "tipo": "montagem",
       "papel": "climax",
       "titulo": "A conferência",
-      "dur": 5,
+      "dur": 4.75,
       "ideia": "A fita chega do mergulho já cobrindo o quadro, assenta sobre um papel-kraft que a destaca, e cada linha acende em verde até uma travar em vermelho.",
       "camera": "Assenta com a fita e fecha 4 % na linha vermelha.",
       "quadros": [
@@ -418,8 +426,8 @@
         {
           "id": "fim",
           "rotulo": "Fim",
-          "legenda": "A linha vermelha aberta, com a diferença",
-          "t": 4.3,
+          "legenda": "A linha vermelha aberta, com a diferença, antes de a mesa escurecer",
+          "t": 3.8,
           "aprovado": true
         }
       ],
@@ -494,7 +502,7 @@
       "tipo": "livre",
       "papel": "prova",
       "titulo": "O mês fechado",
-      "dur": 4.2,
+      "dur": 4,
       "ideia": "Primeiro a prova: as barras dos dois meses sobem do chão, grandes e legíveis. Só então a conclusão: a diferença trava em verde, herói do quadro.",
       "camera": "Sobe 3 % com as barras e assenta no ganho.",
       "quadros": [
@@ -514,7 +522,7 @@
           "id": "fim",
           "rotulo": "Fim",
           "legenda": "O ganho travado em verde, acima da prova",
-          "t": 3.8,
+          "t": 3.7,
           "aprovado": true
         }
       ],
@@ -585,7 +593,7 @@
       "tipo": "marca-em-etapas",
       "papel": "convite",
       "titulo": "A marca",
-      "dur": 4,
+      "dur": 3.6,
       "ideia": "O ponto de luz abre no carrinho da marca, o visto se desenha, o posicionamento assenta e o endereço fecha.",
       "camera": "Push-in mínimo de 2 %, quase parado, para a marca ficar sólida.",
       "quadros": [
@@ -605,7 +613,7 @@
           "id": "fim",
           "rotulo": "Fim",
           "legenda": "A marca inteira, o posicionamento e o endereço",
-          "t": 3.5,
+          "t": 3.4,
           "aprovado": true
         }
       ],
@@ -662,9 +670,9 @@
     "quadro": "fim"
   },
   "storyboard": {
-    "revisao": 15,
+    "revisao": 18,
     "aprovadoEm": "2026-11-15",
-    "revisaoAprovada": 15
+    "revisaoAprovada": 18
   },
   "versoes": [
     {

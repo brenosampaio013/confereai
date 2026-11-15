@@ -52,7 +52,8 @@ Motion.cena('leitura', {
         </div>
       </div>
     </div>
-    ${c.poeira({ n: 12, semente: 5 })}`,
+    ${c.poeira({ n: 12, semente: 5 })}
+    <div class="leg-w">${c.ui.legenda()}</div>`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });
@@ -73,6 +74,7 @@ Motion.cena('leitura', {
   },
 
   quadro(t, el, api) {
+    window.legendaFilme(api, el, t);
     const { ease, prog, lerp, clamp } = api;
 
     // A etiqueta chega da profundidade com peso; depois recua para o canto.
@@ -144,6 +146,6 @@ Motion.cena('leitura', {
     api.set(el.$('.frase'), { o: 1 - ease.inCubic(prog(t, 3.0, 3.34)) });
 
 
-    el.cn.quadro(t, { zoom: lerp(1.06, 1, ease.outQuart(prog(t, 0, 1.3))) * lerp(1, 1.025, prog(t, 1.3, 4)) });
+    el.cn.quadro(t, { zoom: lerp(1.06, 1, ease.outQuart(prog(t, 0, 1.3))) * lerp(1, 1.025, prog(t, 1.3, 3.95)) });
   },
 });

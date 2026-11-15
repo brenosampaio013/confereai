@@ -48,7 +48,8 @@ Motion.cena('orcamento', {
       <h2 class="frase">Cada produto entra na conta</h2>
       <p class="apoio">o total, o saldo e a porcentagem mudam na hora</p>
     </div>
-    ${c.poeira({ n: 12, semente: 11 })}`,
+    ${c.poeira({ n: 12, semente: 11 })}
+    <div class="leg-w">${c.ui.legenda()}</div>`,
 
   montar(el, api) {
     el.palavras = api.tipo.dividir(el.$('.frase'), { por: 'palavra' });
@@ -63,6 +64,7 @@ Motion.cena('orcamento', {
   },
 
   quadro(t, el, api) {
+    window.legendaFilme(api, el, t);
     const { ease, prog, lerp, clamp } = api;
 
     // O cartão entra de baixo com mola curta.
@@ -126,7 +128,7 @@ Motion.cena('orcamento', {
     const abre = ease.outQuart(prog(t, 0.2, 1.5));
     const tremor = api.tremor(t, 3.65);
     el.cn.quadro(t, {
-      zoom: lerp(1.6, 1, abre) * lerp(1, 1.03, ease.outSine(prog(t, 1.5, 5.2))),
+      zoom: lerp(1.6, 1, abre) * lerp(1, 1.035, ease.outSine(prog(t, 1.5, 5.7))),
       x: lerp(17, 0, abre) + tremor.x,
       y: lerp(-10, 0, abre) + tremor.y,
     });

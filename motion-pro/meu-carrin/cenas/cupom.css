@@ -7,7 +7,7 @@
 
 .cena-cupom .frase-w { position: absolute; inset: 0; }
 .cena-cupom .frase {
-  position: absolute; left: 4.5cqw; top: 50%; translate: 0 -50%; margin: 0; width: 24cqw;
+  position: absolute; left: 4.5cqw; top: 44%; translate: 0 -50%; margin: 0; width: 24cqw;
   font-size: 7.2cqmin; line-height: var(--titulo-entrelinha); color: var(--navy);
 
   font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
@@ -18,7 +18,7 @@
 .cena-cupom .noite { position: absolute; inset: -10%; background: #0A1F35; opacity: 0; }
 
 .cena-cupom .fita-w { position: absolute; inset: 0; }
-.cena-cupom .fita-mov { position: absolute; left: 47cqw; top: 50%; translate: -50% -50%; width: 57cqmin; }
+.cena-cupom .fita-mov { position: absolute; left: 47cqw; top: 46%; translate: -50% -50%; width: 54cqmin; }
 .cena-cupom .fita {
   container-type: inline-size;
   filter: drop-shadow(0 1cqmin 1.4cqmin rgba(66, 50, 24, .34)) drop-shadow(0 5cqmin 8cqmin rgba(48, 36, 16, .4));
@@ -52,7 +52,7 @@
 
 .cena-cupom .dif-w { position: absolute; inset: 0; }
 .cena-cupom .dif {
-  position: absolute; left: 67.5cqw; top: 50%; translate: 0 -50%; width: 29cqw;
+  position: absolute; left: 67.5cqw; top: 44%; translate: 0 -50%; width: 29cqw;
   container-type: inline-size;
   background: var(--branco); border-radius: 3cqw; padding: 4.5cqw 5cqw;
   border-left: 1.6cqw solid var(--vermelho);

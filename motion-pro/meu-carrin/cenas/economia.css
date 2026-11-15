@@ -7,7 +7,8 @@
 
 .cena-economia .bloco { position: absolute; inset: 0; }
 .cena-economia .bloco-mov {
-  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  /* os rótulos dos meses são informação: sobem para a legenda não cobri-los */
+  position: absolute; left: 50%; top: 44%; translate: -50% -50%;
   display: grid; justify-items: center; gap: 1cqh; width: 74cqw;
 }
 .cena-economia .rotulo { font-size: 2.8cqmin; letter-spacing: 0.34em; color: var(--texto-suave); font-weight: 700; }
