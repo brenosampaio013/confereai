@@ -9,7 +9,7 @@
 const ORCAMENTO = 17000;
 const ATENCAO = 75;
 const ITENS = [
-  { nome: 'Arroz 5 kg', det: '1 un × R$ 28,90', valor: 2890, t: 0.72 },
+  { nome: 'Arroz 5 kg', det: '1 un × R$ 28,90', valor: 2890, t: 0.6 },
   { nome: 'Café 500 g', det: '2 un × R$ 22,90', valor: 4580, t: 1.26 },
   { nome: 'Leite integral 1 L', det: '6 un × R$ 5,49', valor: 3294, t: 1.74 },
   { nome: 'Peito de frango 1 kg', det: '1 un × R$ 16,90', valor: 1690, t: 2.18 },

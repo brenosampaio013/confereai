@@ -7,8 +7,11 @@
    Saída: a câmera avança e desfoca.
    Nota: o movimento vai sempre num embrulho DENTRO do data-z — a câmera é dona da camada.
    v3: o desfoque das rodas caiu de 0,26 para 0,085 (os algarismos fantasmavam uns nos
-   outros e o valor não era reconhecível de relance) e as etiquetas da frente saíram da
-   faixa central — elas cruzavam por cima da pergunta e cortavam a leitura dela. */
+   outros) e as etiquetas da frente saíram da faixa central — elas cruzavam por cima da
+   pergunta e cortavam a leitura dela.
+   A subida também termina em 2,4 s em vez de 3,3: nas casas de centavo a roda gira centenas
+   de voltas por segundo e nenhum ajuste de desfoque a torna legível. O que resolve é dar ao
+   espectador quase um segundo com o número PARADO e nítido antes de a cena virar. */
 const ETIQUETAS = [
   { nome: 'ARROZ 5KG', preco: '28,90', z: 0.72, topo: 9, giro: -4, atraso: 0.0, dur: 1.9 },
   { nome: 'CAFE 500G', preco: '22,90', z: 0.62, topo: 90, giro: 5, atraso: 0.42, dur: 2.1 },
@@ -39,7 +42,7 @@ const tambor = (i) => `<span class="tambor"><span class="rolo" data-col="${i}">$
 /* O total verdadeiro do carrinho da cena 3: R$ 139,20. Sobe desacelerando, mas os
    centavos nunca param de girar — ninguém sabe onde isso vai parar. */
 const ALVO = 13920;
-const valorEm = (t, ease, prog) => ALVO * ease.outSine(prog(t, 0.1, 3.3));
+const valorEm = (t, ease, prog) => ALVO * ease.outSine(prog(t, 0.1, 2.4));
 
 Motion.cena('gancho', {
   render: (c) => `
@@ -97,7 +100,7 @@ Motion.cena('gancho', {
       const pos = ((Math.floor(volta) % 10) + carrega + 10) % 10;
       api.set(rolo, { y: -pos * el.passo, blur: Math.min(0.085, (vel / casa) * 0.02) });
     });
-    const some = ease.inCubic(prog(t, 3.1, 3.6));
+    const some = ease.inCubic(prog(t, 3.28, 3.6));
     api.set(el.$('.caixa'), { o: lerp(1, 0.1, some), s: lerp(1, 0.96, some) });
 
     // A pergunta sai do desfoque, palavra a palavra, e fica.

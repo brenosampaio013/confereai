@@ -1,5 +1,6 @@
 /* cupom — "A conferência" · 5,0 s · o clímax do filme
    Ideia: a fita do cupom desce e cada linha acende em verde, até uma travar em vermelho.
+   No fim, a mesa escurece até o azul-marinho da próxima cena (ver .noite).
    O quadro da diferença saiu de z 0,26 para z 0,07: a abertura da câmera o deixava fora do
    plano focal e ele chegava desfocado — logo ele, que carrega o número da cena.
    Entrada: ponte "papel" — a fita que o aplicativo imprimiu na cena anterior abre aqui e
@@ -19,7 +20,8 @@ const PASSO = 0.21;
 Motion.cena('cupom', {
   render: (c) => `
     ${c.cenario('papel', { grade: 'pontos', detalhes: { cantos: true } })}
-    <h2 class="frase" data-z="0.2">Pagou o preço da gôndola?</h2>
+    <div class="noite-w" data-z="-0.85"><div class="noite"></div></div>
+    <div class="frase-w" data-z="0.2"><h2 class="frase">Pagou o preço da gôndola?</h2></div>
     <div class="fita-w" data-z="0.06">
       <div class="fita-mov">
         <div class="fita" data-ponte="papel">
@@ -63,9 +65,9 @@ Motion.cena('cupom', {
     // A fita chega do mergulho da cena anterior: aqui ela só assenta. O deslocamento é
     // curto de propósito — ela já estava no quadro, e um movimento grande aqui reabriria a
     // sensação de que são dois objetos diferentes.
-    const assenta = ease.outExpo(prog(t, 0.0, 0.5));
+    const assenta = ease.outQuart(prog(t, 0.0, 0.66));
     const treme = api.tremor(t, 2.4, { forca: 0.55, freq: 11, amortecimento: 9 });
-    api.set(el.$('.fita-mov'), { y: lerp(-7, 0, assenta) + treme.y, x: treme.x, r: treme.giro * 0.2 });
+    api.set(el.$('.fita-mov'), { y: lerp(-5, 0, assenta) + treme.y, x: treme.x, r: treme.giro * 0.2 });
 
     // As linhas conferem uma a uma; a do café trava em vermelho.
     el.lins.forEach((lin, i) => {
@@ -91,6 +93,13 @@ Motion.cena('cupom', {
     api.tipo.contar(t, el.$('.conta'), { de: 0, ate: 2, inicio: 3.3, travar: 3.9, casas: 2, prefixo: '+ R$ ' });
 
     api.tipo.focar(t, el.palavras, { inicio: 0.55, cascata: 0.045 });
+
+    // A cena PREPARA a seguinte: a luz da mesa cai e o papel-kraft vira o azul-marinho do
+    // gráfico. Antes, a ponte tinha de atravessar bege e navy ao mesmo tempo e o meio da
+    // passagem virava uma lavagem cinza-esverdeada, sem leitura. Agora, quando a fita vira
+    // barra, os dois palcos já são a mesma cor — a ponte só carrega a forma.
+    api.set(el.$('.frase'), { o: 1 - ease.inCubic(prog(t, 4.1, 4.5)) });
+    api.set(el.$('.noite'), { o: ease.inOutSine(prog(t, 4.25, 4.9)) });
 
     el.cn.quadro(t, { zoom: lerp(1, 1.04, ease.outSine(prog(t, 0, 5.0))) });
   },

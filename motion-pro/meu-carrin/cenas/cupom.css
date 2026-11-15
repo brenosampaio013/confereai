@@ -5,12 +5,17 @@
    mancha clara dentro de outra. */
 .cena-cupom { --fundo: #C9BCA2; --texto: #0F1C2A; --texto-suave: #4A5563; }
 
+.cena-cupom .frase-w { position: absolute; inset: 0; }
 .cena-cupom .frase {
   position: absolute; left: 4.5cqw; top: 50%; translate: 0 -50%; margin: 0; width: 24cqw;
   font-size: 7.2cqmin; line-height: var(--titulo-entrelinha); color: var(--navy);
 
   font-weight: var(--titulo-peso); letter-spacing: var(--titulo-tracking);
 }
+
+/* a mesa escurecendo até o palco da próxima cena */
+.cena-cupom .noite-w { position: absolute; inset: 0; }
+.cena-cupom .noite { position: absolute; inset: -10%; background: #0A1F35; opacity: 0; }
 
 .cena-cupom .fita-w { position: absolute; inset: 0; }
 .cena-cupom .fita-mov { position: absolute; left: 47cqw; top: 50%; translate: -50% -50%; width: 57cqmin; }

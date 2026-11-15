@@ -96,10 +96,10 @@
         {
           "t": 0.1,
           "tipo": "objeto",
-          "texto": "O odômetro do caixa sobe de R$ 0,00 em direção a R$ 139,20 — o carrinho verdadeiro da cena 3. Cada roda tem a velocidade da sua casa: os centavos voam, as dezenas carregam. O desfoque é só vertical.",
+          "texto": "O odômetro do caixa sobe de R$ 0,00 a R$ 139,20 — o carrinho verdadeiro da cena 3. Cada roda tem a velocidade da sua casa e o desfoque é só vertical. Ele trava em 2,4 s e fica quase um segundo parado e nítido: nas casas de centavo a roda gira centenas de voltas por segundo e nenhum ajuste de desfoque a torna legível — o que resolve é o tempo parado.",
           "som": {
             "nome": "subindo",
-            "dur": 2.6,
+            "dur": 2.2,
             "ganho": 0.85
           }
         },
@@ -472,15 +472,21 @@
           "texto": "A câmera fecha os últimos 4 % na linha vermelha antes de a fita se recolher."
         },
         {
+          "t": 4.1,
+          "tipo": "luz",
+          "texto": "A pergunta apaga antes de a mesa escurecer — ela é escrita em azul-marinho e sumiria dentro do fundo novo."
+        },
+        {
           "t": 4.5,
           "tipo": "transicao",
-          "texto": "A fita se recolhe e o corpo dela vira a primeira barra do gráfico da próxima cena."
+          "texto": "A luz da mesa cai: o papel-kraft escurece até o azul-marinho do gráfico e a fita se recolhe, já na cor da próxima cena."
         }
       ],
       "saida": {
         "tipo": "ponte",
         "nome": "fita",
-        "texto": "O corpo da fita vira a primeira barra do gráfico."
+        "dur": 0.45,
+        "texto": "O corpo da fita vira a primeira barra do gráfico. A mesa já escureceu até o azul-marinho antes da passagem, então a ponte só carrega a forma — e não uma lavagem entre bege e navy."
       }
     },
     {
@@ -687,6 +693,15 @@
       ],
       "fps": 30,
       "nota": "v2 remontagem"
+    },
+    {
+      "v": 3,
+      "data": "2026-11-15",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "v3 acabamento"
     }
   ],
   "criadoEm": "2026-11-14",

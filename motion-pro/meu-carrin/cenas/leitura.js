@@ -76,7 +76,7 @@ Motion.cena('leitura', {
     const { ease, prog, lerp, clamp } = api;
 
     // A etiqueta chega da profundidade com peso; depois recua para o canto.
-    const chega = ease.outExpo(prog(t, 0, 0.52));
+    const chega = ease.outQuart(prog(t, 0, 0.7));
     const recua = ease.outExpo(prog(t, 1.05, 1.75));
     // Depois de assentar, a etiqueta continua viva: parar seco dá o "degrau" que o medidor
     // de fluidez acusa, e no resto do filme nenhum objeto trava de vez num hold.
@@ -124,8 +124,8 @@ Motion.cena('leitura', {
     api.set(el.$('.voa'), {
       x: lerp(el.voaDe[0], el.voaPara[0], ev),
       y: lerp(el.voaDe[1], el.voaPara[1], ev) + arco,
-      s: lerp(1, 0.42, ease.inOutCubic(voo)),
-      o: (voo > 0 && voo < 1 ? 1 : 0) * Math.min(1, Math.sin(Math.PI * Math.pow(voo, 0.4)) * 1.6),
+      s: lerp(0.82, 0.42, ease.inOutCubic(voo)) * lerp(1.12, 1, ease.outCubic(prog(voo, 0, 0.2))),
+      o: ease.outCubic(prog(voo, 0, 0.16)) * (1 - ease.inCubic(prog(voo, 0.82, 1))),
     });
 
     // O quadro do preço promocional acende quando o número chega nele.
