@@ -64,13 +64,16 @@ Motion.cena('leitura', {
     const { ease, prog, lerp, clamp } = api;
 
     // A etiqueta chega da profundidade com peso; depois recua para o canto.
-    const chega = ease.outExpo(prog(t, 0, 0.45));
+    const chega = ease.outExpo(prog(t, 0, 0.52));
     const recua = ease.outExpo(prog(t, 1.05, 1.75));
+    // Depois de assentar, a etiqueta continua viva: parar seco dá o "degrau" que o medidor
+    // de fluidez acusa, e no resto do filme nenhum objeto trava de vez num hold.
+    const flutua = chega * (1 - recua);
     api.set(el.$('.etq-mov'), {
-      x: lerp(-4, -8, recua) + lerp(9, 0, chega),
-      y: lerp(0, -18, recua) + lerp(-4, 0, chega),
+      x: lerp(-4, -8, recua) + lerp(9, 0, chega) + 0.5 * Math.sin(t * 1.15) * flutua,
+      y: lerp(0, -18, recua) + lerp(-4, 0, chega) + 0.42 * Math.sin(t * 0.83 + 1.2) * flutua,
       s: lerp(1, 0.42, recua) * lerp(1.16, 1, chega),
-      r: lerp(-4, -8, recua) + lerp(-5.5, 0, chega),
+      r: lerp(-4, -8, recua) + lerp(-5.5, 0, chega) + 0.5 * Math.sin(t * 0.69 + 0.4) * flutua,
       blur: lerp(0.8, 0, ease.outQuart(prog(t, 0, 0.3))),
       o: 1,
     });

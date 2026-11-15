@@ -71,10 +71,16 @@ Motion.cena('economia', {
 
     // No hold, uma lâmina de luz atravessa o gráfico. Sem ela o quadro quase não mudava
     // por 1,4 s — a câmera viva sozinha não se sente, e o fim da cena ficava morto.
-    const varre = prog(t, 2.55, 3.75);
-    api.set(el.$('.varre'), { x: lerp(-62, 62, ease.inOutSine(varre)), o: 0.85 * Math.sin(Math.PI * varre) });
+    const varre = prog(t, 2.2, 3.7);
+    api.set(el.$('.varre'), { x: lerp(-66, 66, ease.inOutSine(varre)), o: Math.sin(Math.PI * varre) });
 
-    api.set(el.$('.luz'), { o: lerp(0.3, 0.55, api.vida(t, { periodo: 2.4 })), s: lerp(0.9, 1.04, ease.outCubic(prog(t, 0, 2))) });
+    // E a luz de trás deriva de lado a cena inteira, sem nunca parar: é o que mantém o
+    // fundo mudando debaixo das barras enquanto o número fica lido.
+    api.set(el.$('.luz'), {
+      o: lerp(0.3, 0.55, api.vida(t, { periodo: 2.4 })),
+      s: lerp(0.9, 1.04, ease.outCubic(prog(t, 0, 2))),
+      x: lerp(-7, 7, t / 4.2),
+    });
     el.cn.quadro(t, { zoom: lerp(0.98, 1.02, ease.outSine(prog(t, 0, 4.2))) });
   },
 });
