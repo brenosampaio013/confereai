@@ -257,6 +257,17 @@ repositório e preenchendo:
 | Build command | `npm run build:site` |
 | Deploy command | `npx wrangler deploy -c wrangler.site.jsonc` |
 
+Enquanto `meucarrin.com` não estiver na conta do Cloudflare, cadastre também em
+**Settings → Build → Variables and Secrets** (senão o build volta a gravar o endereço
+definitivo no canônico, nas tags de compartilhamento e no sitemap, e ele ainda não responde):
+
+| Variável | Valor provisório |
+|---|---|
+| `SITE_URL` | `https://meucarrin-site.sampaiobreno338.workers.dev` |
+| `SITE_APP_URL` | `https://confereai.sampaiobreno338.workers.dev` |
+
+Com o domínio ativo, apague as duas: os padrões do build já são os endereços definitivos.
+
 Do seu computador: `npm run deploy:site`.
 
 > **Não dá para publicar de dentro de uma sessão do Claude na nuvem.** O envio dos
