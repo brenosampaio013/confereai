@@ -259,6 +259,13 @@ repositório e preenchendo:
 
 Do seu computador: `npm run deploy:site`.
 
+> **Não dá para publicar de dentro de uma sessão do Claude na nuvem.** O envio dos
+> arquivos acontece em duas etapas: o token abre uma sessão de upload e o Cloudflare
+> devolve um JWT de uso único, que precisa viajar no `Authorization` da etapa seguinte.
+> O proxy do container reescreve esse cabeçalho com o token guardado, o JWT nunca chega
+> e o upload volta `401`. A conta, o token e o `wrangler deploy` estão certos — o caminho
+> é o painel ou o seu computador.
+
 **Verificado aqui** com o runtime do Cloudflare (`wrangler dev`, workerd): a página responde
 200 com os cabeçalhos de segurança (incluindo *Content-Security-Policy* que só permite
 script e estilo do próprio site), `/termos` e `/privacidade` abrem sem redirecionamento,
