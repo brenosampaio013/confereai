@@ -81,7 +81,18 @@ Fio condutor: a fita verde/papel atravessa o filme.
      `corte`: a marca fica de pé até o último quadro.
   Global: vinheta de 0,26 para 0,17 (o fundo escurecia demais nas pontas) e teto de motion
   blur de 5 para 3,2.
+  Depois, no teste de reprodução contínua (o corte inteiro, sem pausar), mais três:
+  - o odômetro da abertura: reduzir o desfoque não bastava, porque na velocidade de pico a
+    roda dos centavos gira ~680 voltas por segundo e o motion blur compõe quadros com
+    algarismos diferentes. O que resolve é tempo: a subida termina em 2,4 s e o número fica
+    quase um segundo parado e nítido em R$ 139,20;
+  - a passagem do cupom para o gráfico (18,8 s) tinha o mesmo defeito da outra: cross-fade
+    entre bege e navy virando lavagem. Agora a mesa escurece até o azul-marinho ANTES da
+    ponte, que só carrega a forma; a ponte caiu de 0,6 s para 0,45 s;
+  - no teste de celular (390 px) as linhas do cupom não liam: a tipografia interna da fita
+    subiu (itens de 3,5 para 4 cqw, total de 4,4 para 5).
   Diretor: nada a apontar. Pureza: as 7 cenas determinísticas.
+  Testes: monitor, celular a 390 px e reprodução contínua — os três feitos no MP4 final.
 
 ## Honestidade
 Os números do filme são os do carrinho de demonstração, não resultados de pessoas usuárias.
