@@ -253,14 +253,14 @@ repositório e preenchendo:
 
 | Campo | Valor |
 |---|---|
-| Project name | `meucarrin-site` (igual ao `name` do `wrangler.site.jsonc`) |
+| Project name | `meucarrin` (igual ao `name` do `wrangler.site.jsonc`) |
 | Build command | `npm run build:site` |
 | Deploy command | `npx wrangler deploy -c wrangler.site.jsonc` |
 
 O domínio `meucarrin.com` entrou na conta em 15/11/2026 (servidores de nome trocados na
 HostGator), então o build usa os padrões — não é preciso cadastrar `SITE_URL` nem
 `SITE_APP_URL`. Depois do primeiro deploy, ligue os endereços em **Settings → Domains &
-Routes → Add Custom Domain**: `meucarrin.com` no Worker `meucarrin-site` e
+Routes → Add Custom Domain**: `meucarrin.com` no Worker `meucarrin` e
 `app.meucarrin.com` no Worker `confereai`.
 
 Do seu computador: `npm run deploy:site`.

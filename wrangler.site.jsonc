@@ -9,7 +9,7 @@
  * - Os cabeçalhos de segurança e de cache vêm de site-dist/_headers, gerado no build.
  */
 {
-  "name": "meucarrin-site",
+  "name": "meucarrin",
   "compatibility_date": "2026-11-01",
   "assets": {
     "directory": "./site-dist",
