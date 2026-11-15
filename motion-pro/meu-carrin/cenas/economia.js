@@ -14,6 +14,7 @@ Motion.cena('economia', {
   render: (c) => `
     ${c.cenario('estudio', { detalhes: { cantos: true } })}
     <div class="luz-w" data-z="-0.5"><div class="luz"></div></div>
+    <div class="varre-w" data-z="0.5"><div class="varre"></div></div>
     <div class="bloco" data-z="0.08">
       <div class="bloco-mov">
         <span class="rotulo">O MÊS FECHADO</span>
@@ -67,6 +68,11 @@ Motion.cena('economia', {
     // A barra de novembro dá um pulso curto na batida e assenta.
     const pulso = 1 - 0.05 * Math.sin(Math.PI * prog(t, 2.9, 3.2));
     api.set(el.$('.barra-nov'), { sy: pulso, origem: '50% 100%' });
+
+    // No hold, uma lâmina de luz atravessa o gráfico. Sem ela o quadro quase não mudava
+    // por 1,4 s — a câmera viva sozinha não se sente, e o fim da cena ficava morto.
+    const varre = prog(t, 2.55, 3.75);
+    api.set(el.$('.varre'), { x: lerp(-62, 62, ease.inOutSine(varre)), o: 0.85 * Math.sin(Math.PI * varre) });
 
     api.set(el.$('.luz'), { o: lerp(0.3, 0.55, api.vida(t, { periodo: 2.4 })), s: lerp(0.9, 1.04, ease.outCubic(prog(t, 0, 2))) });
     el.cn.quadro(t, { zoom: lerp(0.98, 1.02, ease.outSine(prog(t, 0, 4.2))) });

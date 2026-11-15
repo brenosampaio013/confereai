@@ -102,6 +102,17 @@ Motion.cena('fecho', {
   quadro(t, el, api) {
     el.ar.quadro(t);
     el.etapas(t);
+    // Segunda passagem da luz, no hold. A primeira cai em b(3); depois dela o quadro ficava
+    // 1,3 s quase sem mudar, bem no plano da marca — onde o filme menos pode parecer parado.
+    // Vem depois de etapas() de propósito: este set substitui o de lá, com as duas passagens.
+    const { ease, prog, lerp, b } = api;
+    const p1 = prog(t, b(3), b(3) + 0.9);
+    const p2 = prog(t, b(5.8), b(5.8) + 1.0);
+    const emP2 = p2 > 0 && p2 < 1;
+    api.set(el.atravessa, {
+      x: lerp(-60, 60, ease.inOutSine(emP2 ? p2 : p1)),
+      o: Math.max(Math.sin(Math.PI * p1), 0.6 * Math.sin(Math.PI * p2)),
+    });
   },
 });
 }

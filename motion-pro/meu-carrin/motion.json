@@ -629,7 +629,7 @@
   },
   "storyboard": {
     "revisao": 12,
-    "aprovadoEm": "2026-11-14",
+    "aprovadoEm": "2026-11-15",
     "revisaoAprovada": 12
   },
   "versoes": [
@@ -650,6 +650,15 @@
       ],
       "fps": 30,
       "nota": "teste da passagem"
+    },
+    {
+      "v": 2,
+      "data": "2026-11-15",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "v2 remontagem: odometro que sobe no gancho, marca sem disputar com o app, +R$ por produto, entrada da etiqueta, passagem por mergulho na fita impressa e economia com o ganho como numero heroi"
     }
   ],
   "criadoEm": "2026-11-14",

@@ -48,6 +48,16 @@
 }
 .cena-economia .mes { font-size: 2.8cqmin; color: var(--texto-suave); letter-spacing: 0.06em; }
 
+.cena-economia .varre-w { position: absolute; inset: 0; overflow: hidden; }
+.cena-economia .varre {
+  position: absolute; inset: -14% 40%; rotate: 11deg; opacity: 0;
+  mix-blend-mode: plus-lighter; filter: blur(2.2cqmin);
+  background: linear-gradient(90deg, transparent,
+    color-mix(in srgb, var(--verde-claro) 9%, transparent) 42%,
+    color-mix(in srgb, var(--brilho) 13%, transparent) 50%,
+    color-mix(in srgb, var(--verde-claro) 9%, transparent) 58%, transparent);
+}
+
 [data-formato="9x16"] .cena-economia .numero { font-size: 13cqmin; }
 [data-formato="9x16"] .cena-economia .seta { font-size: 8cqmin; }
 [data-formato="9x16"] .cena-economia .compara { font-size: 4.2cqmin; }
