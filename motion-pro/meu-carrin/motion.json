@@ -132,8 +132,8 @@
         {
           "t": 0,
           "nome": "pulso",
-          "dur": 28.599999999999998,
-          "ganho": 0.26
+          "dur": 28.6,
+          "ganho": 2.2
         }
       ]
     },
@@ -728,6 +728,15 @@
       ],
       "fps": 30,
       "nota": "teste"
+    },
+    {
+      "v": 5,
+      "data": "2026-11-15",
+      "formatos": [
+        "16x9"
+      ],
+      "fps": 30,
+      "nota": "v5 publicitario: narracao, legendas por frase na camada global e trilha"
     }
   ],
   "criadoEm": "2026-11-14",
