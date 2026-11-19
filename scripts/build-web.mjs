@@ -15,7 +15,7 @@
 //    direto, sem o recarregamento da primeira visita.
 import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,6 +27,44 @@ const BG = '#F3F5F8';
 
 rmSync(dist, { recursive: true, force: true });
 execSync(`npx expo export --platform web --output-dir dist`, { cwd: root, stdio: 'inherit', env: { ...process.env, EXPO_BASE_URL: base } });
+
+// O Cloudflare Workers não serve caminhos que contenham "@": uma pasta como "@expo" cai no
+// fallback do SPA (devolve o index.html no lugar da fonte) e um arquivo "nome@2x.png" entra em
+// laço de redirecionamento. Os arquivos sobem no deploy, mas o aplicativo publicado fica sem
+// NENHUM ícone. Renomeia esses caminhos e reescreve as referências nos arquivos gerados.
+{
+  const listar = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? listar(join(d, f)) : [join(d, f)]));
+  const semArroba = (caminho) => caminho.split('@').join('_at_');
+  const trocas = new Map();
+  for (const abs of listar(dist)) {
+    const rel = relative(dist, abs).split('\\').join('/');
+    if (!rel.includes('@')) continue;
+    const destino = semArroba(rel);
+    mkdirSync(dirname(join(dist, destino)), { recursive: true });
+    renameSync(abs, join(dist, destino));
+    trocas.set(rel, destino);
+  }
+  if (trocas.size > 0) {
+    const limparVazias = (d) => {
+      for (const f of readdirSync(d)) {
+        const alvo = join(d, f);
+        if (statSync(alvo).isDirectory()) limparVazias(alvo);
+      }
+      if (d !== dist && readdirSync(d).length === 0) rmdirSync(d);
+    };
+    limparVazias(dist);
+    for (const abs of listar(dist).filter((f) => /\.(js|css|html|json|webmanifest|map)$/.test(f))) {
+      const antes = readFileSync(abs, 'utf8');
+      let depois = antes;
+      for (const [velho, novo] of trocas) {
+        // O mesmo caminho aparece cru e percent-encoded, conforme quem o escreveu.
+        for (const forma of [velho, velho.split('@').join('%40')]) depois = depois.split(forma).join(novo);
+      }
+      if (depois !== antes) writeFileSync(abs, depois);
+    }
+    console.log(`Caminhos com "@" renomeados: ${trocas.size} (o Cloudflare não os serve).`);
+  }
+}
 
 // Ícones e política de privacidade
 mkdirSync(join(dist, 'icons'), { recursive: true });

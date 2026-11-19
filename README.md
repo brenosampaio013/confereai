@@ -665,6 +665,13 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 
 ## Limitações e problemas conhecidos
 
+- **Caminhos com `@` não funcionam no Cloudflare.** O Workers Static Assets devolve o
+  `index.html` no lugar de um arquivo em pasta `@expo/` e entra em laço de redirecionamento com
+  nomes como `icone@2x.png`. Os arquivos sobem no deploy, mas não são servidos — e o aplicativo
+  publicado ficou **sem nenhum ícone** desde a primeira publicação, porque a fonte Ionicons mora
+  em `assets/node_modules/@expo/...`. O `scripts/build-web.mjs` renomeia esses 25 caminhos para
+  `_at_` depois do export e reescreve as referências nos arquivos gerados. Se um dia o Cloudflare
+  passar a servir `@`, a renomeação continua inofensiva.
 - **Testes em aparelho e com cupons reais pendentes** (ver acima). Layouts de cupom de algumas redes podem exigir ajustes no parser; linhas não reconhecidas aparecem na revisão para inclusão manual.
 - `expo-doctor`: 18/20 verificações passaram; as 2 restantes dependem da API do Expo, inacessível neste ambiente — rode `npx expo-doctor` na sua máquina.
 - Fotos de embalagem ficam só no aparelho (não sincronizam).
