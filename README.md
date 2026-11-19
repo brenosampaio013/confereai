@@ -514,20 +514,25 @@ Sign In / Providers → Anonymous sign-ins**.
 
 ### O que ainda falta
 
-1. **As duas variáveis no build do Cloudflare** — sem elas a versão no ar continua sem contas:
-   em **Workers & Pages → `confereai` → Settings → Build → Variables and Secrets**, acrescente
-   `EXPO_PUBLIC_SUPABASE_URL` com o endereço acima e `EXPO_PUBLIC_SUPABASE_ANON_KEY` com a chave
-   `anon` `public` (Supabase → Project Settings → API Keys). A chave `anon` é pública e fica
-   embutida no aplicativo; a proteção vem das políticas RLS. **Nunca** use a `service_role`.
-2. **Edge Functions** (`receipt-ocr`, `send-push`) ainda não foram publicadas — é o que falta
+1. **Edge Functions** (`receipt-ocr`, `send-push`) ainda não foram publicadas — é o que falta
    para a leitura por IA funcionar, junto com a chave do provedor (ver a seção seguinte).
-3. **Primeiro administrador** da moderação: `insert into public.app_admins (user_id) values
+2. **Primeiro administrador** da moderação: `insert into public.app_admins (user_id) values
    ('<id do usuário>');` depois de criar sua conta no aplicativo.
-4. **Supermercados** cadastrados e aprovados, para o marketplace de ofertas sair do zero.
+3. **Supermercados** cadastrados e aprovados, para o marketplace de ofertas sair do zero.
+
+### Onde ficam o endereço e a chave
+
+Em `src/lib/config.ts`, como padrão do próprio aplicativo (19/11/2026). Os dois valores são
+públicos por natureza — já viajam dentro do pacote que qualquer pessoa baixa, e quem protege os
+dados são as políticas RLS, nunca o sigilo da chave. Estavam só no painel de quem compila, e a
+compilação saía sem eles; no código, o aplicativo publica certo de qualquer lugar.
+
+As variáveis de ambiente continuam tendo prioridade, então apontar para outro projeto (um de
+testes, por exemplo) é só defini-las. A chave `service_role` **nunca** entra no aplicativo.
 
 ### Em desenvolvimento, no seu computador
 
-O arquivo `.env` (fora do Git) com as duas variáveis:
+Opcional, para usar outro projeto — um `.env` (fora do Git) com as duas variáveis:
 
 ```
 EXPO_PUBLIC_SUPABASE_URL=https://urfqgajoauryxmkbseet.supabase.co
