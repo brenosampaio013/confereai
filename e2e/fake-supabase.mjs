@@ -217,9 +217,42 @@ async function handleAuth(req, res, url, uid) {
     if (!u || u.password !== password) return send(res, 400, { error: 'invalid_grant', error_description: 'Invalid login credentials', msg: 'Invalid login credentials' });
     return send(res, 200, { access_token: tokenFor(u), token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: randomUUID(), user: userJson(u) });
   }
+  // Cadastro. Endereços terminados em @auto.local entram direto (projeto sem confirmação
+  // de e-mail); os demais voltam sem sessão, como um projeto que exige a confirmação.
+  if (url.pathname === '/auth/v1/signup') {
+    const { email, password, data } = JSON.parse((await readBody(req)).toString());
+    if (typeof password !== 'string' || password.length < 6) {
+      return send(res, 422, { code: 'weak_password', msg: 'Password should be at least 6 characters' });
+    }
+    const existing = USERS[email];
+    // O GoTrue não revela contas já cadastradas: devolve o usuário sem provedores.
+    if (existing) return send(res, 200, { ...userJson(existing), identities: [] });
+    const u = { id: randomUUID(), password, email, name: data?.full_name ?? null };
+    await db.query(`insert into auth.users (id, created_at) values ($1, now())`, [u.id]);
+    USERS[email] = u;
+    const body = { ...userJson(u), identities: [{ id: u.id, provider: 'email' }] };
+    if (email.endsWith('@auto.local')) {
+      return send(res, 200, { access_token: tokenFor(u), token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: randomUUID(), user: body });
+    }
+    return send(res, 200, body);
+  }
+  // Recuperação e reenvio: o GoTrue responde 200 sem dizer se a conta existe.
+  if (url.pathname === '/auth/v1/recover' || url.pathname === '/auth/v1/resend') {
+    await readBody(req);
+    return send(res, 200, {});
+  }
   if (url.pathname === '/auth/v1/user') {
     const u = Object.values(USERS).find((x) => x.id === uid);
-    return u ? send(res, 200, userJson(u)) : send(res, 401, { message: 'invalid token' });
+    if (!u) return send(res, 401, { message: 'invalid token' });
+    if (req.method === 'PUT') {
+      const { password } = JSON.parse((await readBody(req)).toString() || '{}');
+      if (typeof password === 'string') {
+        if (password === u.password) return send(res, 422, { code: 'same_password', msg: 'New password should be different from the old password.' });
+        u.password = password;
+      }
+      return send(res, 200, userJson(u));
+    }
+    return send(res, 200, userJson(u));
   }
   if (url.pathname === '/auth/v1/logout') return send(res, 204, undefined);
   return send(res, 404, { message: 'auth endpoint não suportado no teste' });

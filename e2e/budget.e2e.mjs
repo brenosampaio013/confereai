@@ -145,7 +145,8 @@ try {
     await click(page, 'Identificar produto e preço');
     await click(page, 'Concordo, ler a imagem');
     await page.getByText('Dados lidos da foto — confira antes de salvar').waitFor({ timeout: 30000 });
-    assert.equal(await page.getByLabel('Nome do produto', { exact: true }).inputValue(), 'Feijão Carioca (teste)');
+    // O app normaliza o nome lido para caixa de frase (productNameCase em src/lib/format.ts).
+    assert.equal(await page.getByLabel('Nome do produto', { exact: true }).inputValue(), 'Feijão carioca (teste)');
     assert.equal(await page.getByLabel('Marca (opcional)', { exact: true }).inputValue(), 'Marca Teste');
     assert.equal(await page.getByLabel('Peso ou volume da embalagem', { exact: true }).inputValue(), '1 kg');
     assert.equal(await page.getByLabel('Preço por unidade', { exact: true }).inputValue(), '9,99'); // preço normal; o promocional é uma opção
@@ -154,6 +155,7 @@ try {
     await click(page, 'Usar preço promocional');
     assert.equal(await page.getByLabel('Preço por unidade', { exact: true }).inputValue(), '8,49');
     // O usuário pode corrigir antes de salvar
+    await fill(page, 'Nome do produto', 'Feijão carioca (teste) revisado');
     await fill(page, 'Nome do produto', 'Feijão carioca (teste)');
     await click(page, 'Adicionar ao carrinho');
     await page.waitForTimeout(1200);

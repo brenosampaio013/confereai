@@ -19,15 +19,16 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 7. [Landing page (site de apresentação)](#landing-page-site-de-apresentação)
 8. [Publicar na Netlify](#publicar-na-netlify)
 9. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
-10. [Configurar o Supabase](#configurar-o-supabase)
-11. [Configurar o OCR / IA](#configurar-o-ocr--ia)
-12. [Testes](#testes)
-13. [Gerar versões (EAS)](#gerar-versões-eas)
-14. [Regras de negócio importantes](#regras-de-negócio-importantes)
-15. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
-16. [Privacidade e segurança](#privacidade-e-segurança)
-17. [Estado dos testes](#estado-dos-testes)
-18. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
+10. [Telas de conta](#telas-de-conta)
+11. [Configurar o Supabase](#configurar-o-supabase)
+12. [Configurar o OCR / IA](#configurar-o-ocr--ia)
+13. [Testes](#testes)
+14. [Gerar versões (EAS)](#gerar-versões-eas)
+15. [Regras de negócio importantes](#regras-de-negócio-importantes)
+16. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
+17. [Privacidade e segurança](#privacidade-e-segurança)
+18. [Estado dos testes](#estado-dos-testes)
+19. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
 
 ---
 
@@ -73,7 +74,8 @@ src/
     label.tsx          Leitura de etiqueta de preço
     receipt/           Captura (fotos, QR) e revisão do cupom
     report/[id].tsx    Resultado da conferência
-    purchase/, product/, auth.tsx, privacy.tsx
+    auth/              Telas de conta: entrar, criar conta, recuperar, confirmar, nova senha
+    purchase/, product/, privacy.tsx
   domain/              Regras de negócio puras (sem React, 100% testáveis)
     money.ts           Centavos, parse/format BRL, arredondamento inteiro
     units.ts           Unidade, peso/volume em milésimos, embalagens
@@ -85,6 +87,7 @@ src/
     labelParser.ts     Etiquetas de gôndola
     fiscal.ts          CNPJ, chave de acesso, QR Code NFC-e
     priceHistory.ts    Comparação com o último preço
+    auth.ts            E-mail, exigências e força da senha, mensagens do servidor em português
   data/                Persistência
     schema.ts          Migrações SQLite locais
     repository.ts      Leitura/escrita, exclusão lógica, histórico de edições, fila de sincronização
@@ -93,6 +96,8 @@ src/
   services/            Integrações (Supabase, OCR, Open Food Facts, rede, conferência)
   state/               Contexto do app (compra ativa, sessão, sincronização)
   ui/                  Tema, logotipo e componentes reutilizáveis
+    soft.tsx           Peças em relevo das telas de conta (campo, botão, caixa, aviso)
+    account.tsx        Moldura, cabeçalho e medidor de senha das telas de conta
   lib/                 Utilitários (ids, formatação, arquivos, permissões)
 supabase/
   migrations/          Esquema Postgres + RLS
@@ -424,6 +429,52 @@ A migração `supabase/migrations/20261111120000_budget_prices.sql` precisa ser 
 
 Limites desta parte: a leitura por IA pode errar e depende de internet e do provedor configurado (com Google Vision só o texto da etiqueta é interpretado; nome e marca ficam para digitar); os preços da comunidade não são verificados; a base compartilhada só recebe preços de unidades cadastradas e aprovadas no marketplace; os percentuais de alerta ficam guardados no aparelho (não sincronizam).
 
+## Telas de conta
+
+Cinco telas, todas sob `/auth`, com a mesma moldura em relevo (soft UI):
+
+| Rota | Tela | O que faz |
+| --- | --- | --- |
+| `/auth` | Entrar | `signInWithPassword`, com "manter conectado" |
+| `/auth/criar-conta` | Criar conta | `signUp` com nome, medidor de senha e aceite da política |
+| `/auth/recuperar` | Recuperar senha | `resetPasswordForEmail`, sem revelar se a conta existe |
+| `/auth/confirmar` | Confirmação | instrui a confirmar o e-mail e reenvia o link (espera de 60 s) |
+| `/auth/nova-senha` | Nova senha | destino do link de recuperação; grava a senha com `updateUser` |
+
+**Onde estão as peças.** `src/ui/soft.tsx` tem o campo afundado, o botão com degradê, a caixa de
+seleção e o aviso; `src/ui/account.tsx` tem a moldura, o cabeçalho e o medidor de força;
+`src/domain/auth.ts` tem as regras puras (e-mail, exigências da senha, tradução das mensagens do
+servidor) e `src/services/auth.ts` conversa com o Supabase. O relevo é feito com `boxShadow`
+(suportado pelo React Native 0.88 e pelo react-native-web) e os degradês com `react-native-svg` —
+nenhuma biblioteca nova foi instalada.
+
+**"Manter conectado" é de verdade.** Marcado, a sessão vai para o Keychain/Keystore (celular) ou
+para o `localStorage` (web) e sobrevive a fechar o aplicativo. Desmarcado, ela fica só na memória
+do processo (celular) ou na aba (`sessionStorage`, web) e termina quando o aplicativo fecha. A
+troca está em `src/services/secureStorage.ts` e é verificada no teste de ponta a ponta.
+
+**A senha nunca passa pelo aplicativo.** Quem recebe, confere e guarda (em hash) é o serviço de
+autenticação do Supabase. O banco local não tem campo de senha.
+
+**O que falta configurar no Supabase** para os e-mails funcionarem (ver a seção seguinte):
+
+- **Site URL**: `https://app.meucarrin.com`
+- **Redirect URLs**: `https://app.meucarrin.com/**` e `meucarrin://**` (o esquema do aplicativo)
+- Confirmação de e-mail ligada ou desligada — as duas situações estão tratadas: com confirmação,
+  o cadastro leva à tela de confirmar; sem ela, entra direto.
+
+**O que NÃO existe nestas telas, de propósito:**
+
+- **Entrar com Google/Facebook.** Não há provedor social configurado no Supabase; um botão desses
+  seria desenho sem função. O espaço ficou com "Continuar sem conta", que é verdade — o aplicativo
+  funciona inteiro sem conta.
+- **Termos de uso.** O projeto tem política de privacidade (`/privacy`), e é ela que o aceite do
+  cadastro cita e abre. Quando houver um texto de termos, ele entra na mesma frase.
+
+Acessibilidade conferida no app web real: contraste WCAG 2.1 AA em todos os pares de cor, alvos
+de toque de 44 px, foco visível pelo teclado, ordem de foco previsível, erros anunciados
+(`role="alert"`) e nenhuma rolagem horizontal com zoom de 200%.
+
 ## Configurar o Supabase
 
 1. Crie um projeto em <https://supabase.com>.
@@ -558,6 +609,9 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Orçamento, preços e gastos — Jest** | 30 testes novos (112 no total), todos passando: faixas exatas de 75/85/100%, limites configuráveis, alerta só ao subir de faixa, carrinho com quantidade/peso/desconto, resumo mensal, série por mês, gasto por supermercado, economia, comparação de compras, preço antigo fora da comparação, normalização da leitura por foto, persistência do orçamento, migração do banco local da versão anterior. |
 | **Orçamento, preços e gastos — banco** | 12 testes novos (55 no total), todos passando: isolamento das compras/orçamento entre usuários, restrições, base compartilhada acessível só por funções, sem identificação de quem informou, idempotência, limite diário, dados inválidos, unidade não aprovada, preço antigo, exclusão de conta, contrato app × banco. |
 | **Orçamento, preços e gastos — ponta a ponta** | 11 passos novos em `npm run test:e2e` (22 no total), todos passando: orçamento ao iniciar, saldo a cada item, avisos em 80%, 100% e 120%, sem aviso ao diminuir, unidade cadastrada, foto → formulário de conferência, Minhas compras, resumo, envio à base da comunidade, isolamento entre contas. **A leitura por IA é simulada** pelo servidor de teste (resposta fixa no formato da função real). |
+| **Telas de conta — Jest** | 9 testes novos (124 no total), todos passando: validação de e-mail, exigências da senha, força (comprimento × variedade, plural do aviso) e tradução das mensagens do servidor, inclusive o tempo de espera informado pelo próprio servidor e a recusa em inventar tradução para mensagem desconhecida. |
+| **Telas de conta — ponta a ponta** | 10 passos novos em `npm run test:e2e` (32 no total), todos passando: senha errada com recado em português, e-mail inválido barrado antes de chamar o servidor, "manter conectado" guardando a sessão no armazenamento duradouro, sem ele a sessão ficando só na aba, cadastro levando à confirmação e gravando o usuário, senhas diferentes e aceite faltando, e-mail já cadastrado, cadastro sem confirmação entrando direto, recuperação sem revelar se a conta existe, mostrar/ocultar senha. |
+| **Telas de conta — acessibilidade (navegador)** | Conferido no app web real: 19 pares de cor em WCAG 2.1 AA (o menor é 3,33:1 em elemento não textual, mínimo 3), 7 alvos de toque com 44 px ou mais, foco visível (borda azul) e ordem de foco previsível, erros anunciados por `role="alert"`, nenhum elemento interativo sem nome e nenhuma rolagem horizontal com zoom de 200%. **Não testado:** leitor de tela real (VoiceOver/NVDA/TalkBack). |
 | **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada (a parte nova de leitura de produto por foto segue o mesmo padrão de chamada, mas não foi verificada nem executada) contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
 | **Landing page (navegador + runtime do Cloudflare)** | `npm run check:site`: imagens, links, âncoras, um `h1`, textos alternativos, idioma, Open Graph, dados estruturados, marcadores do build e rolagem lateral em 360 px — tudo passando. Com `wrangler dev` (workerd): cabeçalhos de segurança, `/termos` e `/privacidade` sem redirecionamento, 404 com status 404, cache dos arquivos e `_headers` não exposto. Sem erros de console no Chromium. **Não testado:** deploy real, domínio próprio e Safari do iPhone. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
@@ -569,7 +623,7 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 - `expo-doctor`: 18/20 verificações passaram; as 2 restantes dependem da API do Expo, inacessível neste ambiente — rode `npx expo-doctor` na sua máquina.
 - Fotos de embalagem ficam só no aparelho (não sincronizam).
 - Se o mesmo código de barras for cadastrado offline em dois aparelhos, a sincronização mantém os dois cadastros (o segundo sem o código) para não quebrar referências.
-- O link de recuperação de senha abre a página configurada no Supabase; não há tela de “nova senha” dentro do app.
+- O link de recuperação de senha volta para `/auth/nova-senha` dentro do app (na web pela sessão que vem no endereço; no celular pelo esquema `meucarrin://`). Isso exige que o **Site URL** e as **Redirect URLs** estejam configurados no Supabase — sem isso o link não volta para o aplicativo.
 - Linhas canceladas no cupom (“ITEM 002 CANCELADO”) são desconsideradas com aviso; formatos de cancelamento muito diferentes podem não ser reconhecidos.
 - A tolerância de peso para produtos pesados é de 5% antes de gerar alerta amarelo.
 - Na web, confirmações nativas (`Alert`) não aparecem; a web não é um alvo de publicação, é usada apenas para testes visuais.

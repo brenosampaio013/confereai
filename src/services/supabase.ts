@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { config, isCloudConfigured } from '@/lib/config';
 import { secureSessionStorage } from './secureStorage';
 
@@ -14,7 +14,10 @@ export function getSupabase(): SupabaseClient | null {
         storage: secureSessionStorage,
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false,
+        // Na web, o link de recuperação de senha volta para o app com a sessão na URL;
+        // é assim que /auth/nova-senha consegue gravar a nova senha. No celular o fluxo
+        // chega por deep link e o Supabase não precisa ler a URL.
+        detectSessionInUrl: Platform.OS === 'web',
       },
     });
     AppState.addEventListener('change', (state) => {

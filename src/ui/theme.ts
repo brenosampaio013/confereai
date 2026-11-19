@@ -63,3 +63,48 @@ export const shadow = Platform.select({
   android: { elevation: 1.5 },
   default: { shadowColor: '#0E2A47', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
 });
+
+/* ------------------------------------------------------------------ */
+/* Superfícies em relevo (telas de conta)                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Paleta das telas de conta: azul muito claro, relevo macio e um único degradê de ação.
+ * A luz vem sempre de cima à esquerda — o que é tocável sobressai, o que recebe texto afunda.
+ */
+export const soft = {
+  bg: '#E4EAF5',
+  bgDeep: '#D4DEF0',
+  plate: '#EDF1F9',
+  sunken: '#E7ECF7',
+  light: '#FFFFFF',
+  dark: 'rgba(129, 147, 182, 0.50)',
+  darkStrong: 'rgba(110, 130, 170, 0.60)',
+  gradientFrom: '#2E6BF2',
+  gradientTo: '#133A6B',
+  /** Azul de ligações, foco e caixa marcada: escurecido para passar em 4,5:1 sobre o fundo. */
+  ring: '#2458D4',
+  placeholder: '#5C6880',
+  /** Âmbar escurecido para a marca do meio do medidor de senha (3:1 sobre o fundo). */
+  meterMid: '#AE7400',
+} as const;
+
+type Shadow = { offsetX: number; offsetY: number; blurRadius: number; color: string; inset?: boolean };
+
+/** Relevo: branco em cima à esquerda, azul-acinzentado embaixo à direita. */
+export const raised = (level: 1 | 2 | 3 = 2): Shadow[] => {
+  const d = { 1: 3, 2: 6, 3: 10 }[level];
+  return [
+    { offsetX: -d, offsetY: -d, blurRadius: d * 2.2, color: soft.light },
+    { offsetX: d, offsetY: d * 1.2, blurRadius: d * 2.6, color: soft.dark },
+  ];
+};
+
+/** Afundado: o mesmo par de luzes invertido, para campos e trilhos. */
+export const sunken = (level: 1 | 2 = 2): Shadow[] => {
+  const d = level === 1 ? 2 : 3;
+  return [
+    { offsetX: d, offsetY: d, blurRadius: d * 2.4, color: soft.darkStrong, inset: true },
+    { offsetX: -d, offsetY: -d, blurRadius: d * 2.4, color: soft.light, inset: true },
+  ];
+};
