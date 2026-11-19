@@ -17,8 +17,8 @@ const SUPABASE_URL = 'https://urfqgajoauryxmkbseet.supabase.co';
 const SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZnFnYWpvYXVyeXhta2JzZWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDIyNjMsImV4cCI6MjExMDY3ODI2M30.LGLXovbKtCQ3__cRKXqH-wcJ8jgDeksH5qIFbXj3KJs';
 
-/** Um endereço de servidor, e não uma chave: http(s) e sem espaços nem aspas. */
-const pareceEndereco = (v: string) => /^https?:\/\/[^\s"']+$/.test(v);
+/** Um endereço de servidor, e não uma chave: http(s) e sem espaços nem aspas. Exportado para teste. */
+export const pareceEndereco = (v: string) => /^https?:\/\/[^\s"']+$/.test(v);
 
 /**
  * Aceita o valor vindo do ambiente só quando ele tem a cara certa. Trocar o endereço pela chave
@@ -26,7 +26,7 @@ const pareceEndereco = (v: string) => /^https?:\/\/[^\s"']+$/.test(v);
  * aplicativo inteiro: sem endereço válido o cliente nem é criado, e nada abre. Agora o engano é
  * ignorado e o aplicativo publica com o padrão correto, avisando no console de quem compilou.
  */
-function doAmbiente(valor: string | undefined, ehValido: (v: string) => boolean, padrao: string, nome: string) {
+export function doAmbiente(valor: string | undefined, ehValido: (v: string) => boolean, padrao: string, nome: string) {
   const v = (valor ?? '').trim();
   if (!v) return padrao;
   if (ehValido(v)) return v;
