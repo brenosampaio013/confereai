@@ -3,12 +3,16 @@ project_id = "meu-carrin"
 
 [auth]
 enable_signup = true
-# Permite usar a leitura automática sem criar conta (sessão anônima apenas para o OCR).
-enable_anonymous_sign_ins = true
+# Desligado no projeto em 19/11/2026, por decisão do dono: quem quiser usar a leitura
+# automática precisa entrar na conta. O app já avisa isso quando a sessão anônima falta.
+enable_anonymous_sign_ins = false
 minimum_password_length = 8
 
 [auth.email]
-enable_confirmations = true
+# Desligada enquanto o envio de e-mail for o embutido do Supabase, que é limitado a poucas
+# mensagens por hora e não serve para produção: com ela ligada, a maioria dos cadastros não
+# receberia o link. Religar junto com um SMTP próprio (ver README, "Telas de conta").
+enable_confirmations = false
 
 [functions.receipt-ocr]
 # A função exige um JWT válido do Supabase (usuário com conta ou sessão anônima).

@@ -477,32 +477,72 @@ de toque de 44 px, foco visível pelo teclado, ordem de foco previsível, erros 
 
 ## Configurar o Supabase
 
-1. Crie um projeto em <https://supabase.com>.
-2. Aplique as migrações de `supabase/migrations/` (as três, em ordem). Pelo CLI:
+**O projeto existe e está configurado** (19/11/2026): `meucarrin`, região São Paulo
+(`sa-east-1`), PostgreSQL 17.12. Endereço: `https://urfqgajoauryxmkbseet.supabase.co`.
 
-```bash
-npx supabase login
+O que já foi aplicado e conferido:
+
+| Item | Estado |
+| --- | --- |
+| Migrações | as 4, em ordem — 30 tabelas, 60 políticas RLS, 58 funções, 25 gatilhos |
+| RLS | ligado nas 30 tabelas, sem exceção |
+| Bucket de fotos | `promotion-images`, privado, 5 MB por arquivo, só JPEG/PNG/WebP |
+| Tarefas periódicas | `pg_cron` ativo com os 4 agendamentos (expirar ofertas, limpar rascunhos, apagar ofertas antigas e relatos de preço) |
+| Site URL | `https://app.meucarrin.com` |
+| Redirect URLs | `https://app.meucarrin.com/**`, `meucarrin://**`, `http://localhost:8081/**` |
+| Tamanho mínimo da senha | 8, igual à regra do aplicativo |
+| Confirmação de e-mail | **desligada** (ver abaixo) |
+| Login anônimo | **desligado** (ver abaixo) |
+
+Conferido contra o servidor real, com uma conta de teste criada e apagada em seguida:
+cadastro devolvendo sessão, gatilho criando o perfil, cadastro repetido recusado, login certo
+e errado, senha curta recusada, RLS negando leitura sem sessão e devolvendo apenas os dados da
+própria conta, e login anônimo recusado.
+
+### Duas decisões tomadas, e o que elas custam
+
+**Confirmação de e-mail desligada.** O envio embutido do Supabase é limitado a poucas mensagens
+por hora e a própria Supabase diz que não serve para produção: com a confirmação ligada, a maior
+parte dos cadastros não receberia o link. Enquanto estiver assim, alguém pode se cadastrar com um
+e-mail que não é dele. Para religar: configure um SMTP próprio (Resend ou Brevo têm plano
+gratuito) em **Authentication → Emails → SMTP Settings** e desligue `mailer_autoconfirm`. O
+aplicativo já trata os dois casos — com confirmação, o cadastro leva à tela de confirmar.
+
+**Login anônimo desligado.** A leitura automática de cupom e etiqueta passa a exigir conta. O
+aplicativo avisa isso na hora, em vez de falhar sem explicação. Para ligar: **Authentication →
+Sign In / Providers → Anonymous sign-ins**.
+
+### O que ainda falta
+
+1. **As duas variáveis no build do Cloudflare** — sem elas a versão no ar continua sem contas:
+   em **Workers & Pages → `confereai` → Settings → Build → Variables and Secrets**, acrescente
+   `EXPO_PUBLIC_SUPABASE_URL` com o endereço acima e `EXPO_PUBLIC_SUPABASE_ANON_KEY` com a chave
+   `anon` `public` (Supabase → Project Settings → API Keys). A chave `anon` é pública e fica
+   embutida no aplicativo; a proteção vem das políticas RLS. **Nunca** use a `service_role`.
+2. **Edge Functions** (`receipt-ocr`, `send-push`) ainda não foram publicadas — é o que falta
+   para a leitura por IA funcionar, junto com a chave do provedor (ver a seção seguinte).
+3. **Primeiro administrador** da moderação: `insert into public.app_admins (user_id) values
+   ('<id do usuário>');` depois de criar sua conta no aplicativo.
+4. **Supermercados** cadastrados e aprovados, para o marketplace de ofertas sair do zero.
+
+### Em desenvolvimento, no seu computador
+
+O arquivo `.env` (fora do Git) com as duas variáveis:
+
+```
+EXPO_PUBLIC_SUPABASE_URL=https://urfqgajoauryxmkbseet.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<chave anon public>
 ```
 
+Para aplicar migrações novas pelo CLI:
+
 ```bash
-npx supabase link --project-ref SEU_PROJECT_REF
+npx supabase link --project-ref urfqgajoauryxmkbseet
 ```
 
 ```bash
 npx supabase db push
 ```
-
-   (ou cole o SQL no *SQL Editor* do painel).
-3. Em **Authentication → Providers → Email**, mantenha e-mail/senha habilitado. Para usar o OCR sem conta, habilite **Anonymous sign-ins** (Authentication → Sign In / Providers). Se ficar desabilitado, o OCR exige login.
-4. Em **Authentication → URL Configuration**, defina a URL para onde o link de recuperação de senha leva (por exemplo, uma página web sua). O app envia o e-mail de recuperação; a troca da senha acontece nessa página.
-5. Copie *Project URL* e *anon public key* (Settings → API) para o `.env`:
-
-```
-EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-```
-
-A chave `anon` é pública; a proteção dos dados vem das políticas RLS. **Nunca** coloque a chave `service_role` no app.
 
 ## Configurar o OCR / IA
 
@@ -612,6 +652,7 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Telas de conta — Jest** | 9 testes novos (124 no total), todos passando: validação de e-mail, exigências da senha, força (comprimento × variedade, plural do aviso) e tradução das mensagens do servidor, inclusive o tempo de espera informado pelo próprio servidor e a recusa em inventar tradução para mensagem desconhecida. |
 | **Telas de conta — ponta a ponta** | 10 passos novos em `npm run test:e2e` (32 no total), todos passando: senha errada com recado em português, e-mail inválido barrado antes de chamar o servidor, "manter conectado" guardando a sessão no armazenamento duradouro, sem ele a sessão ficando só na aba, cadastro levando à confirmação e gravando o usuário, senhas diferentes e aceite faltando, e-mail já cadastrado, cadastro sem confirmação entrando direto, recuperação sem revelar se a conta existe, mostrar/ocultar senha. |
 | **Telas de conta — acessibilidade (navegador)** | Conferido no app web real: 19 pares de cor em WCAG 2.1 AA (o menor é 3,33:1 em elemento não textual, mínimo 3), 7 alvos de toque com 44 px ou mais, foco visível (borda azul) e ordem de foco previsível, erros anunciados por `role="alert"`, nenhum elemento interativo sem nome e nenhuma rolagem horizontal com zoom de 200%. **Não testado:** leitor de tela real (VoiceOver/NVDA/TalkBack). |
+| **Supabase real (projeto `meucarrin`)** | 10 verificações contra o servidor de produção, todas passando, com uma conta de teste criada e apagada em seguida: cadastro devolvendo sessão, gatilho criando o perfil, cadastro repetido recusado (HTTP 422), login certo, login com senha errada recusado, senha curta recusada, RLS negando leitura sem sessão (42501) e devolvendo apenas os dados da própria conta, login anônimo recusado (`anonymous_provider_disabled`) e a conta de teste removida. Migrações conferidas por contagem: 30 tabelas, 30 com RLS, 60 políticas, 58 funções, 25 gatilhos, 1 bucket e 4 tarefas no `pg_cron`. |
 | **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada (a parte nova de leitura de produto por foto segue o mesmo padrão de chamada, mas não foi verificada nem executada) contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
 | **Landing page (navegador + runtime do Cloudflare)** | `npm run check:site`: imagens, links, âncoras, um `h1`, textos alternativos, idioma, Open Graph, dados estruturados, marcadores do build e rolagem lateral em 360 px — tudo passando. Com `wrangler dev` (workerd): cabeçalhos de segurança, `/termos` e `/privacidade` sem redirecionamento, 404 com status 404, cache dos arquivos e `_headers` não exposto. Sem erros de console no Chromium. **Não testado:** deploy real, domínio próprio e Safari do iPhone. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
