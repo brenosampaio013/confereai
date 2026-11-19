@@ -188,7 +188,12 @@ Depois do primeiro deploy, em **Settings → Build → Variables and Secrets**, 
 - `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` — necessárias para o marketplace, a conta e a leitura de imagens. Sem elas o app funciona só no aparelho.
 - `EXPO_PUBLIC_WEB_URL` — endereço final do site (ex.: `https://confereai.<sua-conta>.workers.dev` ou um domínio próprio), usado nos links de ofertas compartilhadas.
 
-Elas são usadas **durante o build**, então precisam estar nas variáveis de build, não nas de runtime. Cada push no `master` publica uma versão nova. No celular, abra o endereço no Chrome e use **Instalar app**.
+Elas são usadas **durante o build**, então precisam estar nas variáveis de build, não nas de runtime. Cada push no `master` publica uma versão nova.
+
+> **Estado em 19/11/2026:** o Worker `confereai` está ligado ao repositório e publica a
+> cada push no `master`, nos endereços `app.meucarrin.com` e `confereai.<conta>.workers.dev`.
+> Antes disso a versão no ar era a compilada em 14/11 às 13:36 — anterior ao commit que
+> renomeou o aplicativo para Meu Carrin (15:27 do mesmo dia) — e os clientes viam o nome antigo. No celular, abra o endereço no Chrome e use **Instalar app**.
 
 Erros já encontrados no painel e o que significam:
 
