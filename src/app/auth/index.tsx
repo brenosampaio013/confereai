@@ -10,10 +10,14 @@ import { AccountHeader, AccountScreen, CloudOff, SwapLine } from '@/ui/account';
 import { GradientButton, Plate, SoftCheck, SoftField, SoftLink, SoftNote } from '@/ui/soft';
 import { colors, space, type } from '@/ui/theme';
 
-/** Volta para onde a pessoa estava; aberta direto pelo endereço, vai para o Perfil. */
+/**
+ * Volta para onde a pessoa estava. Quem abre esta tela direto pelo endereço — pelo botão
+ * "Abrir o app" da landing, por exemplo — não tem para onde voltar: vai para a tela inicial,
+ * que é onde uma compra começa.
+ */
 function leave() {
   if (router.canGoBack()) router.back();
-  else router.replace('/profile');
+  else router.replace('/');
 }
 
 export default function Entrar() {
