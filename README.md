@@ -258,6 +258,15 @@ npm run build:site && npm run check:site
 
 ### Publicar
 
+> **Estado em 21/11/2026:** o Worker `confereai` (aplicativo) publica sozinho a cada push no
+> `master` e já acumula 14 versões por compilação. O Worker `meucarrin` (landing) aparece ligado
+> ao repositório no painel, mas **nenhuma compilação sai dele**: as duas versões no ar foram
+> enviadas à mão. Enquanto isso não for resolvido, toda mudança na landing precisa de envio
+> manual do `site-dist`. Os comandos da landing são diferentes dos do aplicativo — o deploy
+> **precisa** do `-c wrangler.site.jsonc`, senão o `wrangler` lê o `wrangler.jsonc`, cujo `name`
+> é `confereai`, e publica o aplicativo por cima da landing.
+
+
 No painel do Cloudflare, **Create → Workers → Import a repository**, escolhendo o mesmo
 repositório e preenchendo:
 
@@ -665,6 +674,10 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 
 ## Limitações e problemas conhecidos
 
+- **A CSP da landing bloqueava o próprio rastreador do Cloudflare.** O Web Analytics injeta
+  `beacon.min.js` na resposta da página, e a política recusava: o site esteve no ar desde 15/11
+  sem registrar uma única visita. Desde 21/11 o `scripts/build-site.mjs` libera
+  `static.cloudflareinsights.com` no `script-src` e `cloudflareinsights.com` no `connect-src`.
 - **Caminhos com `@` não funcionam no Cloudflare.** O Workers Static Assets devolve o
   `index.html` no lugar de um arquivo em pasta `@expo/` e entra em laço de redirecionamento com
   nomes como `icone@2x.png`. Os arquivos sobem no deploy, mas não são servidos — e o aplicativo
