@@ -117,13 +117,20 @@ await pagina.screenshot({ path: join(saida, 'assets', 'compartilhar.png') });
 await navegador.close();
 
 // ---- Cabeçalhos (Cloudflare e Netlify leem este arquivo)
-const conecta = COM_LISTA ? `'self' ${new URL(SUPABASE_URL).origin}` : "'self'";
+// O Cloudflare Web Analytics injeta o próprio script na resposta da página. Sem estas duas
+// origens na CSP o navegador o recusa e o site não registra visita nenhuma: o script vem de
+// static.cloudflareinsights.com e a medição é enviada para cloudflareinsights.com.
+const RASTREADOR_ORIGEM = 'https://static.cloudflareinsights.com';
+const RASTREADOR_DESTINO = 'https://cloudflareinsights.com';
+const conecta = ["'self'", COM_LISTA ? new URL(SUPABASE_URL).origin : null, RASTREADOR_DESTINO]
+  .filter(Boolean)
+  .join(' ');
 writeFileSync(join(saida, '_headers'), `/*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), geolocation=(), microphone=(), interest-cohort=()
-  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src ${conecta}; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' ${RASTREADOR_ORIGEM}; font-src 'self'; connect-src ${conecta}; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
 
 /
   Cache-Control: no-cache
