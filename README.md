@@ -260,10 +260,13 @@ npm run build:site && npm run check:site
 
 > **Estado em 21/11/2026:** os dois Workers publicam a cada push no `master`. A landing demorou
 > a funcionar por um motivo que vale registrar: o contêiner de compilação do Cloudflare **não tem
-> ffmpeg**, e o `build:site` o usava para converter as capturas em WebP. O build falhava com
-> `spawnSync ffmpeg ENOENT` antes de gerar qualquer coisa, e como build que falha não cria versão,
-> de fora parecia que nenhuma compilação era disparada. Agora as conversões ficam versionadas em
-> `site/assets/telas/_webp` e o ffmpeg só é chamado quando falta alguma.
+> ffmpeg nem o playwright**, e o `build:site` usava os dois: ffmpeg para converter as capturas em
+> WebP e o Chromium para desenhar a imagem de compartilhamento. O build falhava antes de gerar
+> qualquer coisa, e como build que falha não cria versão, de fora parecia que nenhuma compilação
+> era disparada. Agora os dois resultados ficam versionados — as conversões em
+> `site/assets/telas/_webp` e a capa em `site/assets/_gerados` — e as ferramentas só são chamadas
+> onde existem. Regra geral para esse script: **nada que o contêiner de compilação não tenha pode
+> ser obrigatório**; o artefato vai versionado e a ferramenta vira opcional.
 >
 > Os comandos da landing são diferentes dos do aplicativo — o deploy **precisa** do
 > `-c wrangler.site.jsonc`, senão o `wrangler` lê o `wrangler.jsonc`, cujo `name` é `confereai`,

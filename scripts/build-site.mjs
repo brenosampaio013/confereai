@@ -123,34 +123,56 @@ writeFileSync(join(saida, 'pagina.js'), js);
 copyFileSync(join(root, 'docs', 'privacidade.html'), join(saida, 'privacidade.html'));
 
 // ---- Imagem de compartilhamento (WhatsApp, redes sociais)
-const { chromium } = createRequire(import.meta.url)('playwright');
-const simbolo = readFileSync(join(origem, 'assets', 'marca', 'simbolo.svg'), 'utf8');
-const telaInicio = readFileSync(join(telas, 'inicio.png')).toString('base64');
-const fonte = readFileSync(join(origem, 'assets', 'fontes', 'archivo.woff2')).toString('base64');
-const navegador = await chromium.launch();
-const pagina = await navegador.newPage({ viewport: { width: 1200, height: 630 } });
-await pagina.setContent(`<html><head><meta charset="utf-8"><style>
-  @font-face { font-family: Archivo; src: url(data:font/woff2;base64,${fonte}) format('woff2-variations'); font-weight: 400 800; }
-  html,body { margin:0; width:1200px; height:630px; overflow:hidden; }
-  .capa { width:1200px; height:630px; background:#0E2A47; display:flex; align-items:center; gap:56px; padding:0 72px; box-sizing:border-box;
-          font-family:Archivo, Arial, sans-serif; color:#fff; position:relative; }
-  .capa::after { content:''; position:absolute; inset:auto -200px -320px auto; width:620px; height:620px; border-radius:50%;
-                 background:radial-gradient(circle, rgba(17,145,90,.30), transparent 68%); }
-  .marca { display:flex; align-items:center; gap:14px; font-size:30px; font-weight:800; letter-spacing:-1px; }
-  .marca span { color:#2FB87A; }
-  h1 { font-size:62px; line-height:1.03; letter-spacing:-2.6px; margin:26px 0 0; max-width:12em; font-weight:800; }
-  p { font-size:27px; color:#AFC3D8; margin:22px 0 0; max-width:17em; }
-  .fone { flex:none; width:286px; border-radius:30px; padding:9px; background:#13365A; box-shadow:0 30px 60px -20px rgba(0,0,0,.6); position:relative; z-index:2; }
-  .fone img { width:100%; border-radius:22px; display:block; }
-</style></head><body><div class="capa">
-  <div><div class="marca">${simbolo.replace('width="64" height="64"', 'width="46" height="46"')} Meu <span>Carrin</span></div>
-    <h1>Saiba quanto já deu antes de chegar no caixa.</h1>
-    <p>Grátis · sem cartão · funciona sem internet</p></div>
-  <div class="fone"><img src="data:image/png;base64,${telaInicio}" alt=""></div>
-</div></body></html>`);
-await pagina.waitForTimeout(350);
-await pagina.screenshot({ path: join(saida, 'assets', 'compartilhar.png') });
-await navegador.close();
+//
+// Desenhada com o Chromium do Playwright, que existe na máquina de quem desenvolve mas não no
+// contêiner de compilação do Cloudflare — o playwright nem é dependência do projeto. Mesma
+// solução das capturas: o arquivo pronto fica versionado em site/assets/_gerados (a pasta
+// começa com "_" e não é copiada para o site) e só é redesenhado onde há navegador.
+const geradas = join(origem, 'assets', '_gerados');
+mkdirSync(geradas, { recursive: true });
+const capaGuardada = join(geradas, 'compartilhar.png');
+const chromium = (() => {
+  try {
+    return createRequire(import.meta.url)('playwright').chromium;
+  } catch {
+    return null;
+  }
+})();
+if (chromium) {
+  const simbolo = readFileSync(join(origem, 'assets', 'marca', 'simbolo.svg'), 'utf8');
+  const telaInicio = readFileSync(join(telas, 'inicio.png')).toString('base64');
+  const fonte = readFileSync(join(origem, 'assets', 'fontes', 'archivo.woff2')).toString('base64');
+  const navegador = await chromium.launch();
+  const pagina = await navegador.newPage({ viewport: { width: 1200, height: 630 } });
+  await pagina.setContent(`<html><head><meta charset="utf-8"><style>
+    @font-face { font-family: Archivo; src: url(data:font/woff2;base64,${fonte}) format('woff2-variations'); font-weight: 400 800; }
+    html,body { margin:0; width:1200px; height:630px; overflow:hidden; }
+    .capa { width:1200px; height:630px; background:#0E2A47; display:flex; align-items:center; gap:56px; padding:0 72px; box-sizing:border-box;
+            font-family:Archivo, Arial, sans-serif; color:#fff; position:relative; }
+    .capa::after { content:''; position:absolute; inset:auto -200px -320px auto; width:620px; height:620px; border-radius:50%;
+                   background:radial-gradient(circle, rgba(17,145,90,.30), transparent 68%); }
+    .marca { display:flex; align-items:center; gap:14px; font-size:30px; font-weight:800; letter-spacing:-1px; }
+    .marca span { color:#2FB87A; }
+    h1 { font-size:62px; line-height:1.03; letter-spacing:-2.6px; margin:26px 0 0; max-width:12em; font-weight:800; }
+    p { font-size:27px; color:#AFC3D8; margin:22px 0 0; max-width:17em; }
+    .fone { flex:none; width:286px; border-radius:30px; padding:9px; background:#13365A; box-shadow:0 30px 60px -20px rgba(0,0,0,.6); position:relative; z-index:2; }
+    .fone img { width:100%; border-radius:22px; display:block; }
+  </style></head><body><div class="capa">
+    <div><div class="marca">${simbolo.replace('width="64" height="64"', 'width="46" height="46"')} Meu <span>Carrin</span></div>
+      <h1>Saiba quanto já deu antes de chegar no caixa.</h1>
+      <p>Grátis · sem cartão · funciona sem internet</p></div>
+    <div class="fone"><img src="data:image/png;base64,${telaInicio}" alt=""></div>
+  </div></body></html>`);
+  await pagina.waitForTimeout(350);
+  await pagina.screenshot({ path: capaGuardada });
+  await navegador.close();
+} else if (!existsSync(capaGuardada)) {
+  throw new Error(
+    'Falta a imagem de compartilhamento e não há navegador aqui para desenhá-la.\n' +
+      'Rode "npm run build:site" numa máquina com o playwright e publique site/assets/_gerados.',
+  );
+}
+copyFileSync(capaGuardada, join(saida, 'assets', 'compartilhar.png'));
 
 // ---- Cabeçalhos (Cloudflare e Netlify leem este arquivo)
 // O Cloudflare Web Analytics injeta o próprio script na resposta da página. Sem estas duas
