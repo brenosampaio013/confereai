@@ -59,6 +59,9 @@ google-play-service-account.json
 
 # Arquivos de trabalho das capturas (regerados por scripts/capture-screens.mjs)
 site/assets/telas/_*
+# Exceção: as conversões em WebP são versionadas de propósito. O contêiner de compilação do
+# Cloudflare não tem ffmpeg, e sem elas o build da landing falha e o site nunca é publicado.
+!site/assets/telas/_webp/
 
 # Landing page gerada (npm run build:site)
 site-dist/

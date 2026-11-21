@@ -258,13 +258,16 @@ npm run build:site && npm run check:site
 
 ### Publicar
 
-> **Estado em 21/11/2026:** o Worker `confereai` (aplicativo) publica sozinho a cada push no
-> `master` e já acumula 14 versões por compilação. O Worker `meucarrin` (landing) aparece ligado
-> ao repositório no painel, mas **nenhuma compilação sai dele**: as duas versões no ar foram
-> enviadas à mão. Enquanto isso não for resolvido, toda mudança na landing precisa de envio
-> manual do `site-dist`. Os comandos da landing são diferentes dos do aplicativo — o deploy
-> **precisa** do `-c wrangler.site.jsonc`, senão o `wrangler` lê o `wrangler.jsonc`, cujo `name`
-> é `confereai`, e publica o aplicativo por cima da landing.
+> **Estado em 21/11/2026:** os dois Workers publicam a cada push no `master`. A landing demorou
+> a funcionar por um motivo que vale registrar: o contêiner de compilação do Cloudflare **não tem
+> ffmpeg**, e o `build:site` o usava para converter as capturas em WebP. O build falhava com
+> `spawnSync ffmpeg ENOENT` antes de gerar qualquer coisa, e como build que falha não cria versão,
+> de fora parecia que nenhuma compilação era disparada. Agora as conversões ficam versionadas em
+> `site/assets/telas/_webp` e o ffmpeg só é chamado quando falta alguma.
+>
+> Os comandos da landing são diferentes dos do aplicativo — o deploy **precisa** do
+> `-c wrangler.site.jsonc`, senão o `wrangler` lê o `wrangler.jsonc`, cujo `name` é `confereai`,
+> e publica o aplicativo por cima da landing.
 
 
 No painel do Cloudflare, **Create → Workers → Import a repository**, escolhendo o mesmo

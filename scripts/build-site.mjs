@@ -13,7 +13,8 @@
 // compartilhamento, o manifesto de cabeçalhos, robots.txt e sitemap.xml, e copia a
 // política de privacidade de docs/.
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,17 +37,52 @@ cpSync(origem, saida, {
 });
 
 // ---- Capturas do app em WebP, em dois tamanhos (a página escolhe pelo srcset)
+//
+// A conversão usa ffmpeg, que existe na máquina de quem desenvolve mas NÃO no contêiner de
+// compilação do Cloudflare: lá o build morria com "spawnSync ffmpeg ENOENT" e a landing nunca
+// era publicada. Por isso os arquivos convertidos ficam guardados em site/assets/telas/_webp,
+// versionados junto com o projeto (a pasta começa com "_" e não é copiada para o site). Quem
+// tem ffmpeg gera o que falta; quem não tem usa o que está guardado. Se uma captura mudar e
+// ninguém regenerar, o build para e diz o que fazer, em vez de publicar imagem velha.
 const telas = join(origem, 'assets', 'telas');
 const telasSaida = join(saida, 'assets', 'telas');
+const guardadas = join(telas, '_webp');
 mkdirSync(telasSaida, { recursive: true });
+mkdirSync(guardadas, { recursive: true });
+const temFfmpeg = (() => {
+  try {
+    execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+})();
 const LARGURAS = [390, 780];
 let economizados = 0;
+let convertidos = 0;
 for (const arquivo of readdirSync(telas).filter((f) => f.endsWith('.png') && !f.startsWith('_'))) {
   const nome = arquivo.replace(/\.png$/, '');
+  const assinatura = createHash('sha256').update(readFileSync(join(telas, arquivo))).digest('hex').slice(0, 16);
   for (const largura of LARGURAS) {
-    const destino = join(telasSaida, `${nome}-${largura}.webp`);
-    execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', join(telas, arquivo),
-      '-vf', `scale=${largura}:-1`, '-c:v', 'libwebp', '-quality', '80', '-compression_level', '6', destino]);
+    const guardada = join(guardadas, `${nome}-${largura}-${assinatura}.webp`);
+    if (!existsSync(guardada)) {
+      if (!temFfmpeg) {
+        throw new Error(
+          `Falta a versão WebP de ${arquivo} em ${largura} px, e não há ffmpeg aqui para gerá-la.\n` +
+            'Rode "npm run build:site" numa máquina com ffmpeg e publique o conteúdo de site/assets/telas/_webp.',
+        );
+      }
+      execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', join(telas, arquivo),
+        '-vf', `scale=${largura}:-1`, '-c:v', 'libwebp', '-quality', '80', '-compression_level', '6', guardada]);
+      convertidos += 1;
+      // A captura mudou: as conversões antigas dela não servem mais para ninguém.
+      for (const velha of readdirSync(guardadas)) {
+        if (velha.startsWith(`${nome}-${largura}-`) && velha !== `${nome}-${largura}-${assinatura}.webp`) {
+          unlinkSync(join(guardadas, velha));
+        }
+      }
+    }
+    copyFileSync(guardada, join(telasSaida, `${nome}-${largura}.webp`));
   }
   economizados += 1;
 }
