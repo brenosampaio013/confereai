@@ -33,7 +33,7 @@ const site = http.createServer((req, res) => {
 
 // Assíncrono: o servidor de arquivos acima roda neste mesmo processo.
 let failed = false;
-for (const script of ['e2e/conta.e2e.mjs', 'e2e/marketplace.e2e.mjs', 'e2e/budget.e2e.mjs']) {
+for (const script of ['e2e/conta.e2e.mjs', 'e2e/planos.e2e.mjs', 'e2e/marketplace.e2e.mjs', 'e2e/budget.e2e.mjs']) {
   const child = spawn(process.execPath, [script, out], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'] });
   let output = '';
   child.stdout.on('data', (d) => { output += d; process.stdout.write(d); });

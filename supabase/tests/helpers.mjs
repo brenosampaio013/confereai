@@ -11,6 +11,10 @@ const STUB = `
     select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
   grant usage on schema auth to authenticated, anon;
   grant usage on schema public to authenticated, anon;
+  -- Projeto Supabase real concede TUDO (arwdDxtm) a anon e authenticated em cada tabela nova
+  -- do schema public. Imitamos isso aqui para que os testes vejam o mesmo que a produção:
+  -- conceder select/insert/... numa migração não revoga o que este padrão já deu.
+  alter default privileges in schema public grant all on tables to anon, authenticated;
 
   create schema storage;
   create table storage.buckets (id text primary key, name text not null, public boolean default false, file_size_limit bigint, allowed_mime_types text[]);

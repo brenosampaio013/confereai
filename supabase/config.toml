@@ -21,3 +21,16 @@ verify_jwt = true
 [functions.send-push]
 # Chamada pelo agendador com o segredo PUSH_CRON_SECRET (não usa JWT de usuário).
 verify_jwt = false
+
+[functions.stripe-checkout]
+# Abre o pagamento: exige o JWT da pessoa que vai assinar.
+verify_jwt = true
+
+[functions.stripe-portal]
+# Portal de cobrança: exige o JWT da pessoa.
+verify_jwt = true
+
+[functions.stripe-webhook]
+# Chamada pela Stripe, não por um usuário. A autenticidade vem da assinatura do corpo
+# (cabeçalho stripe-signature), verificada dentro da função. Não pode exigir JWT.
+verify_jwt = false

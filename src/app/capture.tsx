@@ -74,9 +74,10 @@ export default function CaptureScreen() {
       {photo ? <Button title="Identificar produto e preço" icon="sparkles-outline" kind="confirm" onPress={read} loading={busy} /> : null}
 
       {error ? (
-        <Banner t={error.reason === 'offline' || error.reason === 'not_configured' ? 'yellow' : 'red'} icon="alert-circle" title="Não foi possível ler automaticamente">
+        <Banner t={error.reason === 'offline' || error.reason === 'not_configured' || error.reason === 'quota' ? 'yellow' : 'red'} icon="alert-circle" title="Não foi possível ler automaticamente">
           <T v="small" color={colors.text}>{error.message}</T>
           <Button title="Digitar os dados" kind="secondary" compact onPress={() => router.replace({ pathname: '/item/add', params: { via: 'manual' } })} />
+          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => router.push('/planos')} /> : null}
         </Banner>
       ) : null}
       <T v="small" color={colors.textFaint}>

@@ -13,7 +13,7 @@ export type OcrErrorReason =
   | 'not_configured'
   | 'offline'
   | 'needs_account'
-  | 'daily_limit'
+  | 'quota'
   | 'too_large'
   | 'service_error';
 
@@ -76,7 +76,7 @@ export async function runOcr(kind: 'receipt' | 'label' | 'product', imageUris: s
         // corpo não-JSON
       }
     }
-    if (status === 429) throw new OcrError('daily_limit', message);
+    if (status === 429) throw new OcrError('quota', message);
     if (status === 413) throw new OcrError('too_large', message);
     if (status === 503) throw new OcrError('not_configured', message);
     if (status === 401) throw new OcrError('needs_account', 'Sua sessão expirou. Entre novamente na conta.');

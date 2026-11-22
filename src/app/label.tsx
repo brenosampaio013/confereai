@@ -117,9 +117,10 @@ export default function LabelScreen() {
       {photo && !reading ? <Button title="Ler etiqueta" icon="scan-outline" kind="confirm" onPress={read} loading={busy} /> : null}
 
       {error ? (
-        <Banner t={error.reason === 'offline' || error.reason === 'not_configured' ? 'yellow' : 'red'} icon="alert-circle" title="Não foi possível ler automaticamente">
+        <Banner t={error.reason === 'offline' || error.reason === 'not_configured' || error.reason === 'quota' ? 'yellow' : 'red'} icon="alert-circle" title="Não foi possível ler automaticamente">
           <T v="small" color={colors.text}>{error.message}</T>
           <Button title="Digitar o preço" kind="secondary" compact onPress={() => router.back()} />
+          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => router.push('/planos')} /> : null}
         </Banner>
       ) : null}
 

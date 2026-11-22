@@ -50,7 +50,7 @@
         <h1>Você só descobre o total no caixa. Até agora.</h1>
         <p>O Meu Carrin soma cada produto que entra no carrinho, avisa quando o orçamento começa a apertar e confere o cupom antes de você ir embora do mercado.</p>
         <div class="capa__acoes">
-          <a class="botao botao--verde" href="__APP_URL__" data-abrir>Começar a economizar</a>
+          <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Começar a economizar</a>
           <a class="botao botao--contorno" href="#como-funciona">Ver como funciona</a>
         </div>
         <p class="capa__garantias">
@@ -262,10 +262,10 @@
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Conferência do cupom digitado, sem limite</li>
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 20 fotos de etiqueta e 4 cupons lidos por mês</li>
           </ul>
-          <a class="botao botao--verde botao--largo" href="__APP_URL__" data-abrir>Começar agora</a>
+          <a class="botao botao--verde botao--largo" href="__APP_URL__/auth/criar-conta" data-abrir>Começar agora</a>
         </article>
         <article class="plano plano--destaque revela">
-          <span class="etiqueta">EM BREVE</span>
+          <span class="etiqueta">MAIS LEITURAS</span>
           <h3 class="plano__titulo">Meu Carrin Mais</h3>
           <div class="plano__preco">R$ 9,90 <small>por mês, ou R$ 89 por ano</small></div>
           <p class="plano__nota">Para quem usa a leitura por foto em toda compra.</p>
@@ -274,9 +274,22 @@
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 300 leituras automáticas por mês</li>
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Apoia o desenvolvimento do app</li>
           </ul>
+          <a class="botao botao--navy botao--largo" href="__APP_URL__/planos" data-abrir>Assinar o Mais</a>
+          <p class="plano__nota">Pagamento com cartão, pela Stripe. Cancele quando quiser, pelo próprio app.</p>
+        </article>
+        <article class="plano revela">
+          <span class="etiqueta">EM BREVE</span>
+          <h3 class="plano__titulo">Meu Carrin Família</h3>
+          <div class="plano__preco">R$ 19,90 <small>por mês, previsto</small></div>
+          <p class="plano__nota">A lista da casa em várias mãos. Ainda estamos construindo: nada aqui está disponível hoje.</p>
+          <ul>
+            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Tudo do Meu Carrin Mais</li>
+            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Lista de compras compartilhada entre as pessoas da casa</li>
+            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Gastos da casa somados, mantendo a privacidade de cada um</li>
+          </ul>
           <!--[LISTA]-->
           <form class="aviso-lista" id="lista-espera">
-            <label for="email-espera" class="aviso-lista__rotulo">Quer ser avisado quando abrir?</label>
+            <label for="email-espera" class="aviso-lista__rotulo">Quer ser avisado quando o Família abrir?</label>
             <input type="email" id="email-espera" name="email" placeholder="seu@email.com" required autocomplete="email">
             <button type="submit" class="botao botao--navy botao--largo">Avise-me quando abrir</button>
             <p role="status" aria-live="polite" id="lista-resposta"></p>
@@ -323,7 +336,7 @@
         </details>
         <details class="pergunta revela">
           <summary>O aplicativo é gratuito?</summary>
-          <div class="pergunta__corpo"><p>Sim. O plano gratuito inclui tudo, com um limite mensal apenas para a leitura automática por foto, que tem custo por imagem para nós. Um plano pago com limite maior está sendo preparado; quem já usa o app continua com o que tem hoje.</p></div>
+          <div class="pergunta__corpo"><p>Sim. O plano gratuito inclui tudo, com um limite mensal apenas para a leitura automática por foto, que tem custo por imagem para nós: 20 fotos de etiqueta e 4 cupons lidos por mês. Quem usa a leitura em toda compra pode assinar o Meu Carrin Mais, por R$ 9,90 ao mês, e ter 300 leituras mensais. Nada mais no aplicativo é pago.</p></div>
         </details>
         <details class="pergunta revela">
           <summary>Meus dados estão protegidos?</summary>
@@ -349,7 +362,7 @@
       <h2 class="revela">Na sua próxima compra, não deixe nenhum centavo passar despercebido.</h2>
       <p class="revela">Abra o Meu Carrin antes de pegar o carrinho e saiba, a cada produto, quanto já deu.</p>
       <div class="capa__acoes revela">
-        <a class="botao botao--verde" href="__APP_URL__" data-abrir>Começar a economizar</a>
+        <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Começar a economizar</a>
       </div>
     </div>
   </section>
@@ -403,7 +416,7 @@
       "mainEntity": [
         { "@type": "Question", "name": "O que é o Meu Carrin?", "acceptedAnswer": { "@type": "Answer", "text": "Um aplicativo gratuito para quem faz compras de supermercado: você registra os produtos enquanto compra, acompanha quanto já gastou em relação ao orçamento e confere o cupom fiscal antes de ir embora." } },
         { "@type": "Question", "name": "Preciso criar conta?", "acceptedAnswer": { "@type": "Answer", "text": "Não para começar. Sem conta, tudo fica salvo no aparelho. A conta serve para cópia de segurança, acesso em outro celular e recursos da comunidade." } },
-        { "@type": "Question", "name": "O aplicativo é gratuito?", "acceptedAnswer": { "@type": "Answer", "text": "Sim. O plano gratuito inclui tudo, com um limite mensal apenas para a leitura automática por foto, que tem custo por imagem." } },
+        { "@type": "Question", "name": "O aplicativo é gratuito?", "acceptedAnswer": { "@type": "Answer", "text": "Sim. O plano gratuito inclui tudo, com um limite mensal apenas para a leitura automática por foto: 20 fotos de etiqueta e 4 cupons por mês. O plano Meu Carrin Mais, de R$ 9,90 ao mês, eleva esse limite para 300 leituras mensais." } },
         { "@type": "Question", "name": "Preciso de internet dentro do mercado?", "acceptedAnswer": { "@type": "Answer", "text": "Não para o essencial. Registrar produtos, acompanhar o orçamento e conferir a nota digitada funcionam sem conexão." } }
       ]
     }

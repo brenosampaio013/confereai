@@ -59,6 +59,14 @@ const SECTIONS: { title: string; body: string[] }[] = [
     ],
   },
   {
+    title: 'Pagamento da assinatura',
+    body: [
+      'Se você assinar o Meu Carrin Mais, o pagamento é processado pela Stripe. Você digita os dados do cartão na página da Stripe, não aqui: o aplicativo não recebe, não vê e não guarda o número do seu cartão.',
+      'Para criar a assinatura, enviamos à Stripe o seu e-mail e um identificador interno da sua conta. A Stripe é a responsável pelos dados de pagamento e os trata conforme a política dela. Do lado do Meu Carrin ficam apenas o plano, a situação da cobrança e a data da próxima renovação.',
+      'Cancelar, trocar o cartão e ver os recibos é feito no portal da própria Stripe, aberto pelo aplicativo na tela de Planos.',
+    ],
+  },
+  {
     title: 'Seus direitos',
     body: [
       'Você pode corrigir qualquer dado, excluir compras individualmente, excluir todos os dados do aparelho e excluir sua conta com todos os dados da nuvem, a qualquer momento, na aba Conta.',

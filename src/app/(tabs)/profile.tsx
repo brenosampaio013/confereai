@@ -130,6 +130,18 @@ export default function Account() {
         </>
       ) : null}
 
+      {cloud ? (
+        <>
+          <SectionTitle>Plano e leituras automáticas</SectionTitle>
+          <Card>
+            <T v="small" color={colors.textMuted}>
+              A leitura por foto (etiqueta, produto e cupom) tem cota mensal, porque cada imagem é lida por inteligência artificial e tem custo. Digitar os dados não tem limite.
+            </T>
+            <Button title="Meu plano e cota do mês" icon="card-outline" kind="secondary" onPress={() => router.push('/planos')} />
+          </Card>
+        </>
+      ) : null}
+
       <SectionTitle>Preços e gastos</SectionTitle>
       <Card>
         <Button title="Preços registrados" icon="trending-down-outline" kind="secondary" onPress={() => router.push('/prices')} />

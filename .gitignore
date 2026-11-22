@@ -75,3 +75,7 @@ motion-pro/*/previa.html
 
 # vídeo publicitário entregue (gerado a partir de motion-pro/meu-carrin)
 MEU_CARRIN_VIDEO_PUBLICITARIO_FINAL.mp4
+
+# Trava de dependências gerada ao rodar os testes das funções com o Deno; a publicação no
+# Supabase resolve as versões por conta própria (elas estão fixas nos imports).
+deno.lock

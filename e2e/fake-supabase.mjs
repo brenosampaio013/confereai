@@ -290,7 +290,13 @@ http.createServer(async (req, res) => {
     const run = () => db.query(sql, params);
     const p = queue.then(run, run);
     queue = p.catch(() => {});
-    return send(res, 200, (await p).rows);
+    // Consulta errada no roteiro devolve erro; antes derrubava este servidor e levava
+    // junto todos os testes seguintes.
+    try {
+      return send(res, 200, (await p).rows);
+    } catch (e) {
+      return send(res, 400, { message: String(e?.message ?? e) });
+    }
   }
   return send(res, 404, { message: 'not found' });
 }).listen(PORT, () => console.log(`fake-supabase em http://localhost:${PORT}`));

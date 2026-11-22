@@ -46,6 +46,7 @@ export default function RootLayout() {
           <Stack.Screen name="prices" options={{ title: 'Preços registrados' }} />
           <Stack.Screen name="compare" options={{ title: 'Comparar compras' }} />
           <Stack.Screen name="auth" options={{ headerShown: false, presentation: 'modal' }} />
+          <Stack.Screen name="planos" options={{ title: 'Planos' }} />
           <Stack.Screen name="privacy" options={{ title: 'Privacidade' }} />
           <Stack.Screen name="offers/publish" options={{ title: 'Publicar promoção' }} />
           <Stack.Screen name="offers/[id]" options={{ title: 'Oferta' }} />

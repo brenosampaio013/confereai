@@ -127,7 +127,7 @@
     filme.addEventListener('ended', function () { play.hidden = false; filme.load(); });
   }
 
-  /* ---------- Lista de espera do plano pago ---------- */
+  /* ---------- Lista de espera do plano Família (ainda em construção) ---------- */
   var form = document.getElementById('lista-espera');
   if (form) {
     var SUPABASE_URL = '__SUPABASE_URL__';
@@ -144,11 +144,11 @@
       fetch(SUPABASE_URL + '/rest/v1/rpc/join_waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
-        body: JSON.stringify({ p_email: email, p_origem: 'landing' })
+        body: JSON.stringify({ p_email: email, p_origem: 'landing-familia' })
       }).then(function (r) {
         if (!r.ok) throw new Error(String(r.status));
         resposta.style.color = '#0A6B42';
-        resposta.textContent = 'Pronto. Avisamos nesse e-mail quando o plano abrir.';
+        resposta.textContent = 'Pronto. Avisamos nesse e-mail quando o Família abrir.';
         form.querySelector('#email-espera').value = '';
       }).catch(function () {
         resposta.style.color = '#A12626';

@@ -25,8 +25,25 @@ const saida = join(root, 'site-dist');
 
 const SITE_URL = (process.env.SITE_URL || 'https://meucarrin.com').replace(/\/+$/, '');
 const APP_URL = (process.env.SITE_APP_URL || 'https://app.meucarrin.com').replace(/\/+$/, '');
-const SUPABASE_URL = (process.env.EXPO_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
-const SUPABASE_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+// Os dois valores abaixo são públicos por natureza (já viajam no pacote do aplicativo); quem
+// protege os dados são as políticas RLS do banco. Ficam aqui, e não só no painel de quem
+// compila, para a landing publicar certo de qualquer lugar — como o app faz em src/lib/config.ts.
+// A chave `service_role` NUNCA entra aqui.
+const SUPABASE_PADRAO = 'https://urfqgajoauryxmkbseet.supabase.co';
+const CHAVE_PADRAO =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZnFnYWpvYXVyeXhta2JzZWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDIyNjMsImV4cCI6MjExMDY3ODI2M30.LGLXovbKtCQ3__cRKXqH-wcJ8jgDeksH5qIFbXj3KJs';
+// Um endereço de servidor, não uma chave: trocar os dois campos no painel de compilação é um
+// engano fácil, e aqui ele é ignorado em vez de publicar uma página quebrada.
+const pareceEndereco = (v) => /^https?:\/\/[^\s"']+$/.test(v);
+const doAmbiente = (valor, valido, padrao, nome) => {
+  const v = (valor || '').trim();
+  if (!v) return padrao;
+  if (valido(v)) return v;
+  console.warn(`  aviso: ${nome} foi ignorada (formato inesperado); usando o valor padrão.`);
+  return padrao;
+};
+const SUPABASE_URL = doAmbiente(process.env.EXPO_PUBLIC_SUPABASE_URL, pareceEndereco, SUPABASE_PADRAO, 'EXPO_PUBLIC_SUPABASE_URL').replace(/\/+$/, '');
+const SUPABASE_KEY = doAmbiente(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY, (v) => !pareceEndereco(v) && v.length >= 8, CHAVE_PADRAO, 'EXPO_PUBLIC_SUPABASE_ANON_KEY');
 const COM_LISTA = !!(SUPABASE_URL && SUPABASE_KEY);
 
 rmSync(saida, { recursive: true, force: true });
@@ -102,7 +119,7 @@ if (!COM_FILME) html = html.replace(/<!--\[FILME\]-->[\s\S]*?<!--\[\/FILME\]-->/
 
 if (!COM_LISTA) {
   html = html.replace(/<!--\[LISTA\]-->[\s\S]*?<!--\[\/LISTA\]-->/,
-    '<p class="plano__nota">O plano ainda não está aberto. Enquanto isso, use o plano gratuito à vontade.</p>');
+    '<p class="plano__nota">A lista de avisos está fora do ar neste momento.</p>');
 }
 
 html = html.replaceAll('__APP_URL__', APP_URL).replaceAll('__SITE_URL__', SITE_URL);
@@ -216,4 +233,4 @@ console.log(`\nLanding pronta em site-dist/`);
 console.log(`  site: ${SITE_URL}   app: ${APP_URL}`);
 console.log(`  ${economizados} capturas em WebP (${LARGURAS.join(' e ')} px)`);
 console.log(`  filme: ${COM_FILME ? 'publicado' : 'fora da página (ainda não renderizado)'}`);
-console.log(`  lista de espera do plano pago: ${COM_LISTA ? 'publicada' : 'fora da página (sem Supabase configurado)'}`);
+console.log(`  lista de espera do plano Família: ${COM_LISTA ? 'publicada' : 'fora da página (sem Supabase configurado)'}`);

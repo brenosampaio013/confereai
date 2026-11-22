@@ -324,7 +324,9 @@ describe('comunidade, denúncias e moderação', () => {
     const r = await publish(A, withGps(payload({ product_name: 'Bisteca teste' }), SP));
     assert.match(await err(q(B, `select public.admin_moderate_promotion($1, 'remove')`, [r.id])), /restrito/);
     assert.match(await err(q(B, 'select public.admin_queue()')), /restrito/);
-    assert.match(await err(q(B, 'insert into public.app_admins (user_id) values ($1)', [B])), /permission denied/);
+    // Em projeto Supabase real o papel tem o privilégio de inserir (privilégio padrão do
+    // schema), e quem barra é a RLS. As duas mensagens valem: o que importa é que não entra.
+    assert.match(await err(q(B, 'insert into public.app_admins (user_id) values ($1)', [B])), /permission denied|row-level security/);
     await q(B, `select public.report_promotion($1, 'misleading_photo')`, [r.id]);
     const queue = (await rpc1(ADMIN, 'select public.admin_queue() q')).q;
     const report = queue.reports.find((x) => x.promotion_id === r.id);
@@ -394,10 +396,14 @@ describe('privacidade e segurança', () => {
   test('22. tabelas não podem ser lidas nem alteradas diretamente por terceiros', async () => {
     assert.equal((await q(B, 'select * from public.promotions where user_id = $1', [A])).length, 0);
     assert.equal((await q(B, 'select * from public.promotion_location_checks')).length, 0);
-    assert.match(await err(q(null, 'select * from public.promotions')), /permission denied/);
-    assert.match(await err(q(B, `insert into public.promotions (user_id, location_id, product_name, normalized_product, category, promotional_price_cents, sale_unit, starts_on, ends_on, expires_at, location_status, status) values ($1, $2, 'x', 'x', 'carnes', 1, 'kg', now(), now(), now(), 'compatible', 'community_confirmed')`, [B, spLoc])), /permission denied/);
+    // Visitante sem sessão: a RLS não encontra nenhuma linha (as políticas são para
+    // `authenticated`), então a consulta volta vazia em vez de dar erro — é assim em produção.
+    assert.equal((await q(null, 'select * from public.promotions')).length, 0);
+    assert.match(await err(q(B, `insert into public.promotions (user_id, location_id, product_name, normalized_product, category, promotional_price_cents, sale_unit, starts_on, ends_on, expires_at, location_status, status) values ($1, $2, 'x', 'x', 'carnes', 1, 'kg', now(), now(), now(), 'compatible', 'community_confirmed')`, [B, spLoc])), /permission denied|row-level security/);
     const mine = (await q(A, 'select id from public.promotions limit 1'))[0].id;
-    assert.match(await err(q(B, `update public.promotions set status = 'community_confirmed' where id = $1`, [mine])), /permission denied/);
+    // Alterar a oferta de outra pessoa não dá erro: a RLS simplesmente não acha a linha.
+    await q(B, `update public.promotions set status = 'community_confirmed' where id = $1`, [mine]);
+    assert.notEqual((await db.query('select status from public.promotions where id = $1', [mine])).rows[0].status, 'community_confirmed');
     assert.match(await err(q(B, 'select public.update_my_promotion($1, $2, null, null)', [mine, 'hack'])), /não encontrada/);
     assert.match(await err(q(null, 'select public.create_promotion($1)', [JSON.stringify(payload())])), /permission denied/);
     // Favoritos: cada um só os próprios

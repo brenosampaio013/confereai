@@ -17,7 +17,9 @@
 //   ANTHROPIC_API_KEY    obrigatório se OCR_PROVIDER=anthropic
 //   ANTHROPIC_MODEL      opcional (padrão: claude-opus-5-5)
 //   GOOGLE_VISION_API_KEY obrigatório se OCR_PROVIDER=google_vision
-//   OCR_DAILY_LIMIT      opcional (padrão: 60 requisições por usuário por dia)
+//
+// A cota de leituras não é segredo de função: vem da tabela public.plan_limits, pelo plano de
+// cada pessoa (ver migração dos planos). Mudar a cota é um update no banco.
 
 import Anthropic from 'npm:@anthropic-ai/sdk@1.3.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
@@ -264,11 +266,19 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Limite diário por usuário (protege contra abuso e custo inesperado).
-    const limit = Number(Deno.env.get('OCR_DAILY_LIMIT') ?? '60');
-    const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-    const { count } = await supabase.from('ocr_usage').select('id', { count: 'exact', head: true }).gte('created_at', since);
-    if ((count ?? 0) >= limit) throw new HttpError(429, 'daily_limit', 'Limite diário de leituras atingido. Tente amanhã ou digite os dados.');
+    // Cota do plano (mês civil, por tipo de leitura). Quem decide é o banco, em
+    // public.ocr_allowance: assim o app, a landing e esta função contam a mesma coisa.
+    const { data: cota, error: cotaErro } = await supabase.rpc('ocr_allowance', { p_kind: kind }).maybeSingle();
+    if (cotaErro) {
+      console.error('cota_indisponivel', cotaErro.message);
+      throw new HttpError(503, 'cota_indisponivel', 'Não foi possível conferir sua cota agora. Tente de novo.');
+    }
+    const limite = cota as { plan: string; monthly_limit: number | null; used: number; remaining: number | null } | null;
+    if (limite && limite.remaining !== null && limite.remaining <= 0) {
+      throw new HttpError(429, 'quota_exhausted', limite.plan === 'mais'
+        ? `Você já usou as ${limite.monthly_limit} leituras automáticas deste mês. A cota volta no dia 1º; até lá dá para digitar os dados.`
+        : `Você já usou ${kind === 'receipt' ? 'os cupons' : 'as fotos'} de leitura automática deste mês no plano grátis (${limite.monthly_limit}). O plano Meu Carrin Mais tem 300 por mês, ou espere o dia 1º — digitar os dados continua sem limite.`);
+    }
 
     const provider = (Deno.env.get('OCR_PROVIDER') ?? 'anthropic').toLowerCase();
     // Com o Google Vision só há transcrição: para "product" o aplicativo interpreta o texto da etiqueta.

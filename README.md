@@ -21,14 +21,15 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 9. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
 10. [Telas de conta](#telas-de-conta)
 11. [Configurar o Supabase](#configurar-o-supabase)
-12. [Configurar o OCR / IA](#configurar-o-ocr--ia)
-13. [Testes](#testes)
-14. [Gerar versões (EAS)](#gerar-versões-eas)
-15. [Regras de negócio importantes](#regras-de-negócio-importantes)
-16. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
-17. [Privacidade e segurança](#privacidade-e-segurança)
-18. [Estado dos testes](#estado-dos-testes)
-19. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
+12. [Planos e assinatura (Stripe)](#planos-e-assinatura-stripe)
+13. [Configurar o OCR / IA](#configurar-o-ocr--ia)
+14. [Testes](#testes)
+15. [Gerar versões (EAS)](#gerar-versões-eas)
+16. [Regras de negócio importantes](#regras-de-negócio-importantes)
+17. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
+18. [Privacidade e segurança](#privacidade-e-segurança)
+19. [Estado dos testes](#estado-dos-testes)
+20. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
 
 ---
 
@@ -368,7 +369,9 @@ critica composição, contraste e intervalos sem batida.
 - A tela da leitura por foto foi capturada com uma **resposta simulada** no formato da função
   real. Antes de publicar, rode `npm run capturas` com o Supabase e a chave da API no ar para
   trocá-la por uma leitura verdadeira.
-- A lista de espera do plano pago precisa da função `join_waitlist` no Supabase.
+- A lista de espera é agora do plano **Família**, que ainda não existe no aplicativo; ela grava
+  com origem `landing-familia`. Avisar essas pessoas depende de um SMTP próprio (ver
+  [Telas de conta](#telas-de-conta)); hoje a leitura da lista é pelo painel do Supabase.
 
 ## Publicar na Netlify
 
@@ -529,8 +532,10 @@ Sign In / Providers → Anonymous sign-ins**.
 
 ### O que ainda falta
 
-1. **Edge Functions** (`receipt-ocr`, `send-push`) ainda não foram publicadas — é o que falta
-   para a leitura por IA funcionar, junto com a chave do provedor (ver a seção seguinte).
+1. **Edge Functions** (`receipt-ocr`, `send-push`, `stripe-checkout`, `stripe-portal`,
+   `stripe-webhook`) ainda não foram publicadas — é o que falta para a leitura por IA e para a
+   assinatura funcionarem, junto com a chave do provedor de IA e os segredos da Stripe (ver
+   [Planos e assinatura](#planos-e-assinatura-stripe) e a seção do OCR).
 2. **Primeiro administrador** da moderação: criado em 22/11/2026. Para promover outra conta,
    `insert into public.app_admins (user_id) values ('<id do usuário>');` depois que ela existir
    em `auth.users`. Conferido com `public.is_admin()` e `public.admin_queue()` no papel
@@ -587,6 +592,108 @@ Três cuidados que estão no código e convém manter:
 - A política de privacidade diz o que é enviado e quando (`src/app/privacy.tsx` e
   `docs/privacidade.html`).
 
+## Planos e assinatura (Stripe)
+
+Dois planos. O **Grátis** tem o aplicativo inteiro sem limite, com cota mensal apenas para a
+leitura automática por foto — que é o que custa dinheiro por imagem. O **Meu Carrin Mais**
+(R$ 9,90 por mês ou R$ 89 por ano) aumenta essa cota.
+
+### A cota mora no banco, não no código
+
+| plano | balde | por mês |
+|---|---|---|
+| `gratis` | `etiqueta` (fotos de etiqueta e de produto) | 20 |
+| `gratis` | `cupom` (cupom fiscal lido por foto) | 4 |
+| `mais` | `total` (qualquer leitura) | 300 |
+
+Isso é a tabela `public.plan_limits`. Mudar uma cota é um `update` — sem publicar aplicativo nem
+função. Quando um plano tem mais de uma linha aplicável, vale a mais apertada; plano sem linha
+nenhuma é plano sem limite. A janela é o mês civil no fuso de Brasília (`public.month_start()`).
+
+Quem responde "quanto ainda cabe" é `public.ocr_allowance(kind)`, no banco. A função de OCR
+consulta ela antes de gastar uma leitura, e a tela de planos mostra o mesmo número — uma conta
+só, em um lugar só.
+
+### Quem pode dizer que alguém assinou
+
+Só a Stripe. A tabela `public.subscriptions` é um espelho: tem política de **leitura** da
+própria linha e **nenhuma** de escrita para `authenticated`. Quem grava é a função
+`stripe-webhook`, com a chave de serviço. Em vez de aplicar o que vem no aviso, ela busca a
+assinatura na Stripe e grava o estado atual — assim aviso repetido ou fora de ordem não causa
+dano. O teste `supabase/tests/planos.test.mjs` tenta se promover a assinante pelo papel do
+aplicativo e confirma que o banco recusa.
+
+### Preços: chave de busca, não identificador
+
+Os preços são achados por `lookup_key` (`mais_mensal`, `mais_anual`), que é igual nos modos de
+teste e de produção. Nada de `price_...` colado no código ou em variável de ambiente.
+
+### O que já está no ar (22/11/2026)
+
+- Migração dos planos aplicada no projeto `meucarrin`: `plan_limits` com as três linhas,
+  `subscriptions` com uma única política (leitura da própria linha) e as funções `my_plan`,
+  `ocr_allowance`, `plan_of` e `month_start`. 32 tabelas, todas com RLS.
+- Catálogo na Stripe (conta brasileira, em reais): produto **Meu Carrin Mais**
+  (`prod_VfyBMftnvQrVP8`) com os preços `mais_mensal` (R$ 9,90) e `mais_anual` (R$ 89). O produto
+  **Plano Meu Carrin Família** foi **arquivado** — ele prometia listas compartilhadas, que o
+  aplicativo não tem. Nenhuma assinatura existia, então nada foi interrompido.
+- Funções `stripe-checkout`, `stripe-portal` e `stripe-webhook` publicadas (versão 1) e
+  `APP_URL` configurada. Conferido no ar: o webhook recusa chamada sem assinatura e com
+  assinatura inventada; o checkout recusa chamada sem sessão.
+- Endpoint de webhook criado na Stripe (`we_1UecdAKII6I0n2DUWlnGRZOp`), com os oito eventos.
+
+### O que falta, e só você pode fazer
+
+1. **`STRIPE_SECRET_KEY`** e **`STRIPE_WEBHOOK_SECRET`** nos segredos das funções (painel do
+   Supabase → Edge Functions → Secrets). O segredo do webhook é revelado no painel da Stripe,
+   em Desenvolvedores → Webhooks → o endpoint acima. Enquanto faltarem, o webhook recusa tudo
+   e a tela de planos diz que a assinatura não está configurada — falha fechada, de propósito.
+2. **Revogar os privilégios desnecessários** (ver abaixo).
+
+Para publicar de novo depois de mudar o código das funções:
+
+```bash
+npx supabase functions deploy stripe-checkout stripe-portal stripe-webhook
+```
+
+Segredos da função (ver `supabase/functions/.env.example`): `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`, `APP_URL`. Nenhum deles entra no aplicativo.
+
+### Privilégios que o Supabase concede por padrão (pendente)
+
+Ao conferir a migração em produção apareceu algo que não é de hoje: projeto Supabase novo tem um
+privilégio padrão no schema `public` que concede **tudo** (`arwdDxtm`) a `anon` e a
+`authenticated` em cada tabela criada. Conceder `select, insert, update, delete` numa migração
+não revoga o que o padrão já deu, então **TRUNCATE ficou de pé em 29 tabelas** para quem tem
+conta e em 16 para visitante — `promotions`, `supermarkets` e `app_admins` entre elas.
+
+Tamanho real do risco: o PostgREST não expõe TRUNCATE, então **não há caminho conhecido hoje**
+para disparar isso com a chave pública, e as 32 tabelas têm RLS. O que existe é um privilégio que
+nenhuma tela usa e que a RLS **não** cobre — TRUNCATE não passa por política de linha. Uma função
+futura com `security invoker` ou uma injeção de SQL bastaria para virar perda total de dados.
+
+A correção está em `supabase/migrations/20261122130000_privilegios.sql` e **ainda não foi
+aplicada**: a aplicação automática foi barrada por conter `revoke ... truncate` (a proteção não
+distingue tirar privilégio de apagar dado). Aplique o conteúdo desse arquivo no editor de SQL do
+Supabase — ele só *remove* privilégios (`truncate`, `trigger`, `references`) e não mexe em nada
+que o aplicativo use. O banco de teste (`supabase/tests/helpers.mjs`) passou a imitar o
+privilégio padrão do Supabase, e há teste conferindo que ninguém consegue esvaziar as tabelas.
+
+### Google Play: por que não há botão de compra no Android
+
+Vender assinatura digital dentro do app por fora da cobrança do Google contraria a política de
+pagamentos do Play. O Brasil está na lista de países com *billing* alternativo, mas isso é um
+programa com regras próprias, não liberação para checkout externo. Por isso `src/app/planos.tsx`
+só mostra o botão quando `Platform.OS !== 'android'`: na web a pessoa assina, e no aplicativo
+Android a tela mostra o plano e diz que a assinatura é feita no site. Quando o app for para a
+loja, o caminho é implementar a cobrança do Play (ou entrar no programa) — não burlar a regra.
+
+### Pix
+
+A documentação da Stripe diz que contas brasileiras aceitam Pix só avulso; *Pix Automático* não
+está disponível para elas. Por isso a assinatura é com cartão. Em modo assinatura a Stripe já
+oferece apenas meios que aceitam recorrência, então a função não precisa listar nada.
+
 ## Configurar o OCR / IA
 
 A leitura de cupons e etiquetas passa pela Edge Function `receipt-ocr`, que devolve **somente o texto transcrito**. A interpretação dos valores é feita pelo parser determinístico do app. Para a foto do produto com a etiqueta (`kind: "product"`), a função devolve também os campos identificados, como texto impresso; o app converte e valida.
@@ -608,7 +715,7 @@ npx supabase secrets set --env-file supabase/functions/.env
 npx supabase functions deploy receipt-ocr
 ```
 
-A função exige sessão do Supabase, valida tamanho/quantidade de imagens (1–6, ~4,5 MB cada), aplica limite diário por usuário (`OCR_DAILY_LIMIT`, tabela `ocr_usage`) e não armazena imagens. Ambos os provedores são pagos conforme uso; consulte os preços de cada um.
+A função exige sessão do Supabase, valida tamanho/quantidade de imagens (1–6, ~4,5 MB cada), aplica a cota mensal do plano de cada pessoa (`public.ocr_allowance`, tabelas `plan_limits` e `ocr_usage` — ver [Planos e assinatura](#planos-e-assinatura-stripe)) e não armazena imagens. Ambos os provedores são pagos conforme uso; consulte os preços de cada um.
 
 ## Testes
 
@@ -699,6 +806,11 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Busca de endereço no cadastro de unidade** | Exercitada no app web real contra o serviço de mapas de verdade: a busca por "Avenida da Orla, Bertioga" devolve resultados, escolher um preenche endereço, bairro, cidade e UF e crava o ponto em Bertioga (−23,79648, −46,01454), e um texto sem resultado mostra o aviso em vez de ficar em silêncio. Mais 8 testes Jest sobre os limites do Brasil e a leitura do resultado (137 no total). |
 | **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada (a parte nova de leitura de produto por foto segue o mesmo padrão de chamada, mas não foi verificada nem executada) contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
 | **Landing page (navegador + runtime do Cloudflare)** | `npm run check:site`: imagens, links, âncoras, um `h1`, textos alternativos, idioma, Open Graph, dados estruturados, marcadores do build e rolagem lateral em 360 px — tudo passando. Com `wrangler dev` (workerd): cabeçalhos de segurança, `/termos` e `/privacidade` sem redirecionamento, 404 com status 404, cache dos arquivos e `_headers` não exposto. Sem erros de console no Chromium. **Não testado:** deploy real, domínio próprio e Safari do iPhone. |
+| **Planos e assinatura — Jest** | 13 testes novos (150 no total), todos passando: leitura do estado vindo do servidor (inclusive campo inesperado caindo para o plano grátis, nunca o contrário), frases de renovação, cancelamento agendado, cartão recusado e assinatura encerrada, uso do mês por balde, barra que não passa do fim, plano sem limite e economia do anual. |
+| **Planos e assinatura — banco (PGlite + migração real)** | 13 testes novos (73 no total), todos passando: plano grátis por omissão, cada tipo de leitura no seu balde (foto de produto conta como etiqueta), cota que não fica negativa, leitura do mês passado fora da conta, balde único de 300 no Mais, atraso de cobrança valendo três dias e não mais, cancelamento voltando ao grátis, tipo de leitura inválido recusado, ninguém virando assinante pelo aplicativo (inserção barrada pela RLS; alteração e exclusão sem efeito) e ninguém esvaziando tabela com TRUNCATE. O banco de teste passou a imitar o privilégio padrão do Supabase — foi isso que revelou o TRUNCATE aberto em produção. |
+| **Planos e assinatura — ponta a ponta** | 9 passos novos em `npm run test:e2e` (41 no total), todos passando, no app web real: plano grátis com cota zerada, cota mostrando 5 de 20 fotos e 1 de 4 cupons, cota esgotada dizendo o número, mensal e anual com os preços certos e a economia do anual, assinatura ativa no banco virando plano Mais com cota única de 300, cancelamento agendado com a data, cobrança atrasada pedindo o cartão sem cortar o plano, cancelada voltando ao grátis, e o caminho pelo perfil. **Nenhum pagamento é feito**: o que se verifica é a tela a partir do estado do banco. |
+| **Assinatura — funções da borda (Deno)** | 7 testes em `supabase/functions/_shared/stripe.test.ts`, todos passando no Deno 2.9.6: aviso com assinatura correta aceito, assinatura de outro segredo recusada, corpo alterado depois de assinado recusado, aviso velho recusado pela tolerância de tempo, id da assinatura achado em cada forma de aviso (inclusive fatura nova com `parent.subscription_details`), fim do período lido no item ou no objeto conforme a versão da API, e preço desconhecido não virando plano. |
+| **Stripe real (conta de produção)** | Conferido contra a conta brasileira: preço achado por `lookup_key`, sessão de pagamento criada com exatamente os parâmetros da função (R$ 9,90, moeda BRL, `payment_method_types` resolvido para `['card']` pela própria Stripe em modo assinatura) e endereço de pagamento devolvido. O cliente e a sessão de prova foram **apagados** em seguida. Depois da publicação: webhook recusando chamada sem assinatura e com assinatura inventada, checkout recusando chamada sem sessão. **Não testado:** pagamento de verdade de ponta a ponta — exige a chave de teste (`sk_test_`) no lugar da de produção, e o cofre guarda uma por serviço. |
 | **Passo instável conhecido** | `avisa ao passar de 75%, ao atingir 100% e ao ultrapassar`, no roteiro do orçamento, depende de o aviso aparecer logo após o toque em "+". Em 22/11/2026 ele passou 3 vezes e falhou 2 no mesmo código, sempre com a máquina ocupada; sozinho e com a máquina livre, passou 4 vezes seguidas. A espera foi de 10 s para 20 s, como no resto do roteiro. **Não é defeito do aplicativo**: quando falha, é o aviso demorando mais que a espera do teste. Se voltar a falhar com frequência, o caminho é investigar a fila de verificação de orçamento no AppContext, não aumentar o tempo de novo. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |
