@@ -66,7 +66,7 @@ export function OffersMap({ stores, onSelect, center }: OffersMapProps) {
   );
 }
 
-export function PickLocationMap({ value, onChange, center }: PickLocationMapProps) {
+export function PickLocationMap({ value, onChange, center, focar }: PickLocationMapProps) {
   const [el, setEl] = useState<HTMLDivElement | null>(null);
   const map = useRef<MapLibreMap | null>(null);
   const marker = useRef<Marker | null>(null);
@@ -88,6 +88,16 @@ export function PickLocationMap({ value, onChange, center }: PickLocationMapProp
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [el]);
+
+  // A busca de endereços escolheu um lugar: leva o mapa até lá, perto o bastante para a pessoa
+  // conferir a entrada da loja e ajustar o ponto com um toque.
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !focar) return;
+    m.flyTo({ center: [focar.longitude, focar.latitude], zoom: 17, duration: 800 });
+    // O voo só acontece quando a coordenada muda; o objeto em si pode ser recriado a cada render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focar?.latitude, focar?.longitude]);
 
   useEffect(() => {
     const m = map.current;

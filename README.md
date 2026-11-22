@@ -570,6 +570,23 @@ npx supabase link --project-ref urfqgajoauryxmkbseet
 npx supabase db push
 ```
 
+### Busca de endereços no cadastro de unidades
+
+Quem cadastra um supermercado pode procurar o endereço em vez de acertar o ponto no olho. O texto
+vai para o serviço público do **OpenStreetMap (Nominatim)**, limitado ao Brasil, e o resultado
+preenche endereço, bairro, cidade e UF e marca a coordenada; o mapa voa até lá e a pessoa ajusta
+com um toque. Nada é inventado: sem resultado, a lista volta vazia e o aviso diz isso.
+
+Três cuidados que estão no código e convém manter:
+
+- A busca só dispara no toque do botão, nunca a cada tecla — o serviço é gratuito e pede uso
+  moderado. Se o volume crescer, o caminho é passar a chamada por uma Edge Function com cache.
+- Coordenada fora do retângulo do Brasil é recusada **na tela**, com a mesma regra da restrição do
+  banco (`src/domain/endereco.ts`). Antes disso, um toque no mapa fora do país era aceito e só o
+  servidor recusava, com a mensagem genérica "alguns dados não são válidos".
+- A política de privacidade diz o que é enviado e quando (`src/app/privacy.tsx` e
+  `docs/privacidade.html`).
+
 ## Configurar o OCR / IA
 
 A leitura de cupons e etiquetas passa pela Edge Function `receipt-ocr`, que devolve **somente o texto transcrito**. A interpretação dos valores é feita pelo parser determinístico do app. Para a foto do produto com a etiqueta (`kind: "product"`), a função devolve também os campos identificados, como texto impresso; o app converte e valida.
@@ -679,8 +696,10 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Telas de conta — ponta a ponta** | 10 passos novos em `npm run test:e2e` (32 no total), todos passando: senha errada com recado em português, e-mail inválido barrado antes de chamar o servidor, "manter conectado" guardando a sessão no armazenamento duradouro, sem ele a sessão ficando só na aba, cadastro levando à confirmação e gravando o usuário, senhas diferentes e aceite faltando, e-mail já cadastrado, cadastro sem confirmação entrando direto, recuperação sem revelar se a conta existe, mostrar/ocultar senha. |
 | **Telas de conta — acessibilidade (navegador)** | Conferido no app web real: 19 pares de cor em WCAG 2.1 AA (o menor é 3,33:1 em elemento não textual, mínimo 3), 7 alvos de toque com 44 px ou mais, foco visível (borda azul) e ordem de foco previsível, erros anunciados por `role="alert"`, nenhum elemento interativo sem nome e nenhuma rolagem horizontal com zoom de 200%. **Não testado:** leitor de tela real (VoiceOver/NVDA/TalkBack). |
 | **Supabase real (projeto `meucarrin`)** | 10 verificações contra o servidor de produção, todas passando, com uma conta de teste criada e apagada em seguida: cadastro devolvendo sessão, gatilho criando o perfil, cadastro repetido recusado (HTTP 422), login certo, login com senha errada recusado, senha curta recusada, RLS negando leitura sem sessão (42501) e devolvendo apenas os dados da própria conta, login anônimo recusado (`anonymous_provider_disabled`) e a conta de teste removida. Migrações conferidas por contagem: 30 tabelas, 30 com RLS, 60 políticas, 58 funções, 25 gatilhos, 1 bucket e 4 tarefas no `pg_cron`. |
+| **Busca de endereço no cadastro de unidade** | Exercitada no app web real contra o serviço de mapas de verdade: a busca por "Avenida da Orla, Bertioga" devolve resultados, escolher um preenche endereço, bairro, cidade e UF e crava o ponto em Bertioga (−23,79648, −46,01454), e um texto sem resultado mostra o aviso em vez de ficar em silêncio. Mais 8 testes Jest sobre os limites do Brasil e a leitura do resultado (137 no total). |
 | **Edge Functions** | `receipt-ocr` e `send-push`: tipagem verificada (a parte nova de leitura de produto por foto segue o mesmo padrão de chamada, mas não foi verificada nem executada) contra `@anthropic-ai/sdk@1.3.0` e `@supabase/supabase-js`. **Não executada**: não há projeto Supabase nem chaves de API neste ambiente. |
 | **Landing page (navegador + runtime do Cloudflare)** | `npm run check:site`: imagens, links, âncoras, um `h1`, textos alternativos, idioma, Open Graph, dados estruturados, marcadores do build e rolagem lateral em 360 px — tudo passando. Com `wrangler dev` (workerd): cabeçalhos de segurança, `/termos` e `/privacidade` sem redirecionamento, 404 com status 404, cache dos arquivos e `_headers` não exposto. Sem erros de console no Chromium. **Não testado:** deploy real, domínio próprio e Safari do iPhone. |
+| **Passo instável conhecido** | `avisa ao passar de 75%, ao atingir 100% e ao ultrapassar`, no roteiro do orçamento, depende de o aviso aparecer logo após o toque em "+". Em 22/11/2026 ele passou 3 vezes e falhou 2 no mesmo código, sempre com a máquina ocupada; sozinho e com a máquina livre, passou 4 vezes seguidas. A espera foi de 10 s para 20 s, como no resto do roteiro. **Não é defeito do aplicativo**: quando falha, é o aviso demorando mais que a espera do teste. Se voltar a falhar com frequência, o caminho é investigar a fila de verificação de orçamento no AppContext, não aumentar o tempo de novo. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |
 

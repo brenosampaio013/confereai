@@ -60,7 +60,10 @@ async function stepQty(page, label, expectTotal) {
   await btn.evaluate((el) => el.scrollIntoView({ block: 'center' }));
   await page.waitForTimeout(300);
   await btn.click();
-  await page.getByText(expectTotal, { exact: true }).first().waitFor({ timeout: 10000 });
+  // 20 s como no resto do roteiro: com a máquina ocupada, o aviso de orçamento passa de 10 s e o
+  // teste falhava sem nada estar quebrado (medido em 22/11/2026: 3 falhas seguidas sob carga,
+  // 4 passagens seguidas com a máquina livre, no mesmo código).
+  await page.getByText(expectTotal, { exact: true }).first().waitFor({ timeout: 20000 });
   await page.waitForTimeout(700);
 }
 const body = async (page) => nb(await page.locator('body').innerText());

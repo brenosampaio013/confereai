@@ -51,6 +51,14 @@ const SECTIONS: { title: string; body: string[] }[] = [
     ],
   },
   {
+    title: 'Busca de endereços no mapa',
+    body: [
+      'Ao cadastrar um supermercado, você pode procurar o endereço no mapa. Nesse momento o texto que você escreveu — o nome do mercado ou a rua e a cidade — é enviado ao serviço público de mapas do OpenStreetMap, que devolve o endereço e as coordenadas do local. Nada além desse texto é enviado: nem sua conta, nem sua localização, nem suas compras.',
+      'A busca só acontece quando você toca em "Procurar endereço". Se preferir não usá-la, marque o ponto tocando no mapa ou use "Estou no estabelecimento".',
+      'As telas do mapa (as imagens de fundo) vêm do OpenFreeMap, com dados do OpenStreetMap. Como em qualquer imagem carregada da internet, o serviço que as entrega vê o endereço de IP do aparelho.',
+    ],
+  },
+  {
     title: 'Seus direitos',
     body: [
       'Você pode corrigir qualquer dado, excluir compras individualmente, excluir todos os dados do aparelho e excluir sua conta com todos os dados da nuvem, a qualquer momento, na aba Conta.',

@@ -9,12 +9,14 @@ import {
   ImageType, LOCATION_MESSAGE, localToday, MAX_PHOTOS, parseDateBR, previewLocationStatus, PRODUCT_TYPES, PromotionDraft, SALE_UNITS,
   STATUS_LABEL, validatePickedImage, validateStep,
 } from '@/domain/marketplace';
+import { dentroDoBrasil, LugarEncontrado } from '@/domain/endereco';
 import { centsToInput, parseBRL } from '@/domain/money';
 import type { Product } from '@/domain/types';
 import { formatPackageMeasure } from '@/domain/units';
 import { isCloudConfigured } from '@/lib/config';
 import { showAlert } from '@/lib/dialog';
 import { locationPermissionView } from '@/lib/permissions';
+import { buscarLugares } from '@/services/geocode';
 import { useForegroundPermissions, watchAccurateFix } from '@/services/location';
 import { findSimilar, GpsFix, hasAccount, listStores, MarketplaceError, publishOffer, PublishResult, StoreLocation, suggestStore } from '@/services/marketplace';
 import { useApp } from '@/state/AppContext';
@@ -387,12 +389,58 @@ function StoreStep({ d, set, store, setStore }: { d: PromotionDraft; set: (p: Pa
 function SuggestStoreSheet({ visible, onClose, onCreated, pos }: { visible: boolean; onClose: () => void; onCreated: (locationId: string) => void; pos: { latitude: number; longitude: number } | null }) {
   const [f, setF] = useState({ name: '', cnpj: '', address: '', neighborhood: '', city: '', state: '' });
   const [point, setPoint] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [focar, setFocar] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [termo, setTermo] = useState('');
+  const [achados, setAchados] = useState<LugarEncontrado[] | null>(null);
+  const [buscando, setBuscando] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const procurar = async () => {
+    setError(null);
+    setBuscando(true);
+    try {
+      setAchados(await buscarLugares(termo, pos));
+    } catch (e) {
+      setAchados(null);
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBuscando(false);
+    }
+  };
+
+  /** Usa um resultado da busca: preenche o que o mapa sabe e crava o ponto no local. */
+  const usarLugar = (l: LugarEncontrado) => {
+    setF((atual) => ({
+      ...atual,
+      name: atual.name.trim() || l.nome || atual.name,
+      address: l.endereco ?? atual.address,
+      neighborhood: l.bairro ?? atual.neighborhood,
+      city: l.cidade ?? atual.city,
+      state: l.uf ?? atual.state,
+    }));
+    const ponto = { latitude: l.latitude, longitude: l.longitude };
+    setPoint(ponto);
+    setFocar(ponto);
+    setAchados(null);
+    setError(null);
+  };
+
+  /** Toque no mapa: fora do Brasil o cadastro seria recusado pelo servidor, então avisa aqui. */
+  const escolherNoMapa = (ponto: { latitude: number; longitude: number }) => {
+    if (!dentroDoBrasil(ponto.latitude, ponto.longitude)) {
+      setError('Esse ponto está fora do Brasil. Aproxime o mapa e toque sobre a entrada da loja.');
+      return;
+    }
+    setError(null);
+    setPoint(ponto);
+  };
+
   const submit = async () => {
     setError(null);
     if (f.name.trim().length < 2 || f.address.trim().length < 5 || f.city.trim().length < 2 || !/^[A-Z]{2}$/.test(f.state)) return setError('Preencha nome, endereço, cidade e UF.');
     if (!point) return setError('Informe a localização do estabelecimento.');
+    if (!dentroDoBrasil(point.latitude, point.longitude)) return setError('A localização marcada está fora do Brasil. Procure o endereço ou toque sobre a loja no mapa.');
     setBusy(true);
     try {
       const r = await suggestStore({ ...f, cnpj: f.cnpj || undefined, latitude: point.latitude, longitude: point.longitude });
@@ -407,6 +455,33 @@ function SuggestStoreSheet({ visible, onClose, onCreated, pos }: { visible: bool
   return (
     <Sheet visible={visible} onClose={onClose} title="Sugerir estabelecimento">
       <T v="small" color={colors.textMuted}>A sugestão passa por análise da moderação antes de aparecer para todos. Unidades já cadastradas no mesmo local não são duplicadas.</T>
+
+      <Field
+        label="Procurar no mapa"
+        value={termo}
+        onChangeText={setTermo}
+        placeholder="Nome do mercado ou rua, com a cidade"
+        hint="O nome do mercado com a cidade, ou a rua com a cidade."
+        autoCapitalize="words"
+      />
+      <Button title="Procurar endereço" icon="search" kind="secondary" onPress={procurar} loading={buscando} disabled={termo.trim().length < 4} />
+      {achados?.length === 0 ? (
+        <Banner t="yellow" icon="help-circle-outline">
+          Nada encontrado com esse texto. Tente só a rua e a cidade — depois você ajusta o ponto tocando no mapa.
+        </Banner>
+      ) : null}
+      {achados?.length ? (
+        <Card>
+          <T v="small" color={colors.textMuted}>Toque no local certo:</T>
+          {achados.map((l) => (
+            <Pressable key={`${l.latitude},${l.longitude},${l.rotulo}`} onPress={() => usarLugar(l)} accessibilityRole="button" style={styles.achado}>
+              <Ionicons name="location-outline" size={18} color={colors.navy} />
+              <T v="small" style={{ flex: 1 }}>{l.rotulo}</T>
+            </Pressable>
+          ))}
+        </Card>
+      ) : null}
+
       <Field label="Nome do supermercado" value={f.name} onChangeText={(v) => setF({ ...f, name: v })} autoCapitalize="words" />
       <Field label="CNPJ (opcional)" value={f.cnpj} onChangeText={(v) => setF({ ...f, cnpj: v })} keyboardType="number-pad" hint="Aparece no cupom fiscal." />
       <Field label="Endereço" value={f.address} onChangeText={(v) => setF({ ...f, address: v })} placeholder="Rua e número" autoCapitalize="words" />
@@ -416,10 +491,12 @@ function SuggestStoreSheet({ visible, onClose, onCreated, pos }: { visible: bool
         <View style={{ flex: 1 }}><Field label="UF" value={f.state} onChangeText={(v) => setF({ ...f, state: v.toUpperCase().slice(0, 2) })} autoCapitalize="characters" /></View>
       </Row>
       <T v="small" style={{ fontWeight: '600' }}>Localização do estabelecimento</T>
-      {pos ? <Button title="Estou no estabelecimento: usar minha localização" icon="navigate" kind="secondary" onPress={() => setPoint(pos)} /> : null}
-      {mapAvailable ? <><T v="small" color={colors.textMuted}>Ou toque no mapa sobre a entrada da loja:</T><PickLocationMap value={point} onChange={setPoint} center={pos} /></> : null}
-      {!pos && !mapAvailable ? <Banner t="yellow" icon="navigate-outline">Ative a localização e esteja no estabelecimento para informar onde ele fica.</Banner> : null}
-      {point ? <Pill label="Localização definida" t="green" icon="checkmark" /> : null}
+      {pos ? <Button title="Estou no estabelecimento: usar minha localização" icon="navigate" kind="secondary" onPress={() => escolherNoMapa(pos)} /> : null}
+      {mapAvailable ? <><T v="small" color={colors.textMuted}>Ou toque no mapa sobre a entrada da loja:</T><PickLocationMap value={point} onChange={escolherNoMapa} center={pos} focar={focar} /></> : null}
+      {!pos && !mapAvailable ? <Banner t="yellow" icon="search-outline">Procure o endereço acima para marcar onde fica a loja.</Banner> : null}
+      {point ? (
+        <Pill label={`Localização definida (${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)})`} t="green" icon="checkmark" />
+      ) : null}
       {error ? <Banner t="red" icon="alert-circle">{error}</Banner> : null}
       <Button title="Enviar sugestão" icon="send" kind="confirm" onPress={submit} loading={busy} />
     </Sheet>
@@ -578,6 +655,7 @@ const styles = StyleSheet.create({
   dot: { width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', gap: space.sm, padding: space.lg, backgroundColor: colors.surface, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  achado: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 48, paddingVertical: 6 },
   choice: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, minHeight: 40, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   thumb: { width: 64, height: 64, borderRadius: radius.sm, marginRight: space.sm, backgroundColor: colors.border },
   miniDot: { width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: colors.navy },
