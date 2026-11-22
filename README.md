@@ -531,9 +531,15 @@ Sign In / Providers → Anonymous sign-ins**.
 
 1. **Edge Functions** (`receipt-ocr`, `send-push`) ainda não foram publicadas — é o que falta
    para a leitura por IA funcionar, junto com a chave do provedor (ver a seção seguinte).
-2. **Primeiro administrador** da moderação: `insert into public.app_admins (user_id) values
-   ('<id do usuário>');` depois de criar sua conta no aplicativo.
-3. **Supermercados** cadastrados e aprovados, para o marketplace de ofertas sair do zero.
+2. **Primeiro administrador** da moderação: criado em 22/11/2026. Para promover outra conta,
+   `insert into public.app_admins (user_id) values ('<id do usuário>');` depois que ela existir
+   em `auth.users`. Conferido com `public.is_admin()` e `public.admin_queue()` no papel
+   `authenticated` da própria conta, não só pela existência da linha.
+3. **Supermercados**: não devem ser inseridos por SQL. Cada unidade exige coordenadas de GPS
+   reais, e é por essa distância que o app decide se quem publicou estava mesmo na loja —
+   coordenada chutada estraga o recurso em vez de adiantar o início. O caminho é o fluxo que já
+   existe: qualquer pessoa sugere a unidade de dentro do aplicativo (`suggest_store`, com a
+   localização do aparelho) e a moderação aprova na aba **Lojas** do painel.
 
 ### Onde ficam o endereço e a chave
 
