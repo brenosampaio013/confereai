@@ -65,6 +65,15 @@
           "microphonePermission": false
         }
       ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "O Meu Carrin usa o microfone apenas enquanto você fala com o assistente, para montar o carrinho pelo que você pedir.",
+          "recordAudioAndroid": true,
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
       "expo-sqlite",
       "expo-secure-store",
       [

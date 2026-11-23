@@ -140,6 +140,23 @@ await step('o botão de assinar oferece mensal e anual com os preços certos', a
   assert.match(depois, /Economia de/);
 });
 
+await step('o plano IA aparece como em breve, sem botão de assinar', async () => {
+  const texto = await planos(page);
+  assert.match(texto, /Meu Carrin IA/);
+  assert.match(texto, /EM BREVE/);
+  assert.match(texto, /Ainda estamos terminando este plano/);
+  assert.ok(!texto.includes('Assinar por R$ 19,90/mês'), 'não se vende o que ainda não funciona');
+});
+
+await step('o assistente avisa que faz parte do plano IA, sem deixar a pessoa na mão', async () => {
+  await page.goto(`${APP}/assistente`);
+  await page.waitForTimeout(2500);
+  const texto = await page.locator('body').innerText();
+  assert.match(texto, /Fale o que você precisa/);
+  assert.match(texto, /o preço você confere na etiqueta/);
+  writeFileSync(join(OUT, 'planos-4-assistente.png'), await page.screenshot({ fullPage: true }));
+});
+
 await step('assinatura ativa no banco vira plano Mais na tela, com cota única', async () => {
   const uid = await idDoUsuario();
   await sql(

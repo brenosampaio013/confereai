@@ -1,6 +1,6 @@
 import {
   descreveCobranca, economiaAnualCents, type EstadoDoPlano, fracaoUsada, fraseDeUso, lerEstado,
-  planoAnunciado, quandoZera,
+  planoAnunciado, PLANOS_PAGOS, precoDe, quandoZera,
 } from '@/domain/planos';
 
 const base: EstadoDoPlano = {
@@ -11,6 +11,7 @@ const base: EstadoDoPlano = {
   preco: null,
   etiqueta: { limite: 20, usado: 0, resta: 20 },
   cupom: { limite: 4, usado: 0, resta: 4 },
+  voz: { limite: 0, usado: 0, resta: 0 },
   zeraEm: '2026-12-01T03:00:00.000Z',
 };
 
@@ -28,6 +29,19 @@ describe('estado do plano vindo do servidor', () => {
     });
     expect(e).toMatchObject({ plano: 'mais', status: 'active', preco: 'mais_anual' });
     expect(e?.etiqueta).toEqual({ limite: 300, usado: 11, resta: 289 });
+  });
+
+  it('lê o plano IA e o uso do assistente', () => {
+    const e = lerEstado({
+      plano: 'ia',
+      status: 'active',
+      preco: 'ia_anual',
+      etiqueta: { limite: 600, usado: 4, resta: 596 },
+      cupom: { limite: 600, usado: 4, resta: 596 },
+      voz: { limite: 150, usado: 2, resta: 148 },
+    });
+    expect(e).toMatchObject({ plano: 'ia', preco: 'ia_anual' });
+    expect(e?.voz).toEqual({ limite: 150, usado: 2, resta: 148 });
   });
 
   it('não confia em campos ausentes ou inesperados', () => {
@@ -86,6 +100,28 @@ describe('uso do mês', () => {
   it('diz quando a cota volta', () => {
     expect(quandoZera(base)).toBe('A cota volta em 01/12/2026.');
     expect(quandoZera({ ...base, zeraEm: null })).toBe('');
+  });
+});
+
+describe('planos pagos', () => {
+  it('são o Mais e o IA, nessa ordem, e o grátis fica de fora', () => {
+    expect(PLANOS_PAGOS.map((p) => p.id)).toEqual(['mais', 'ia']);
+  });
+
+  it('a chave do preço é montada a partir do plano e do período', () => {
+    expect(precoDe('mais', 'mensal')).toBe('mais_mensal');
+    expect(precoDe('ia', 'anual')).toBe('ia_anual');
+  });
+
+  it('o plano IA ainda não pode ser assinado, porque o recurso dele não está no ar', () => {
+    expect(planoAnunciado('ia').disponivel).toBe(false);
+    expect(planoAnunciado('mais').disponivel).toBe(true);
+  });
+
+  it('o IA custa o dobro do Mais e economiza no anual', () => {
+    const ia = planoAnunciado('ia');
+    expect(ia.mensalCents).toBe(1990);
+    expect(economiaAnualCents(ia)).toBe(1990 * 12 - 17900);
   });
 });
 

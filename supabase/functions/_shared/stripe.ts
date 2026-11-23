@@ -21,9 +21,9 @@ export class HttpError extends Error {
 }
 
 /** Planos vendidos. A chave de busca do preço na Stripe é "<plano>_<periodo>". */
-export const PLANOS = ['mais'] as const;
+export const PLANOS = ['mais', 'ia'] as const;
 export type Plano = (typeof PLANOS)[number];
-export const PRECOS = ['mais_mensal', 'mais_anual'] as const;
+export const PRECOS = ['mais_mensal', 'mais_anual', 'ia_mensal', 'ia_anual'] as const;
 export type Preco = (typeof PRECOS)[number];
 
 /** Descobre o plano pela chave de busca do preço, sem depender de identificadores que mudam entre modos. */

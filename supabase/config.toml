@@ -34,3 +34,8 @@ verify_jwt = true
 # Chamada pela Stripe, não por um usuário. A autenticidade vem da assinatura do corpo
 # (cabeçalho stripe-signature), verificada dentro da função. Não pode exigir JWT.
 verify_jwt = false
+
+[functions.assistente]
+# Assistente de voz: exige o JWT de uma conta de verdade (sessão anônima é recusada dentro
+# da função, porque a cota é por pessoa).
+verify_jwt = true

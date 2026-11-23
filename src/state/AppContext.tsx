@@ -62,6 +62,8 @@ const Ctx = createContext<AppValue | null>(null);
 let syncTimer: ReturnType<typeof setTimeout> | null = null;
 /** Fila das verificações de alerta de orçamento. */
 let budgetCheck: Promise<void> = Promise.resolve();
+/** Número da leitura mais recente do estado da compra (ver refreshActive). */
+let leituraAtual = 0;
 
 export function useApp(): AppValue {
   const v = useContext(Ctx);
@@ -119,13 +121,20 @@ export function AppProvider({
 
   const refreshActive = useCallback(async () => {
     if (!repo) return;
+    // Cada leitura recebe um número. Se outra começar enquanto esta ainda lê o banco, só a
+    // mais nova escreve na tela: sem isso, uma leitura lenta pode terminar depois e devolver
+    // ao aplicativo um estado já vencido — por exemplo, uma compra que acabou de ser
+    // encerrada reaparecendo como "em andamento" até recarregar.
+    const minhaVez = ++leituraAtual;
     const p = await repo.getActivePurchase();
     const items = p ? await repo.listCartItems(p.id) : [];
     const th = parseThresholds(await repo.getSetting("budget_thresholds"));
+    const pendentes = await repo.pendingSyncCount();
+    if (minhaVez !== leituraAtual) return;
     setActive(p);
     setCart(items);
     setThresholdsState(th);
-    setPending(await repo.pendingSyncCount());
+    setPending(pendentes);
     // Alerta de orçamento: só quando o total SOBE de faixa. O último total avisado fica guardado no
     // banco local (por compra e por orçamento), então reabrir ou recarregar o app não repete nem perde avisos.
     if (p?.budgetCents) {
@@ -137,6 +146,7 @@ export function AppProvider({
       try {
         const spent = cartTotals(items).totalCents;
         const tag = `${p.id}|${p.budgetCents}|`;
+        if (minhaVez !== leituraAtual) return;
         const stored = await repo.getSetting("budget_seen");
         const prevSpent = stored?.startsWith(tag)
           ? Number(stored.slice(tag.length)) || 0

@@ -21,7 +21,11 @@ import { budgetMessage, budgetStatus } from '@/domain/budget';
 import { StoreChoice, StoreSheet } from '@/ui/StoreSheet';
 
 export default function AddItem() {
-  const params = useLocalSearchParams<{ barcode?: string; via?: string; newLine?: string; capture?: string }>();
+  const params = useLocalSearchParams<{
+    barcode?: string; via?: string; newLine?: string; capture?: string;
+    // Vindo do assistente de voz: o produto já identificado, com o preço ainda por preencher.
+    nome?: string; marca?: string; quantidade?: string; unidade?: string;
+  }>();
   const barcode = params.barcode && /^\d{6,14}$/.test(params.barcode) ? params.barcode : null;
   const via = params.via === 'manual' ? 'manual' : 'scan';
   const { repo, ensureActivePurchase, bump, active, budget, thresholds } = useApp();
@@ -33,12 +37,20 @@ export default function AddItem() {
   const [usedSuggestion, setUsedSuggestion] = useState<'open_food_facts' | 'community' | null>(null);
   const [priceOnlyStore, setPriceOnlyStore] = useState<StoreChoice>({ name: null, locationId: null });
 
-  const [name, setName] = useState('');
-  const [brand, setBrand] = useState('');
+  const [name, setName] = useState(params.nome ? productNameCase(params.nome) : '');
+  const [brand, setBrand] = useState(params.marca ?? '');
   const [pkg, setPkg] = useState('');
-  const [saleUnit, setSaleUnit] = useState<SaleUnit>('un');
-  const [units, setUnits] = useState(1);
-  const [weight, setWeight] = useState('');
+  const [saleUnit, setSaleUnit] = useState<SaleUnit>(
+    params.unidade === 'kg' || params.unidade === 'l' ? params.unidade : 'un',
+  );
+  const [units, setUnits] = useState(() => {
+    const n = Number(params.quantidade);
+    return Number.isFinite(n) && n > 0 && n <= 999 ? n : 1;
+  });
+  const [weight, setWeight] = useState(() => {
+    const n = Number(params.quantidade);
+    return (params.unidade === 'kg' || params.unidade === 'l') && Number.isFinite(n) && n > 0 ? String(n) : '';
+  });
   const [price, setPrice] = useState('');
   const [discount, setDiscount] = useState('');
   const [promoNote, setPromoNote] = useState('');

@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     const corpo = (await req.json().catch(() => null)) as { preco?: string } | null;
     const preco = corpo?.preco;
     if (!preco || !(PRECOS as readonly string[]).includes(preco)) {
-      throw new HttpError(400, 'preco_invalido', 'Escolha o plano mensal ou o anual.');
+      throw new HttpError(400, 'preco_invalido', 'Escolha um dos planos, no mensal ou no anual.');
     }
 
     const stripe = stripeClient();

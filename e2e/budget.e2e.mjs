@@ -169,6 +169,10 @@ try {
     await page.goto(`${APP}/purchases`);
     await page.getByText('Feijão carioca (teste)').first().waitFor({ timeout: 20000 });
     await click(page, 'Encerrar');
+    // Encerrar grava no banco do navegador e volta para o início. Recarregar a página antes de
+    // a gravação terminar desfazia o encerramento neste teste (o roteiro navega bem mais rápido
+    // do que uma pessoa), então espera-se o início aparecer sem compra em andamento.
+    await page.getByText('Nova compra', { exact: true }).first().waitFor({ timeout: 20000 });
     await page.waitForTimeout(1500);
     await page.goto(`${APP}/purchases?view=history`);
     await page.getByText('Acima do orçamento').first().waitFor({ timeout: 20000 });

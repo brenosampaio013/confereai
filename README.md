@@ -659,6 +659,50 @@ npx supabase functions deploy stripe-checkout stripe-portal stripe-webhook
 Segredos da função (ver `supabase/functions/.env.example`): `STRIPE_SECRET_KEY`,
 `STRIPE_WEBHOOK_SECRET`, `APP_URL`. Nenhum deles entra no aplicativo.
 
+### O terceiro plano: Meu Carrin IA (ainda não à venda)
+
+**R$ 19,90 por mês ou R$ 179 por ano.** O que ele acrescenta é o **assistente de voz**: a pessoa
+fala o que precisa e ele devolve os produtos entendidos, para conferir e adicionar. Inclui tudo
+do Mais, com 600 leituras automáticas por mês e 150 conversas.
+
+O plano está **marcado como indisponível** em `src/domain/planos.ts` (`disponivel: false`): ele
+aparece na tela e na landing como "em breve", **sem botão de assinar**. Não se vende o que o
+aplicativo ainda não entrega — foi exatamente esse o problema do plano Família. Para abrir as
+vendas: configurar as chaves de IA em produção, exercitar o assistente com áudio de verdade e
+só então virar o `disponivel` para `true` e criar os preços `ia_mensal` / `ia_anual` no modo de
+produção da Stripe (no modo de teste eles já existem).
+
+A trava do servidor não depende desse campo: o balde `voz` vale **zero** nos planos Grátis e
+Mais, e é a própria cota que recusa a conversa. Não há nenhuma regra em código dizendo "quem
+pode" — quem decide é a tabela.
+
+### Como funciona o assistente
+
+```
+fala → [grava no aparelho] → função `assistente` → transcrição (OpenAI)
+                                                 → entendimento (Claude) → itens sugeridos
+                                                 → a pessoa confirma item a item
+```
+
+Dois fornecedores porque **a Claude não lê áudio** — ela recebe texto, imagem e PDF. A
+transcrição vai para a OpenAI, que aceita direto os dois formatos que o aplicativo grava
+(`.m4a` no celular, `.webm` no navegador); o Google Speech-to-Text ficaria de fora porque não
+aceita AAC. O entendimento fica com a Claude, a mesma que já lê cupons e etiquetas aqui.
+
+Três decisões que valem explicar:
+
+- **A IA não sabe preço, e isso é de propósito.** Ela identifica o produto, como o leitor de
+  código de barras faz; o preço continua vindo da etiqueta, pela mão da pessoa. Um carrinho com
+  preço inventado destruiria a conferência do cupom, que é o motivo de o aplicativo existir.
+- **Nada entra no carrinho sozinho.** Cada item abre a tela de sempre, com nome, marca e
+  quantidade preenchidos, para conferir e pôr o preço.
+- **O áudio não é guardado.** É lido, enviado, processado em memória e apagado do aparelho logo
+  depois. A política de privacidade descreve isso e nomeia os dois fornecedores.
+
+Quantidade falada vira unidade de venda: "quinhentos gramas de queijo" → 0,5 kg; "três pacotes
+de café de 500 g" → 3 un, com o peso na observação. Quantidade não dita **continua não dita** —
+não vira 1 (`src/domain/assistente.ts`, com testes).
+
 ### Moeda sempre em reais
 
 A conta tem o *Adaptive Pricing* ligado, que converte o preço para a moeda de quem acessa — numa
@@ -831,7 +875,10 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Pagamento com a Stripe de teste** | `e2e/pagamento-stripe.mjs`, 6 passos, todos passando, com as **funções reais** rodando sob Deno contra o PostgreSQL do arranjo de teste e a Stripe de teste: assinatura criada e cobrada (R$ 9,90, em reais, fatura gerada); aviso real da Stripe com assinatura adulterada **recusado** sem liberar plano; o mesmo aviso, assinado corretamente, liberando o plano Mais no espelho; aviso repetido e fatura paga fora de ordem sem causar dano (uma linha só); cancelamento agendado mantendo o plano e marcando que não renova; cancelamento efetivado devolvendo a pessoa ao plano grátis. Conferido também pela função `my_plan`: cota de 300 enquanto assinante, 20 e 4 depois do cancelamento. O cliente de teste foi apagado ao final. |
 | **Cota no servidor, exercitada de verdade** | Função `receipt-ocr` rodando aqui: com cota disponível ela segue para a IA (502 por não haver chave neste ambiente, que é o esperado); com os 4 cupons do mês gastos, devolve **429** com a mensagem do plano **sem chamar a IA**; a etiqueta, que tem balde próprio, continua passando; e com o plano Mais ativo o mesmo cupom volta a passar. |
 | **Página de pagamento e portal (navegador)** | Abertos no Chromium: o checkout mostra "Assinar Meu Carrin Mais · R$ 9,90 por mês" com o formulário de cartão em português, e o portal mostra plano, próxima cobrança (23/12/2026), o cartão Visa •••• 4242 e o botão de cancelar. **Não testado:** o clique final de pagar e o de confirmar o cancelamento — a Stripe roda uma verificação antibô (hCaptcha) em endereços de subdomínio sorteado, que esta rede não libera, e desativar a detecção de automação seria burlar essa proteção. São telas da própria Stripe; o que depende do nosso código foi provado pela via da API, que produz os mesmos objetos e avisos. |
-| **Passo instável conhecido** | `avisa ao passar de 75%, ao atingir 100% e ao ultrapassar`, no roteiro do orçamento, depende de o aviso aparecer logo após o toque em "+". Em 22/11/2026 ele passou 3 vezes e falhou 2 no mesmo código, sempre com a máquina ocupada; sozinho e com a máquina livre, passou 4 vezes seguidas. A espera foi de 10 s para 20 s, como no resto do roteiro. **Não é defeito do aplicativo**: quando falha, é o aviso demorando mais que a espera do teste. Se voltar a falhar com frequência, o caminho é investigar a fila de verificação de orçamento no AppContext, não aumentar o tempo de novo. |
+| **Plano IA e assistente — Jest** | 13 testes novos (163 no total), todos passando: o plano IA lido do servidor com o uso do assistente, a ordem dos planos pagos, a chave do preço montada a partir do plano e do período, o IA ainda marcado como indisponível, e a leitura do que a IA entendeu — grama e mililitro virando quilo e litro, pacote com peso indo para a observação, quantidade não dita continuando não dita (não vira 1), item sem nome descartado, unidade desconhecida sem conversão inventada e a lista com teto de 30 itens. |
+| **Plano IA — banco** | 4 testes novos (76 no total), todos passando: o assistente só existe no plano IA (o balde `voz` é zero nos outros, e é ele que recusa), a conversa consumindo o balde de voz e o total de 600, e a tela de planos mostrando o uso do assistente. |
+| **Assistente — não exercitado com áudio** | A função `assistente` tem tipagem verificada e está publicada, mas **nunca rodou com áudio de verdade**: falta a chave da Claude (que não pode ser guardada no cofre desta sessão) e a conta da OpenAI está **sem créditos** (`insufficient_quota`). Sem isso não há transcrição nem entendimento, e por isso o plano IA está marcado como indisponível. |
+| **Passo instável conhecido** | `avisa ao passar de 75%, ao atingir 100% e ao ultrapassar`, no roteiro do orçamento, depende de o aviso aparecer logo após o toque em "+". Em 22/11/2026 ele passou 3 vezes e falhou 2 no mesmo código, sempre com a máquina ocupada; sozinho e com a máquina livre, passou 4 vezes seguidas. A espera foi de 10 s para 20 s, como no resto do roteiro. **Não é defeito do aplicativo**: quando falha, é o aviso demorando mais que a espera do teste. Se voltar a falhar com frequência, o caminho é investigar a fila de verificação de orçamento no AppContext, não aumentar o tempo de novo.<br><br>**23/11/2026 — causa encontrada em outro passo.** O passo `compra encerrada fica em Minhas compras` passou a falhar em 5 de 8 rodadas depois que o pacote cresceu (assistente e plano IA). Não era carga nem a tela nova: o roteiro **recarregava a página 1,5 s depois de encerrar**, antes de o aplicativo terminar de gravar, e o encerramento se perdia. Agora o teste espera o início mostrar "Nova compra" — isto é, confere o efeito em vez de correr com ele — e passou 3 de 3. Duas hipóteses minhas foram descartadas pelo caminho (carga da máquina e a tela nova), cada uma com uma rodada de controle. Ao investigar apareceu também uma corrida real no `AppContext`: duas leituras do estado da compra podiam terminar fora de ordem e a mais antiga sobrescrevia a mais nova, devolvendo à tela uma compra já encerrada. Corrigido com um número de leitura (só a mais recente escreve na tela). |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |
 

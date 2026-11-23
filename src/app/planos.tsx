@@ -14,12 +14,12 @@ import { isCloudConfigured } from '@/lib/config';
 import { showAlert } from '@/lib/dialog';
 import { useLoad } from '@/lib/useLoad';
 import {
-  type Balde, descreveCobranca, economiaAnualCents, fracaoUsada, fraseDeUso, PLANOS, planoAnunciado,
-  type PrecoId, quandoZera,
+  type Balde, descreveCobranca, economiaAnualCents, fracaoUsada, fraseDeUso, PLANOS, PLANOS_PAGOS,
+  type PlanoAnunciado, planoAnunciado, precoDe, quandoZera,
 } from '@/domain/planos';
 import { assinar, gerenciarAssinatura, meuPlano, PlanoError } from '@/services/planos';
 import { useApp } from '@/state/AppContext';
-import { Banner, Button, Card, Divider, Money, Row, Screen, SectionTitle, Segmented, T } from '@/ui/components';
+import { Banner, Button, Card, Divider, type IconName, Money, Pill, Row, Screen, SectionTitle, Segmented, T } from '@/ui/components';
 import { colors, radius, space } from '@/ui/theme';
 
 /** O Google Play exige a cobrança dele para conteúdo digital dentro do app. */
@@ -31,7 +31,6 @@ export default function Planos() {
   const cloud = isCloudConfigured();
   const conectado = !!session && !isAnonymous;
   const [recarga, setRecarga] = useState(0);
-  const [periodo, setPeriodo] = useState<'mensal' | 'anual'>('mensal');
   const [indo, setIndo] = useState(false);
   const [tentativas, setTentativas] = useState(0);
 
@@ -96,10 +95,8 @@ export default function Planos() {
     );
   }
 
-  const mais = planoAnunciado('mais');
-  const economia = economiaAnualCents(mais);
   const cobranca = estado ? descreveCobranca(estado) : null;
-  const assinante = estado?.plano === 'mais';
+  const assinante = estado ? estado.plano !== 'gratis' : false;
 
   return (
     <Screen>
@@ -147,9 +144,17 @@ export default function Planos() {
               balde={estado.cupom}
               frase={fraseDeUso(estado.cupom, 'leitura', 'leituras')}
             />
-            {estado.plano === 'mais' ? (
+            {estado.voz.limite === null || estado.voz.limite > 0 ? (
+              <Uso
+                icone="chatbubble-ellipses-outline"
+                titulo="Conversas com o assistente"
+                balde={estado.voz}
+                frase={fraseDeUso(estado.voz, 'conversa', 'conversas')}
+              />
+            ) : null}
+            {estado.plano !== 'gratis' ? (
               <T v="small" color={colors.textMuted}>
-                No Meu Carrin Mais as leituras somam numa cota só: as duas barras mostram a mesma cota.
+                Neste plano as leituras por foto somam numa cota só: as duas primeiras barras mostram a mesma cota.
               </T>
             ) : null}
             <T v="small" color={colors.textFaint}>
@@ -170,66 +175,92 @@ export default function Planos() {
         ) : null}
       </Card>
 
-      {!assinante ? (
-        <>
-          <SectionTitle>Quer mais leituras?</SectionTitle>
-          <Card>
-            <T v="heading">{mais.nome}</T>
-            <T v="small" color={colors.textMuted}>{mais.chamada}</T>
-            <Segmented
-              label="Como pagar"
-              value={periodo}
-              onChange={setPeriodo}
-              options={[
-                { value: 'mensal', label: 'R$ 9,90/mês' },
-                { value: 'anual', label: 'R$ 89/ano' },
-              ]}
-            />
-            <Row>
-              <Money cents={periodo === 'mensal' ? mais.mensalCents : mais.anualCents} v="title" />
-              <T v="small" color={colors.textMuted}>{periodo === 'mensal' ? 'por mês' : 'por ano'}</T>
-            </Row>
-            {periodo === 'anual' && economia ? (
-              <Row gap={space.xs}>
-                <Ionicons name="pricetags-outline" size={16} color={colors.greenText} />
-                <T v="small" color={colors.greenText}>
-                  Economia de <Money cents={economia} v="small" color={colors.greenText} /> em doze meses.
-                </T>
-              </Row>
-            ) : null}
-            {mais.itens.map((item) => (
-              <Row key={item} gap={space.sm}>
-                <Ionicons name="checkmark-circle" size={18} color={colors.green} />
-                <T v="small" style={styles.item}>{item}</T>
-              </Row>
-            ))}
-            {COMPRA_NO_APP ? (
-              <>
-                <Button
-                  title={periodo === 'mensal' ? 'Assinar por R$ 9,90/mês' : 'Assinar por R$ 89/ano'}
-                  icon="lock-closed-outline"
-                  loading={indo}
-                  onPress={() => ir(() => assinar(`mais_${periodo}` as PrecoId))}
-                />
-                <T v="small" color={colors.textFaint}>
-                  O pagamento é feito na Stripe, com cartão. O Meu Carrin não vê nem guarda o número do seu cartão. Você cancela quando quiser, pelo próprio aplicativo, e continua com o plano até o fim do período já pago.
-                </T>
-              </>
-            ) : (
-              <T v="small" color={colors.textMuted}>
-                A assinatura é feita e gerenciada no site do Meu Carrin, no navegador. Entrando com a mesma conta, o plano vale também aqui no aplicativo.
-              </T>
-            )}
-          </Card>
-        </>
-      ) : null}
+      {PLANOS_PAGOS.filter((p) => p.id !== estado?.plano).map((p) => (
+        <Oferta
+          key={p.id}
+          plano={p}
+          destaque={p.id === 'ia'}
+          ocupado={indo}
+          onAssinar={(periodo) => ir(() => assinar(precoDe(p.id, periodo)))}
+        />
+      ))}
 
       <Comparacao />
     </Screen>
   );
 }
 
-function Uso({ icone, titulo, balde, frase }: { icone: 'pricetag-outline' | 'receipt-outline'; titulo: string; balde: Balde; frase: string }) {
+function Oferta({ plano, destaque, ocupado, onAssinar }: {
+  plano: PlanoAnunciado;
+  destaque?: boolean;
+  ocupado: boolean;
+  onAssinar: (periodo: 'mensal' | 'anual') => void;
+}) {
+  const [periodo, setPeriodo] = useState<'mensal' | 'anual'>('mensal');
+  const economia = economiaAnualCents(plano);
+  const cents = periodo === 'mensal' ? plano.mensalCents : plano.anualCents;
+  const porMes = `R$ ${((plano.mensalCents ?? 0) / 100).toFixed(2).replace('.', ',')}/mês`;
+  const porAno = `R$ ${((plano.anualCents ?? 0) / 100).toFixed(0)}/ano`;
+  return (
+    <>
+      <SectionTitle>{destaque ? 'O plano com o assistente' : 'Quer mais leituras?'}</SectionTitle>
+      <Card>
+        <Row>
+          <T v="heading" style={styles.item}>{plano.nome}</T>
+          {plano.disponivel ? null : <Pill label="EM BREVE" t="yellow" />}
+        </Row>
+        <T v="small" color={colors.textMuted}>{plano.chamada}</T>
+        <Segmented
+          label={`Como pagar o ${plano.nome}`}
+          value={periodo}
+          onChange={setPeriodo}
+          options={[{ value: 'mensal', label: porMes }, { value: 'anual', label: porAno }]}
+        />
+        <Row>
+          <Money cents={cents} v="title" />
+          <T v="small" color={colors.textMuted}>{periodo === 'mensal' ? 'por mês' : 'por ano'}</T>
+        </Row>
+        {periodo === 'anual' && economia ? (
+          <Row gap={space.xs}>
+            <Ionicons name="pricetags-outline" size={16} color={colors.greenText} />
+            <T v="small" color={colors.greenText}>
+              Economia de <Money cents={economia} v="small" color={colors.greenText} /> em doze meses.
+            </T>
+          </Row>
+        ) : null}
+        {plano.itens.map((item) => (
+          <Row key={item} gap={space.sm}>
+            <Ionicons name="checkmark-circle" size={18} color={colors.green} />
+            <T v="small" style={styles.item}>{item}</T>
+          </Row>
+        ))}
+        {!plano.disponivel ? (
+          <T v="small" color={colors.yellowText}>
+            Ainda estamos terminando este plano. Nada aqui está disponível hoje, e por isso ele não pode ser assinado.
+          </T>
+        ) : COMPRA_NO_APP ? (
+          <>
+            <Button
+              title={`Assinar por ${periodo === 'mensal' ? porMes : porAno}`}
+              icon="lock-closed-outline"
+              loading={ocupado}
+              onPress={() => onAssinar(periodo)}
+            />
+            <T v="small" color={colors.textFaint}>
+              O pagamento é feito na Stripe, com cartão. O Meu Carrin não vê nem guarda o número do seu cartão. Você cancela quando quiser, pelo próprio aplicativo, e continua com o plano até o fim do período já pago.
+            </T>
+          </>
+        ) : (
+          <T v="small" color={colors.textMuted}>
+            A assinatura é feita e gerenciada no site do Meu Carrin, no navegador. Entrando com a mesma conta, o plano vale também aqui no aplicativo.
+          </T>
+        )}
+      </Card>
+    </>
+  );
+}
+
+function Uso({ icone, titulo, balde, frase }: { icone: IconName; titulo: string; balde: Balde; frase: string }) {
   const fracao = fracaoUsada(balde);
   const acabou = balde.limite !== null && (balde.resta ?? 0) <= 0;
   return (

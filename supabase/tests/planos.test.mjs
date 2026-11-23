@@ -123,7 +123,7 @@ test('nem com conta nem como visitante se apaga a tabela inteira', async () => {
     assert.match(await err(q(quem, 'truncate public.plan_limits')), /permission denied/);
     assert.match(await err(q(quem, 'truncate public.ocr_usage')), /permission denied/);
   }
-  assert.equal((await db.query('select count(*)::int as n from public.plan_limits')).rows[0].n, 3);
+  assert.equal((await db.query('select count(*)::int as n from public.plan_limits')).rows[0].n, 7);
 });
 
 test('cada pessoa vê apenas a própria assinatura', async () => {
@@ -141,6 +141,40 @@ test('visitante enxerga a tabela de limites, que é informação pública', asyn
   assert.deepEqual(linhas, [
     { plan: 'gratis', bucket: 'cupom', monthly_limit: 4 },
     { plan: 'gratis', bucket: 'etiqueta', monthly_limit: 20 },
+    { plan: 'gratis', bucket: 'voz', monthly_limit: 0 },
+    { plan: 'ia', bucket: 'total', monthly_limit: 600 },
+    { plan: 'ia', bucket: 'voz', monthly_limit: 150 },
     { plan: 'mais', bucket: 'total', monthly_limit: 300 },
+    { plan: 'mais', bucket: 'voz', monthly_limit: 0 },
   ]);
+});
+
+test('o assistente de voz só existe no plano IA', async () => {
+  // Grátis e Mais têm o balde de voz zerado: é isso que o servidor lê para recusar.
+  assert.equal((await cota(ANA, 'voice')).remaining, 0);
+  await assinar(ANA, { plan: 'mais', status: 'active' });
+  assert.equal((await cota(ANA, 'voice')).remaining, 0);
+  await assinar(ANA, { plan: 'ia', status: 'active', preco: 'ia_mensal' });
+  const voz = await cota(ANA, 'voice');
+  assert.equal(voz.monthly_limit, 150);
+  assert.equal(voz.remaining, 150);
+});
+
+test('no plano IA a conversa consome o balde de voz e o total', async () => {
+  await assinar(ANA, { plan: 'ia', status: 'active', preco: 'ia_mensal' });
+  await usar(ANA, 'voice', 3);
+  const voz = await cota(ANA, 'voice');
+  assert.deepEqual({ usado: voz.used, resta: voz.remaining, balde: voz.bucket }, { usado: 3, resta: 147, balde: 'voz' });
+  // As leituras por foto do mesmo mês somam no total de 600, junto com as conversas.
+  const etiqueta = await cota(ANA, 'label');
+  assert.equal(etiqueta.monthly_limit, 600);
+  assert.equal(etiqueta.bucket, 'total');
+});
+
+test('a tela de planos mostra o uso do assistente', async () => {
+  await assinar(ANA, { plan: 'ia', status: 'active', preco: 'ia_anual' });
+  const p = await plano(ANA);
+  assert.equal(p.plano, 'ia');
+  assert.equal(p.voz.limite, 150);
+  assert.ok(p.voz.usado >= 3, 'as conversas já feitas deveriam contar');
 });

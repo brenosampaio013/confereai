@@ -86,6 +86,12 @@ export default function Home() {
               <Button title="Carrinho" icon="cart-outline" kind="secondary" onPress={() => router.push('/purchases')} style={{ flex: 1 }} />
             </Row>
             <Button
+              title="Falar o que você precisa"
+              icon="mic-outline"
+              kind="onDark"
+              onPress={() => router.push('/assistente')}
+            />
+            <Button
               title="Conferir a nota desta compra"
               icon="receipt-outline"
               kind="onDark"

@@ -59,6 +59,14 @@ const SECTIONS: { title: string; body: string[] }[] = [
     ],
   },
   {
+    title: 'Assistente de voz',
+    body: [
+      'Se você usar o assistente, o aplicativo grava o que você fala — e somente enquanto você está falando com ele. O áudio é enviado ao nosso servidor, que o transcreve e interpreta para sugerir os produtos.',
+      'A transcrição é feita pela OpenAI e a interpretação pela Anthropic (Claude). Nenhuma das duas usa esse conteúdo para treinar seus modelos, conforme os termos de uso para empresas, e o áudio não é armazenado: nem no aparelho, nem no nosso servidor.',
+      'O microfone só é acionado quando você toca no botão de falar. Nenhum item entra no carrinho sem a sua confirmação.',
+    ],
+  },
+  {
     title: 'Pagamento da assinatura',
     body: [
       'Se você assinar o Meu Carrin Mais, o pagamento é processado pela Stripe. Você digita os dados do cartão na página da Stripe, não aqui: o aplicativo não recebe, não vê e não guarda o número do seu cartão.',

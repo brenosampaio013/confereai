@@ -5,8 +5,8 @@
  * landing contem a mesma coisa e a cota possa mudar sem publicar aplicativo. O que mora aqui é
  * o texto e o preço anunciado.
  */
-export type PlanoId = 'gratis' | 'mais';
-export type PrecoId = 'mais_mensal' | 'mais_anual';
+export type PlanoId = 'gratis' | 'mais' | 'ia';
+export type PrecoId = 'mais_mensal' | 'mais_anual' | 'ia_mensal' | 'ia_anual';
 
 /** Os mesmos nomes de situação que a Stripe usa, mais 'none' para quem nunca assinou. */
 export type SituacaoCobranca =
@@ -28,6 +28,8 @@ export interface EstadoDoPlano {
   preco: PrecoId | null;
   etiqueta: Balde;
   cupom: Balde;
+  /** Conversas com o assistente. Limite zero significa que o plano não o inclui. */
+  voz: Balde;
   zeraEm: string | null;
 }
 
@@ -39,6 +41,12 @@ export interface PlanoAnunciado {
   mensalCents: number | null;
   anualCents: number | null;
   itens: string[];
+  /**
+   * Se já dá para assinar. Um plano com `disponivel: false` aparece como "em breve", sem botão
+   * de compra: não se vende o que o aplicativo ainda não entrega. Ligar só depois que o
+   * recurso do plano estiver funcionando de verdade em produção.
+   */
+  disponivel: boolean;
 }
 
 export const PLANOS: PlanoAnunciado[] = [
@@ -48,6 +56,7 @@ export const PLANOS: PlanoAnunciado[] = [
     chamada: 'Tudo que não depende de leitura automática, sem limite.',
     mensalCents: null,
     anualCents: null,
+    disponivel: true,
     itens: [
       'Carrinho, orçamento e avisos sem limite',
       'Escaneamento de código de barras',
@@ -61,13 +70,35 @@ export const PLANOS: PlanoAnunciado[] = [
     chamada: 'Para quem usa a leitura por foto em toda compra.',
     mensalCents: 990,
     anualCents: 8900,
+    disponivel: true,
     itens: [
       'Tudo do plano grátis',
       'Muito mais leituras automáticas por mês',
       'Apoia o desenvolvimento do aplicativo',
     ],
   },
+  {
+    id: 'ia',
+    nome: 'Meu Carrin IA',
+    chamada: 'Fale o que você precisa e o assistente monta o carrinho.',
+    mensalCents: 1990,
+    anualCents: 17900,
+    // Em breve: o assistente depende das chaves de IA, que ainda não estão configuradas em
+    // produção. Enquanto isso o plano aparece na lista, sem botão de assinar.
+    disponivel: false,
+    itens: [
+      'Tudo do Meu Carrin Mais',
+      'Assistente de voz: você fala, ele sugere, você confirma',
+      'O dobro das leituras automáticas por mês',
+    ],
+  },
 ];
+
+/** Os planos que se pode assinar, na ordem em que a tela os mostra. */
+export const PLANOS_PAGOS = PLANOS.filter((p) => p.mensalCents !== null);
+
+/** A chave de busca do preço na Stripe: "<plano>_<periodo>". */
+export const precoDe = (plano: PlanoId, periodo: 'mensal' | 'anual') => `${plano}_${periodo}` as PrecoId;
 
 export const planoAnunciado = (id: PlanoId) => PLANOS.find((p) => p.id === id) ?? PLANOS[0];
 
@@ -124,6 +155,8 @@ export function fracaoUsada(b: Balde): number | null {
 /** Quando a cota volta, dito por extenso: "a cota volta em 01/12/2026". */
 export const quandoZera = (e: EstadoDoPlano) => (e.zeraEm ? `A cota volta em ${dia(e.zeraEm)}.` : '');
 
+const PRECOS_CONHECIDOS: PrecoId[] = ['mais_mensal', 'mais_anual', 'ia_mensal', 'ia_anual'];
+
 /** Lê a resposta de public.my_plan(), sem confiar em campos ausentes. */
 export function lerEstado(bruto: unknown): EstadoDoPlano | null {
   if (!bruto || typeof bruto !== 'object') return null;
@@ -133,15 +166,16 @@ export function lerEstado(bruto: unknown): EstadoDoPlano | null {
     const num = (x: unknown) => (typeof x === 'number' ? x : null);
     return { limite: num(b.limite), usado: num(b.usado) ?? 0, resta: num(b.resta) };
   };
-  const plano: PlanoId = o.plano === 'mais' ? 'mais' : 'gratis';
+  const plano: PlanoId = o.plano === 'mais' || o.plano === 'ia' ? o.plano : 'gratis';
   return {
     plano,
     status: (typeof o.status === 'string' ? o.status : 'none') as SituacaoCobranca,
     renovaEm: typeof o.renova_em === 'string' ? o.renova_em : null,
     cancelaNoFim: o.cancela_no_fim === true,
-    preco: o.preco === 'mais_mensal' || o.preco === 'mais_anual' ? o.preco : null,
+    preco: PRECOS_CONHECIDOS.includes(o.preco as PrecoId) ? (o.preco as PrecoId) : null,
     etiqueta: balde(o.etiqueta),
     cupom: balde(o.cupom),
+    voz: balde(o.voz),
     zeraEm: typeof o.zera_em === 'string' ? o.zera_em : null,
   };
 }
