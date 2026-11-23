@@ -659,6 +659,23 @@ npx supabase functions deploy stripe-checkout stripe-portal stripe-webhook
 Segredos da função (ver `supabase/functions/.env.example`): `STRIPE_SECRET_KEY`,
 `STRIPE_WEBHOOK_SECRET`, `APP_URL`. Nenhum deles entra no aplicativo.
 
+### Moeda sempre em reais
+
+A conta tem o *Adaptive Pricing* ligado, que converte o preço para a moeda de quem acessa — numa
+prova aberta daqui, a página mostrou "US$ 1,73 por mês" num plano anunciado por R$ 9,90. Como a
+landing e os termos prometem reais, a função passa `adaptive_pricing: { enabled: false }`: o
+preço exibido é sempre o anunciado. Para voltar atrás, basta remover essa linha de
+`supabase/functions/stripe-checkout/index.ts` — a conta continua com o recurso ligado.
+
+### Catálogo de teste
+
+O modo de teste tem o mesmo catálogo (produto `prod_VgJ5sOzci6KD3p`, preços `mais_mensal` e
+`mais_anual`). Como os preços são achados por chave de busca, **nada no código muda entre os
+modos**: trocar `STRIPE_SECRET_KEY` de `sk_test_` para `sk_live_` é a única diferença.
+
+Para reconferir o pagamento depois de mexer nas funções: `e2e/pagamento-stripe.mjs` (instruções
+no topo do arquivo). Ele não entra em `npm run test:e2e` porque exige uma chave de teste.
+
 ### Privilégios que o Supabase concede por padrão (pendente)
 
 Ao conferir a migração em produção apareceu algo que não é de hoje: projeto Supabase novo tem um
@@ -811,6 +828,9 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Planos e assinatura — ponta a ponta** | 9 passos novos em `npm run test:e2e` (41 no total), todos passando, no app web real: plano grátis com cota zerada, cota mostrando 5 de 20 fotos e 1 de 4 cupons, cota esgotada dizendo o número, mensal e anual com os preços certos e a economia do anual, assinatura ativa no banco virando plano Mais com cota única de 300, cancelamento agendado com a data, cobrança atrasada pedindo o cartão sem cortar o plano, cancelada voltando ao grátis, e o caminho pelo perfil. **Nenhum pagamento é feito**: o que se verifica é a tela a partir do estado do banco. |
 | **Assinatura — funções da borda (Deno)** | 7 testes em `supabase/functions/_shared/stripe.test.ts`, todos passando no Deno 2.9.6: aviso com assinatura correta aceito, assinatura de outro segredo recusada, corpo alterado depois de assinado recusado, aviso velho recusado pela tolerância de tempo, id da assinatura achado em cada forma de aviso (inclusive fatura nova com `parent.subscription_details`), fim do período lido no item ou no objeto conforme a versão da API, e preço desconhecido não virando plano. |
 | **Stripe real (conta de produção)** | Conferido contra a conta brasileira: preço achado por `lookup_key`, sessão de pagamento criada com exatamente os parâmetros da função (R$ 9,90, moeda BRL, `payment_method_types` resolvido para `['card']` pela própria Stripe em modo assinatura) e endereço de pagamento devolvido. O cliente e a sessão de prova foram **apagados** em seguida. Depois da publicação: webhook recusando chamada sem assinatura e com assinatura inventada, checkout recusando chamada sem sessão. **Não testado:** pagamento de verdade de ponta a ponta — exige a chave de teste (`sk_test_`) no lugar da de produção, e o cofre guarda uma por serviço. |
+| **Pagamento com a Stripe de teste** | `e2e/pagamento-stripe.mjs`, 6 passos, todos passando, com as **funções reais** rodando sob Deno contra o PostgreSQL do arranjo de teste e a Stripe de teste: assinatura criada e cobrada (R$ 9,90, em reais, fatura gerada); aviso real da Stripe com assinatura adulterada **recusado** sem liberar plano; o mesmo aviso, assinado corretamente, liberando o plano Mais no espelho; aviso repetido e fatura paga fora de ordem sem causar dano (uma linha só); cancelamento agendado mantendo o plano e marcando que não renova; cancelamento efetivado devolvendo a pessoa ao plano grátis. Conferido também pela função `my_plan`: cota de 300 enquanto assinante, 20 e 4 depois do cancelamento. O cliente de teste foi apagado ao final. |
+| **Cota no servidor, exercitada de verdade** | Função `receipt-ocr` rodando aqui: com cota disponível ela segue para a IA (502 por não haver chave neste ambiente, que é o esperado); com os 4 cupons do mês gastos, devolve **429** com a mensagem do plano **sem chamar a IA**; a etiqueta, que tem balde próprio, continua passando; e com o plano Mais ativo o mesmo cupom volta a passar. |
+| **Página de pagamento e portal (navegador)** | Abertos no Chromium: o checkout mostra "Assinar Meu Carrin Mais · R$ 9,90 por mês" com o formulário de cartão em português, e o portal mostra plano, próxima cobrança (23/12/2026), o cartão Visa •••• 4242 e o botão de cancelar. **Não testado:** o clique final de pagar e o de confirmar o cancelamento — a Stripe roda uma verificação antibô (hCaptcha) em endereços de subdomínio sorteado, que esta rede não libera, e desativar a detecção de automação seria burlar essa proteção. São telas da própria Stripe; o que depende do nosso código foi provado pela via da API, que produz os mesmos objetos e avisos. |
 | **Passo instável conhecido** | `avisa ao passar de 75%, ao atingir 100% e ao ultrapassar`, no roteiro do orçamento, depende de o aviso aparecer logo após o toque em "+". Em 22/11/2026 ele passou 3 vezes e falhou 2 no mesmo código, sempre com a máquina ocupada; sozinho e com a máquina livre, passou 4 vezes seguidas. A espera foi de 10 s para 20 s, como no resto do roteiro. **Não é defeito do aplicativo**: quando falha, é o aviso demorando mais que a espera do teste. Se voltar a falhar com frequência, o caminho é investigar a fila de verificação de orçamento no AppContext, não aumentar o tempo de novo. |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |

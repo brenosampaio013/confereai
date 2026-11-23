@@ -40,6 +40,10 @@ Deno.serve(async (req) => {
       // Sem lista de meios de pagamento: em modo assinatura a Stripe só oferece o que
       // aceita cobrança recorrente, e conta brasileira não faz Pix recorrente — ou seja, cartão.
       locale: 'pt-BR',
+      // Preço sempre em reais, como a landing e os termos anunciam. Sem isto, o "Adaptive
+      // Pricing" da conta converte para a moeda de quem acessa (quem abrisse de fora do país
+      // veria, por exemplo, "US$ 1,73/mês" num plano anunciado por R$ 9,90).
+      adaptive_pricing: { enabled: false },
       allow_promotion_codes: true,
       client_reference_id: usuario.id,
       subscription_data: { metadata: { supabase_user_id: usuario.id } },

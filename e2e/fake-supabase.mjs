@@ -33,11 +33,17 @@ export const STORE = { lat: -23.561684, lng: -46.655981 };
 const b64url = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const tokenFor = (u) => `${b64url({ alg: 'none', typ: 'JWT' })}.${b64url({ sub: u.id, email: u.email, role: 'authenticated', aud: 'authenticated', exp: Math.floor(Date.now() / 1000) + 3600 })}.sig`;
 const userJson = (u) => ({ id: u.id, aud: 'authenticated', role: 'authenticated', email: u.email, is_anonymous: false, app_metadata: { provider: 'email' }, user_metadata: {}, created_at: new Date().toISOString() });
+/**
+ * Quem está chamando. Devolve o id do usuário, ou a string 'service_role' quando o token é o da
+ * chave de serviço — que no Supabase real passa por cima da RLS, como as funções da borda usam.
+ */
 function uidFrom(req) {
   const auth = req.headers.authorization || '';
   const parts = auth.replace(/^Bearer /, '').split('.');
   try {
-    return JSON.parse(Buffer.from(parts[1], 'base64url').toString()).sub ?? null;
+    const carga = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+    if (carga.role === 'service_role') return 'service_role';
+    return carga.sub ?? null;
   } catch {
     return null;
   }
@@ -46,8 +52,11 @@ function uidFrom(req) {
 // Executa como o usuário (papel authenticated) ou anon, igual ao PostgREST.
 let queue = Promise.resolve();
 function asUser(uid, fn) {
+  const servico = uid === 'service_role';
   const run = async () => {
-    await db.exec(`reset role; select set_config('request.jwt.claim.sub', '${uid ?? ''}', false); set role ${uid ? 'authenticated' : 'anon'};`);
+    await db.exec(servico
+      ? `reset role; select set_config('request.jwt.claim.sub', '', false);`
+      : `reset role; select set_config('request.jwt.claim.sub', '${uid ?? ''}', false); set role ${uid ? 'authenticated' : 'anon'};`);
     try {
       return await fn();
     } finally {
