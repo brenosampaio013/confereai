@@ -220,6 +220,10 @@ a { color: inherit; }
 
 /* ---------- Planos ---------- */
 .planos { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); align-items: start; }
+.demo__itens li.divergente { border-left: 3px solid var(--amarelo, #E8A400); padding-left: 9px; }
+.demo__itens li.divergente small { color: #7A5600; }
+.demo__itens li.divergente b { color: #A12626; }
+
 .plano { background: var(--branco); border: 1px solid var(--borda); border-radius: var(--raio-g); padding: 28px; }
 .plano--destaque { border-color: var(--navy); box-shadow: var(--sombra); }
 .plano__preco { font-size: 2.3rem; font-weight: 800; letter-spacing: -.03em; margin: 14px 0 4px; }

@@ -52,45 +52,51 @@ O `eas.json` já está configurado para enviar à faixa **internal** como **rasc
 
 ## 4. Ficha da loja (Presença na loja → Ficha principal)
 
-**Nome do app** (máx. 30): `Meu Carrin: confira compras` (27)
+**Nome do app** (máx. 30): `Meu Carrin: confira o cupom` (27)
 
 **Descrição curta** (máx. 80):
 ```
-Saiba quanto já deu antes de chegar no caixa e confira o cupom.
+O mercado te cobrou certo? Confira o cupom antes de sair da loja.
 ```
 
 **Descrição completa** (máx. 4000):
 ```
-O Meu Carrin ajuda você a conferir as compras do supermercado e a encontrar possíveis erros no cupom fiscal: produtos cobrados duas vezes, quantidades diferentes, preços diferentes do anunciado e itens que não aparecem na nota.
+O MERCADO TE COBROU CERTO?
+
+Quase ninguém confere o cupom. Quem confere costuma encontrar: produto que passou duas vezes, preço diferente do que estava na gôndola, promoção que não entrou, peso que não bate.
+
+O Meu Carrin foi feito para isso. Você registra o que põe no carrinho — pelo código de barras ou digitando — e, no caixa, ele compara o que você registrou com o que foi cobrado, item por item.
 
 COMO FUNCIONA
 
-1. Durante a compra, escaneie o código de barras dos produtos e informe o preço da etiqueta. O total é atualizado na hora.
-2. No caixa, fotografe o cupom fiscal ou digite os itens.
-3. O Meu Carrin compara o que você registrou com o que foi cobrado e mostra o resultado em verde, amarelo ou vermelho, explicando cada ponto em linguagem simples.
+1. No corredor: escaneie o produto e informe o preço da etiqueta. O total aparece na hora.
+2. No caixa: fotografe o cupom fiscal ou digite os itens.
+3. Na saída: cada ponto em verde, amarelo ou vermelho, explicado em português — o que bate, o que saiu diferente e o que não apareceu na nota.
 
-Não escaneou nada? Tudo bem: você também pode conferir só a nota. O app procura linhas repetidas, contas que não fecham e itens que precisam de revisão.
+Não registrou nada? Dá para conferir só a nota. O app procura linhas repetidas, contas que não fecham e itens que precisam de revisão.
 
-RECURSOS
-• Leitura de código de barras (EAN-13, EAN-8, UPC e outros) com lanterna
-• Proteção contra leituras repetidas: segurar o produto diante da câmera não adiciona unidades extras
-• Produtos por unidade, por quilo e por litro
-• Descontos e preços promocionais com as condições da oferta
-• Leitura da etiqueta de preço pela câmera
-• Cupons compridos em várias fotos
-• Leitura do QR Code da NFC-e
-• Revisão e correção de todos os dados lidos
-• Histórico de compras e de preços de cada produto
-• Funciona sem internet no supermercado
-• Conta opcional para guardar os dados na nuvem
-• Orçamento da compra: informe quanto pretende gastar e acompanhe o saldo em tempo real, com avisos antes de passar do limite
-• Foto do produto com a etiqueta: nome, marca, peso e preço lidos para você conferir
-• Histórico de preços por supermercado e comparação de onde está mais barato
+O QUE ELE CONFERE
+• Produto cobrado duas vezes
+• Preço diferente do que você viu na etiqueta
+• Quantidade ou peso diferente do que você levou
+• Item que está na nota e não no seu carrinho — e o contrário
+• Subtotais e total que não fecham
+
+ENQUANTO VOCÊ COMPRA
+• Orçamento da compra: diga quanto pretende gastar e acompanhe o saldo em tempo real, com aviso antes de passar do limite
+• Leitura de código de barras (EAN-13, EAN-8, UPC e outros), com lanterna
+• Proteção contra leitura repetida: segurar o produto diante da câmera não adiciona unidades extras
+• Produtos por unidade, por quilo e por litro, com desconto e preço promocional
+• Foto da etiqueta ou do produto: nome, marca, peso e preço lidos para você conferir
+• Funciona sem internet dentro do supermercado
+
+DEPOIS DA COMPRA
+• Histórico de preços de cada produto, por supermercado: saber se a "promoção" de hoje é mesmo mais barata que a do mês passado
 • Minhas compras e resumo de gastos do mês
-• Ofertas da comunidade: publique promoções encontradas na loja, com foto e verificação de localização, e confirme as de outras pessoas
+• Ofertas da comunidade: promoções encontradas por quem mora perto, com foto e verificação de localização
 
 PRIVACIDADE
-Sem conta, seus dados ficam só no seu celular. As fotos dos cupons não são guardadas na nuvem e só são enviadas para leitura com a sua autorização.
+Sem conta, seus dados ficam só no seu celular. As fotos dos cupons não são guardadas na nuvem e só são enviadas para leitura com a sua autorização. Não vendemos nem compartilhamos seus dados.
 
 IMPORTANTE
 O Meu Carrin é uma ferramenta de apoio. As cores indicam pontos de atenção, não a confirmação de um erro de cobrança. Em caso de dúvida, confira o cupom impresso com o atendente do caixa.
@@ -106,7 +112,9 @@ O Meu Carrin é uma ferramenta de apoio. As cores indicam pontos de atenção, n
 
 As capturas foram feitas no próprio app com produtos de exemplo.
 
-**Categoria:** Compras · **Tags sugeridas:** compras, lista de compras, supermercado
+**Categoria:** Compras · **Tags sugeridas:** conferir cupom fiscal, nota fiscal, supermercado, compras, orçamento
+
+> **Ordem das capturas de tela.** A primeira é a que quase todo mundo vê: use a **tela do resultado da conferência**, com as cores e a divergência explicada — é o que separa este app de um app de lista. Orçamento e escaneamento vêm depois.
 **E-mail de contato:** atendimentoencantoindiana@gmail.com · **Site:** opcional
 
 ## 5. Conteúdo do app (Política → Conteúdo do app)

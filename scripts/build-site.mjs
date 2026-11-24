@@ -176,8 +176,8 @@ if (chromium) {
     .fone img { width:100%; border-radius:22px; display:block; }
   </style></head><body><div class="capa">
     <div><div class="marca">${simbolo.replace('width="64" height="64"', 'width="46" height="46"')} Meu <span>Carrin</span></div>
-      <h1>Saiba quanto já deu antes de chegar no caixa.</h1>
-      <p>Grátis · sem cartão · funciona sem internet</p></div>
+      <h1>O mercado te cobrou certo?</h1>
+      <p>Confira o cupom item por item antes de sair da loja · grátis</p></div>
     <div class="fone"><img src="data:image/png;base64,${telaInicio}" alt=""></div>
   </div></body></html>`);
   await pagina.waitForTimeout(350);

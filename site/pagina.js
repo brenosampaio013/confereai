@@ -30,7 +30,12 @@
     var elAvisoTexto = document.getElementById('demo-aviso-texto');
     var elLista = document.getElementById('demo-lista');
     var elRepetir = document.getElementById('demo-repetir');
+    var elRotulo = document.getElementById('demo-rotulo');
+    var elSaldoRotulo = document.getElementById('demo-saldo-rotulo');
     var relogios = [];
+    // O item que o caixa cobra diferente da etiqueta — é o que o aplicativo acha.
+    var DIVERGENTE = 1; // café
+    var COBRADO = 4980; // 2 un × R$ 24,90 (a etiqueta dizia R$ 22,90)
 
     function pintar(gasto, quantos, animar) {
       var usado = Math.floor((gasto * 100) / ORCAMENTO);
@@ -55,6 +60,7 @@
 
     function linha(item, animar) {
       var li = document.createElement('li');
+      li.setAttribute('data-item', item.nome);
       var esq = document.createElement('div');
       esq.innerHTML = '<span>' + item.nome + '</span><small>' + item.detalhe + '</small>';
       var dir = document.createElement('b');
@@ -65,15 +71,50 @@
       elLista.insertBefore(li, elLista.firstChild);
     }
 
+    /** Segundo ato: o cupom é conferido e a divergência aparece. */
+    function conferir() {
+      var carrinho = 0;
+      ITENS.forEach(function (i) { carrinho += i.valor; });
+      var diferenca = COBRADO - ITENS[DIVERGENTE].valor;
+      var cupom = carrinho + diferenca;
+
+      elRotulo.textContent = 'CONFERÊNCIA DO CUPOM';
+      elTotal.textContent = brl(cupom);
+      elItens.textContent = 'cobrado no caixa';
+      elSaldoRotulo.textContent = 'No seu carrinho';
+      elSaldo.textContent = brl(carrinho);
+      elBarra.style.width = '100%';
+      demo.setAttribute('data-nivel', 'atencao');
+      elAvisoTexto.textContent = '1 ponto a revisar: o ' + ITENS[DIVERGENTE].nome.toLowerCase()
+        + ' foi cobrado a R$ 24,90, e a etiqueta dizia R$ 22,90. São ' + brl(diferenca) + ' a mais.';
+      elAviso.hidden = false;
+
+      var alvo = elLista.querySelector('[data-item="' + ITENS[DIVERGENTE].nome + '"]');
+      if (alvo) {
+        alvo.className = 'divergente';
+        alvo.querySelector('small').textContent = 'cobrado 2 un × R$ 24,90 · etiqueta R$ 22,90';
+        alvo.querySelector('b').textContent = brl(COBRADO);
+        elLista.insertBefore(alvo, elLista.firstChild);
+      }
+    }
+
+    function restaurar() {
+      elRotulo.textContent = 'COMPRA EM ANDAMENTO';
+      elSaldoRotulo.textContent = 'Orçamento';
+      elItens.textContent = 'nenhum produto registrado';
+    }
+
     function tocar(animar) {
       relogios.forEach(clearTimeout);
       relogios = [];
       elLista.innerHTML = '';
+      restaurar();
       pintar(0, 0, false);
       if (!animar || semMovimento) {
         var total = 0;
         ITENS.forEach(function (i) { total += i.valor; linha(i, false); });
         pintar(total, ITENS.length, false);
+        conferir();
         return;
       }
       var acumulado = 0;
@@ -84,6 +125,8 @@
           pintar(acumulado, i + 1, true);
         }, 700 + i * 950));
       });
+      // Depois do último produto, o caixa passa o cupom.
+      relogios.push(setTimeout(conferir, 700 + ITENS.length * 950 + 1400));
     }
 
     if (elRepetir) elRepetir.addEventListener('click', function () { tocar(true); });

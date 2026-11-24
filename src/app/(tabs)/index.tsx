@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { plural } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
 import { useOnline } from '@/services/network';
+import { planoAnunciado } from '@/domain/planos';
 import { useApp } from '@/state/AppContext';
 import { BudgetSheet, BudgetStrip } from '@/ui/Budget';
 import { Banner, Button, Card, Divider, EmptyState, Money, Row, SectionTitle, T, IconName } from '@/ui/components';
@@ -54,7 +55,7 @@ export default function Home() {
         </Row>
         <View style={{ gap: 2 }}>
           <T v="title">{email ? `Olá, ${email.split('@')[0]}!` : 'Olá!'}</T>
-          <T color={colors.textMuted}>Registre o que vai comprar e confira o cupom no caixa.</T>
+          <T color={colors.textMuted}>Registre o que entra no carrinho. No caixa, confira se o cupom bate.</T>
         </View>
 
         {online === false ? (
@@ -85,12 +86,16 @@ export default function Home() {
               <Button title="Escanear" icon="barcode-outline" kind="confirm" onPress={() => router.push('/scan')} style={{ flex: 1 }} />
               <Button title="Carrinho" icon="cart-outline" kind="secondary" onPress={() => router.push('/purchases')} style={{ flex: 1 }} />
             </Row>
-            <Button
-              title="Falar o que você precisa"
-              icon="mic-outline"
-              kind="onDark"
-              onPress={() => router.push('/assistente')}
-            />
+            {/* O assistente só aparece quando o plano que o inclui estiver à venda: não se
+                oferece no aplicativo o que ainda não dá para contratar. */}
+            {planoAnunciado('ia').disponivel ? (
+              <Button
+                title="Falar o que você precisa"
+                icon="mic-outline"
+                kind="onDark"
+                onPress={() => router.push('/assistente')}
+              />
+            ) : null}
             <Button
               title="Conferir a nota desta compra"
               icon="receipt-outline"
@@ -103,14 +108,14 @@ export default function Home() {
         )}
 
         <View style={styles.actions}>
-          <ActionTile icon="barcode-outline" title="Escanear produtos" text="Leia o código de barras e registre o preço" onPress={startNew} />
           <ActionTile
             icon="receipt-outline"
-            title="Conferir nota fiscal"
-            text="Fotografe o cupom, mesmo sem ter escaneado"
+            title="Conferir o cupom"
+            text="Compare o que foi cobrado com o que você levou"
             onPress={() => router.push('/receipt/capture')}
             accent
           />
+          <ActionTile icon="barcode-outline" title="Registrar o carrinho" text="Escaneie e informe o preço: é o que o cupom confere depois" onPress={startNew} />
         </View>
 
         <View style={styles.actions}>

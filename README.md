@@ -16,20 +16,21 @@ Aplicativo para conferir compras de supermercado: registre os produtos enquanto 
 4. [Como executar](#como-executar)
 5. [Abrir no celular (câmera)](#abrir-no-celular)
 6. [Publicar no Cloudflare](#publicar-no-cloudflare)
-7. [Landing page (site de apresentação)](#landing-page-site-de-apresentação)
-8. [Publicar na Netlify](#publicar-na-netlify)
-9. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
-10. [Telas de conta](#telas-de-conta)
-11. [Configurar o Supabase](#configurar-o-supabase)
-12. [Planos e assinatura (Stripe)](#planos-e-assinatura-stripe)
-13. [Configurar o OCR / IA](#configurar-o-ocr--ia)
-14. [Testes](#testes)
-15. [Gerar versões (EAS)](#gerar-versões-eas)
-16. [Regras de negócio importantes](#regras-de-negócio-importantes)
-17. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
-18. [Privacidade e segurança](#privacidade-e-segurança)
-19. [Estado dos testes](#estado-dos-testes)
-20. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
+7. [Posicionamento](#posicionamento)
+8. [Landing page (site de apresentação)](#landing-page-site-de-apresentação)
+9. [Publicar na Netlify](#publicar-na-netlify)
+10. [Marketplace de ofertas](#marketplace-colaborativo-de-ofertas)
+11. [Telas de conta](#telas-de-conta)
+12. [Configurar o Supabase](#configurar-o-supabase)
+13. [Planos e assinatura (Stripe)](#planos-e-assinatura-stripe)
+14. [Configurar o OCR / IA](#configurar-o-ocr--ia)
+15. [Testes](#testes)
+16. [Gerar versões (EAS)](#gerar-versões-eas)
+17. [Regras de negócio importantes](#regras-de-negócio-importantes)
+18. [QR Code da NFC-e: possibilidades e limites](#qr-code-da-nfc-e)
+19. [Privacidade e segurança](#privacidade-e-segurança)
+20. [Estado dos testes](#estado-dos-testes)
+21. [Limitações e problemas conhecidos](#limitações-e-problemas-conhecidos)
 
 ---
 
@@ -219,6 +220,38 @@ npm run deploy:cf
 ```
 
 **Verificado aqui** com o próprio runtime do Cloudflare (`wrangler dev`, workerd) servindo a pasta `dist`: a página já abre isolada na primeira visita (sem o recarregamento que o GitHub Pages exige), o banco local grava e lê, rotas internas abertas direto (`/prices`, `/offers/<id>`) respondem 200 com o app, os arquivos com hash ficam em cache de longa duração e o `index.html` e o service worker não, os arquivos de configuração não ficam expostos e o Chrome não aponta impedimento para instalar. **Não testado:** o deploy real na conta do Cloudflare e o uso em celular físico.
+
+## Posicionamento
+
+O Meu Carrin **não é um aplicativo de lista de compras**. Lista é categoria lotada há dez anos e
+commodity não se vende. O que ele faz e quase ninguém faz é **conferir o cupom fiscal**: comparar,
+item por item, o que a pessoa registrou no carrinho com o que o caixa cobrou.
+
+Por isso a primeira frase, em todo lugar, é a pergunta — **"o mercado te cobrou certo?"** — e não
+o total nem o orçamento. O orçamento é o segundo benefício, não o primeiro: ele é o que todo app
+de lista promete.
+
+Onde isso está escrito, para manter os três alinhados quando um mudar:
+
+| Onde | Arquivo |
+|---|---|
+| Ficha da Play Store (nome, descrição curta e completa) | [`store/android/PUBLICACAO.md`](store/android/PUBLICACAO.md) seção 4 |
+| Primeira dobra, título da página, Open Graph e perguntas | `site/index.html` |
+| Imagem de compartilhamento | `scripts/build-site.mjs` (desenhada no build) |
+| Primeira tela do aplicativo | `src/app/(tabs)/index.tsx` |
+
+A demonstração da primeira dobra tem dois atos: os produtos entrando no carrinho e, depois, **a
+conferência do cupom**, com uma divergência real aparecendo (café cobrado a R$ 24,90 com etiqueta
+de R$ 22,90). É o argumento inteiro numa imagem; antes ela mostrava só o orçamento subindo, que é
+o argumento de um app de lista.
+
+Duas regras de redação que não podem ser afrouxadas:
+
+- **Nunca prometer que o app encontra erro de cobrança.** Ele aponta divergências entre o que a
+  pessoa registrou e o que foi cobrado — que podem ser engano dela. Por isso "pontos a revisar",
+  e por isso o título é uma pergunta. Está nos termos de uso e vale para toda a comunicação.
+- **Nada de recurso que não funciona.** O botão do assistente de voz na tela inicial e o botão de
+  assinar o plano IA só aparecem quando `planoAnunciado('ia').disponivel` for `true`.
 
 ## Landing page (site de apresentação)
 

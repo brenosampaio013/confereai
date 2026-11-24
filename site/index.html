@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Meu Carrin — saiba quanto já deu antes de chegar no caixa</title>
-<meta name="description" content="Aplicativo gratuito para a compra do mês: some cada produto no carrinho, receba avisos quando o orçamento apertar e confira o cupom fiscal antes de sair do mercado.">
+<title>Meu Carrin — o mercado te cobrou certo?</title>
+<meta name="description" content="Registre o que entra no carrinho e, no caixa, compare item por item com o cupom fiscal: produto repetido, preço diferente do anunciado, promoção que não entrou. Grátis.">
 <link rel="canonical" href="__SITE_URL__/">
 <meta name="theme-color" content="#0E2A47">
 <link rel="icon" href="assets/marca/favicon.png" sizes="any">
@@ -12,8 +12,8 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Meu Carrin">
-<meta property="og:title" content="Meu Carrin — saiba quanto já deu antes de chegar no caixa">
-<meta property="og:description" content="Some cada produto no carrinho, receba avisos quando o orçamento apertar e confira o cupom fiscal antes de sair do mercado. Grátis.">
+<meta property="og:title" content="Meu Carrin — o mercado te cobrou certo?">
+<meta property="og:description" content="Registre o que entra no carrinho e compare com o cupom fiscal no caixa, item por item. Grátis.">
 <meta property="og:url" content="__SITE_URL__/">
 <meta property="og:image" content="__SITE_URL__/assets/compartilhar.png">
 <meta property="og:image:width" content="1200">
@@ -47,10 +47,10 @@
   <section class="capa">
     <div class="limite capa__grade">
       <div class="capa__texto">
-        <h1>Você só descobre o total no caixa. Até agora.</h1>
-        <p>O Meu Carrin soma cada produto que entra no carrinho, avisa quando o orçamento começa a apertar e confere o cupom antes de você ir embora do mercado.</p>
+        <h1>O mercado te cobrou certo?</h1>
+        <p>O Meu Carrin registra o que entra no carrinho e, no caixa, compara item por item com o cupom fiscal. Em segundos você vê o que bate, o que saiu diferente e o que nem apareceu na nota.</p>
         <div class="capa__acoes">
-          <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Começar a economizar</a>
+          <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Conferir minha próxima compra</a>
           <a class="botao botao--contorno" href="#como-funciona">Ver como funciona</a>
         </div>
         <p class="capa__garantias">
@@ -64,14 +64,14 @@
       <div class="demo" id="demo" data-nivel="ok">
         <div class="demo__cartao">
           <div class="demo__topo">
-            <div class="demo__rotulo">COMPRA EM ANDAMENTO</div>
+            <div class="demo__rotulo" id="demo-rotulo">COMPRA EM ANDAMENTO</div>
             <div class="demo__total" id="demo-total">R$ 0,00</div>
             <div class="demo__linha">
               <span id="demo-itens">nenhum produto registrado</span>
               <span>Supermercado Central</span>
             </div>
             <div class="demo__barra"><i id="demo-barra"></i></div>
-            <div class="demo__linha"><span>Orçamento</span><span id="demo-saldo">R$ 170,00 disponíveis</span></div>
+            <div class="demo__linha"><span id="demo-saldo-rotulo">Orçamento</span><span id="demo-saldo">R$ 170,00 disponíveis</span></div>
           </div>
           <p class="demo__aviso" id="demo-aviso" hidden>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="icone-aviso"><path d="M12 8v5m0 3.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg>
@@ -321,7 +321,7 @@
       <div class="perguntas">
         <details class="pergunta revela">
           <summary>O que é o Meu Carrin?</summary>
-          <div class="pergunta__corpo"><p>Um aplicativo gratuito para quem faz compras de supermercado. Você registra os produtos enquanto compra, acompanha o quanto já gastou em relação ao que pretendia gastar e confere o cupom fiscal antes de ir embora.</p></div>
+          <div class="pergunta__corpo"><p>Um aplicativo gratuito que confere a sua compra de supermercado. Você registra os produtos enquanto compra — pelo código de barras ou digitando — e, no caixa, o Meu Carrin compara o que você registrou com o que foi cobrado, item por item. De quebra, acompanha o orçamento em tempo real.</p></div>
         </details>
         <details class="pergunta revela">
           <summary>Preciso criar conta?</summary>
@@ -370,10 +370,10 @@
   <!-- ---------- Fecho ---------- -->
   <section class="secao secao--navy fecho">
     <div class="limite">
-      <h2 class="revela">Na sua próxima compra, não deixe nenhum centavo passar despercebido.</h2>
-      <p class="revela">Abra o Meu Carrin antes de pegar o carrinho e saiba, a cada produto, quanto já deu.</p>
+      <h2 class="revela">Da próxima vez, confira antes de sair do mercado.</h2>
+      <p class="revela">Leva o tempo da fila do caixa. E é lá que o erro aparece, enquanto ainda dá para resolver.</p>
       <div class="capa__acoes revela">
-        <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Começar a economizar</a>
+        <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Conferir minha próxima compra</a>
       </div>
     </div>
   </section>
@@ -419,13 +419,13 @@
       "operatingSystem": "Web, Android, iOS",
       "inLanguage": "pt-BR",
       "url": "__SITE_URL__/",
-      "description": "Aplicativo gratuito para registrar compras de supermercado, controlar o orçamento em tempo real e conferir o cupom fiscal.",
+      "description": "Aplicativo gratuito que compara o que você registrou no carrinho com o que foi cobrado no cupom fiscal, item por item, e ainda acompanha o orçamento da compra em tempo real.",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" }
     },
     {
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "O que é o Meu Carrin?", "acceptedAnswer": { "@type": "Answer", "text": "Um aplicativo gratuito para quem faz compras de supermercado: você registra os produtos enquanto compra, acompanha quanto já gastou em relação ao orçamento e confere o cupom fiscal antes de ir embora." } },
+        { "@type": "Question", "name": "O que é o Meu Carrin?", "acceptedAnswer": { "@type": "Answer", "text": "Um aplicativo gratuito que confere a sua compra de supermercado: você registra os produtos enquanto compra e, no caixa, o Meu Carrin compara o que você registrou com o que foi cobrado, item por item. De quebra, acompanha o orçamento em tempo real." } },
         { "@type": "Question", "name": "Preciso criar conta?", "acceptedAnswer": { "@type": "Answer", "text": "Não para começar. Sem conta, tudo fica salvo no aparelho. A conta serve para cópia de segurança, acesso em outro celular e recursos da comunidade." } },
         { "@type": "Question", "name": "O aplicativo é gratuito?", "acceptedAnswer": { "@type": "Answer", "text": "Sim. O plano gratuito inclui tudo, com um limite mensal apenas para a leitura automática por foto: 20 fotos de etiqueta e 4 cupons por mês. O plano Meu Carrin Mais, de R$ 9,90 ao mês, eleva esse limite para 300 leituras mensais." } },
         { "@type": "Question", "name": "Preciso de internet dentro do mercado?", "acceptedAnswer": { "@type": "Answer", "text": "Não para o essencial. Registrar produtos, acompanhar o orçamento e conferir a nota digitada funcionam sem conexão." } }
