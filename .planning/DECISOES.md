@@ -32,7 +32,7 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 |---|---|
 | 0 · Base segura | concluída em 25/11 — Banner corrigido; encerramento corrigido (causa: corrida da sincronização) |
 | 1 · Design system | concluída em 25/11 — aprovado e aplicado: `src/ui/theme.ts`, componentes de `src/ui/`, telas de conta no visual do app, Archivo no app, cupom serrilhado no relatório. Referência: https://claude.ai/artifact/DaYfDXtkbHv9yRhWNb3qKK |
-| 2 · Site | — |
+| 2 · Site | concluída em 25/11 — cores do design system, faixa de benefícios, só Grátis e Mais, 13 perguntas (com cobrança, renovação e cancelamento) e o JSON-LD gerado delas, capturas novas do app. Não vai ao ar antes da leitura por foto e da Stripe ligadas em produção |
 | 3 · Aplicativo | — |
 | 4 · Conversão | aguarda a leitura por foto em produção |
 | 5 · Medição | — |
@@ -45,3 +45,10 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 - Fonte no iOS: o iOS lê o nome da família de dentro de cada arquivo; não deu para conferir num aparelho. No Android, o projeto gerado registra a família "Archivo" com os cinco pesos.
 - Textos com `fontWeight` em `<Text>` soltos (fora de `T` e dos estilos de `type`) ainda podem sair na fonte do sistema no celular: entram na etapa 3, tela a tela.
 - A tela inicial ainda mostra "Foto do produto e preço" (leitura por IA), que depende da leitura por foto ligada em produção (decisão 7).
+
+## Pendências registradas na etapa 2
+
+- O filme da landing ainda mostra o visual antigo (marinho). Opções: renderizar de novo ou tirar da página.
+- A landing anuncia a leitura por foto e a assinatura do Mais. Em produção, falta a chave da Anthropic (receipt-ocr) e faltam os segredos da Stripe no Supabase: o site novo só entra no ar depois disso.
+- Os termos de uso ainda descrevem o plano IA ("ainda não está disponível para contratação"). É texto legal: mudar só com a revisão do responsável.
+- A tela Planos do app ainda pode mostrar o plano IA como "Em breve": revisar na etapa 3.

@@ -63,8 +63,43 @@ const relatorio = await pagina.evaluate(() => {
     idioma: document.documentElement.lang,
     og: !!document.querySelector('meta[property="og:image"]'),
     dados: !!document.querySelector('script[type="application/ld+json"]'),
+    // Conteúdo comercial: só os planos à venda, com os preços aprovados
+    planos: [...document.querySelectorAll('#planos .plano')].map((p) => ({
+      nome: p.querySelector('h3')?.textContent.trim() ?? '',
+      preco: p.querySelector('.plano__preco')?.textContent.replace(/\s+/g, ' ').trim() ?? '',
+    })),
+    textoPlanos: document.querySelector('#planos')?.innerText ?? '',
+    formularios: document.querySelectorAll('form').length,
+    perguntas: [...document.querySelectorAll('#perguntas summary')].map((s) => s.textContent.trim()),
+    perguntasEstruturadas: (() => {
+      try {
+        const grafo = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)['@graph'];
+        return (grafo.find((g) => g['@type'] === 'FAQPage')?.mainEntity ?? []).map((q) => q.name);
+      } catch { return null; }
+    })(),
+    caixaAlta: [...document.querySelectorAll('body *')]
+      .filter((e) => e.children.length === 0 && e.closest('svg') === null)
+      .map((e) => (e.textContent || '').trim())
+      .filter((t) => /[A-ZÁÉÍÓÚÂÊÔÃÕÇ]{4,}/.test(t) && t === t.toUpperCase() && /[A-Z]/.test(t)),
   };
 });
+
+// Planos: Grátis e Mais, e nada em construção à venda (decisão 4 da reformulação)
+const nomes = relatorio.planos.map((p) => p.nome);
+if (JSON.stringify(nomes) !== JSON.stringify(['Grátis', 'Meu Carrin Mais'])) falhas.push(`planos na página: ${nomes.join(', ') || 'nenhum'} (esperado: Grátis, Meu Carrin Mais)`);
+const precos = relatorio.planos.map((p) => p.preco).join(' | ');
+for (const valor of ['R$ 0', 'R$ 9,90', 'R$ 89']) if (!precos.includes(valor)) falhas.push(`preço ausente nos planos: ${valor}`);
+for (const proibido of [/Família/i, /Meu Carrin IA/i, /em breve/i, /19,90/, /179/]) {
+  if (proibido.test(relatorio.textoPlanos)) falhas.push(`a seção de planos menciona ${proibido}`);
+}
+if (!/20 fotos de etiqueta e 4 cupons/.test(relatorio.textoPlanos)) falhas.push('o limite do plano grátis (20 fotos de etiqueta e 4 cupons) não aparece nos planos');
+if (relatorio.formularios) falhas.push(`a página tem ${relatorio.formularios} formulário(s): a lista de espera saiu da vitrine`);
+// Perguntas frequentes: os temas do briefing, e os dados estruturados iguais ao que se vê
+for (const tema of [/conta/i, /gratuit|grátis/i, /assin/i, /cobran/i, /cancel/i, /renova/i, /dados/i, /funciona/i]) {
+  if (!relatorio.perguntas.some((q) => tema.test(q))) falhas.push(`nenhuma pergunta frequente sobre ${tema}`);
+}
+if (JSON.stringify(relatorio.perguntas) !== JSON.stringify(relatorio.perguntasEstruturadas)) falhas.push('as perguntas do JSON-LD não são as mesmas da página, na mesma ordem');
+if (relatorio.caixaAlta.length) falhas.push(`texto em caixa-alta: ${[...new Set(relatorio.caixaAlta)].slice(0, 5).join(' / ')}`);
 
 for (const caminho of relatorio.internos) {
   // O Cloudflare serve /termos a partir de termos.html; links sem extensão são válidos.

@@ -6,7 +6,7 @@
 <title>Meu Carrin — o mercado te cobrou certo?</title>
 <meta name="description" content="Registre o que entra no carrinho e, no caixa, compare item por item com o cupom fiscal: produto repetido, preço diferente do anunciado, promoção que não entrou. Grátis.">
 <link rel="canonical" href="__SITE_URL__/">
-<meta name="theme-color" content="#0E2A47">
+<meta name="theme-color" content="#0B5D3B">
 <link rel="icon" href="assets/marca/favicon.png" sizes="any">
 <link rel="apple-touch-icon" href="assets/marca/apple-touch-icon.png">
 <meta property="og:type" content="website">
@@ -37,7 +37,7 @@
       <a href="#planos">Planos</a>
       <a href="#perguntas">Perguntas</a>
     </nav>
-    <a class="botao botao--navy botao--compacto" href="__APP_URL__/auth" data-abrir>Abrir o app</a>
+    <a class="botao botao--contorno botao--compacto" href="__APP_URL__/auth" data-abrir>Abrir o app</a>
   </div>
 </header>
 
@@ -50,7 +50,7 @@
         <h1>O mercado te cobrou certo?</h1>
         <p>O Meu Carrin registra o que entra no carrinho e, no caixa, compara item por item com o cupom fiscal. Em segundos você vê o que bate, o que saiu diferente e o que nem apareceu na nota.</p>
         <div class="capa__acoes">
-          <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Conferir minha próxima compra</a>
+          <a class="botao botao--primario" href="__APP_URL__/auth/criar-conta" data-abrir>Conferir minha próxima compra</a>
           <a class="botao botao--contorno" href="#como-funciona">Ver como funciona</a>
         </div>
         <p class="capa__garantias">
@@ -64,7 +64,7 @@
       <div class="demo" id="demo" data-nivel="ok">
         <div class="demo__cartao">
           <div class="demo__topo">
-            <div class="demo__rotulo" id="demo-rotulo">COMPRA EM ANDAMENTO</div>
+            <div class="demo__rotulo" id="demo-rotulo">Compra em andamento</div>
             <div class="demo__total" id="demo-total">R$ 0,00</div>
             <div class="demo__linha">
               <span id="demo-itens">nenhum produto registrado</span>
@@ -87,14 +87,24 @@
     </div>
   </section>
 
+  <!-- ---------- Benefícios (abaixo da primeira dobra) ---------- -->
+  <section class="beneficios" aria-label="O que o Meu Carrin organiza">
+    <ul>
+      <li><span class="beneficios__icone" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5.5A2.5 2.5 0 0 1 3 16.5v-8Z" stroke="currentColor" stroke-width="1.9"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.9"/><circle cx="17" cy="14" r="1.4" fill="currentColor"/></svg></span><div><h2>Orçamento na hora</h2><p>Total, saldo e aviso antes de passar do valor que você definiu.</p></div></li>
+      <li><span class="beneficios__icone" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 3h12v17l-3-1.6-3 1.6-3-1.6L6 20V3Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M9 8h6M9 12h4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span><div><h2>Compras organizadas</h2><p>Cada compra fica salva com o mercado, a data e o resultado da conferência.</p></div></li>
+      <li><span class="beneficios__icone" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m16 14H4m3-3V9m5 7V6m5 10v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><div><h2>Preços comparados</h2><p>Veja em qual supermercado cada produto saiu mais barato.</p></div></li>
+      <li><span class="beneficios__icone" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2>Histórico do mês</h2><p>Quanto você gastou, em que mercado e como foi em relação ao mês anterior.</p></div></li>
+    </ul>
+  </section>
+
   <!--[FILME]-->
   <section class="secao secao--papel" id="filme">
     <div class="limite">
-      <div class="cabecalho-secao revela">
+      <div class="cabecalho-secao">
         <h2>Trinta segundos no mercado</h2>
         <p>O que acontece entre pegar o carrinho e sair do caixa, com as telas do aplicativo.</p>
       </div>
-      <div class="filme revela">
+      <div class="filme">
         <video id="video-filme" class="filme__video" poster="assets/filme/capa.jpg" preload="none" playsinline controls>
           <source src="assets/filme/meu-carrin.mp4" type="video/mp4">
           <p>Seu navegador não reproduz este vídeo. <a href="assets/filme/meu-carrin.mp4">Baixe o arquivo</a>.</p>
@@ -110,20 +120,20 @@
   <!-- ---------- Como funciona ---------- -->
   <section class="secao secao--papel" id="como-funciona">
     <div class="limite">
-      <div class="cabecalho-secao revela">
+      <div class="cabecalho-secao">
         <h2>Três passos, dentro do mercado</h2>
         <p>Nada de planilha em casa. O trabalho acontece enquanto você empurra o carrinho.</p>
       </div>
       <div class="passos">
-        <div class="passo revela">
+        <div class="passo">
           <h3>Diga quanto pode gastar</h3>
           <p>Antes de começar, informe o valor da compra. O app passa a mostrar o total, o saldo e a porcentagem usada a cada produto.</p>
         </div>
-        <div class="passo revela">
+        <div class="passo">
           <h3>Registre o que entra no carrinho</h3>
           <p>Leia o código de barras, fotografe o produto com a etiqueta ou digite. O preço fica guardado com o supermercado e a data.</p>
         </div>
-        <div class="passo revela">
+        <div class="passo">
           <h3>Confira o cupom no caixa</h3>
           <p>Fotografe ou digite a nota. O app compara linha a linha com o que você registrou e aponta o que merece atenção.</p>
         </div>
@@ -134,7 +144,7 @@
   <!-- ---------- Orçamento ---------- -->
   <section class="secao">
     <div class="limite par-telas">
-      <div class="par-telas__texto revela">
+      <div class="par-telas__texto">
         <h2>O aviso chega antes do susto</h2>
         <p>A conta atualiza sozinha a cada produto, mudança de quantidade ou desconto. Quando o gasto passa de 75%, de 85% e do limite, o app avisa na hora — com o valor que ainda resta.</p>
         <ul class="lista-marcada">
@@ -143,13 +153,13 @@
           <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Produtos por peso, descontos e promoções entram na conta certa</li>
         </ul>
       </div>
-      <div class="revela"><div class="aparelho"><img src="assets/telas/carrinho.png" alt="Tela do carrinho mostrando orçamento de R$ 170,00, total de R$ 139,20, saldo de R$ 30,80 e o aviso de atenção ao orçamento." width="780" height="1688" loading="lazy"></div></div>
+      <div><div class="aparelho"><img src="assets/telas/carrinho.png" alt="Tela do carrinho mostrando orçamento de R$ 170,00, total de R$ 139,20, saldo de R$ 30,80 e o aviso de atenção ao orçamento." width="780" height="1688" loading="lazy"></div></div>
     </div>
   </section>
 
   <section class="secao secao--papel">
     <div class="limite par-telas par-telas--invertido">
-      <div class="par-telas__texto revela">
+      <div class="par-telas__texto">
         <h2>A etiqueta vira preço sem você digitar</h2>
         <p>Produto sem código de barras, etiqueta de promoção, letra miúda com condição. Fotografe o produto junto com a etiqueta: a leitura automática separa nome, embalagem, preço normal e preço promocional — e mostra tudo para você conferir antes de salvar.</p>
         <ul class="lista-marcada">
@@ -158,16 +168,16 @@
           <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Nada é salvo sem a sua confirmação</li>
         </ul>
       </div>
-      <div class="revela"><div class="aparelho"><img src="assets/telas/foto-ia-preco.png" alt="Tela de conferência da leitura: preço lido da foto R$ 24,90 e aviso de preço promocional na etiqueta de R$ 19,90, com a condição leve 2 pague 1,5." width="780" height="1688" loading="lazy"></div></div>
+      <div><div class="aparelho"><img src="assets/telas/foto-ia-preco.png" alt="Tela de conferência da leitura: preço lido da foto R$ 24,90 e aviso de preço promocional na etiqueta de R$ 19,90, com a condição leve 2 pague 1,5." width="780" height="1688" loading="lazy"></div></div>
     </div>
   </section>
 
   <div class="serrilha" aria-hidden="true"></div>
 
   <!-- ---------- Conferência do cupom ---------- -->
-  <section class="secao secao--navy">
+  <section class="secao secao--destaque">
     <div class="limite par-telas par-telas--invertido">
-      <div class="par-telas__texto revela">
+      <div class="par-telas__texto">
         <h2>Pagou o preço que estava na gôndola?</h2>
         <p>Depois do caixa, fotografe o cupom. O Meu Carrin compara cada linha com o que você registrou e mostra onde os valores não batem: preço diferente, quantidade a mais, item repetido ou produto que você não levou.</p>
         <ul class="lista-marcada">
@@ -176,7 +186,7 @@
           <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> As cores indicam atenção; a palavra final é sua, no caixa</li>
         </ul>
       </div>
-      <div class="revela"><div class="aparelho"><img src="assets/telas/conferencia-detalhe.png" alt="Resultado da conferência: preço registrado R$ 22,90 por unidade, preço cobrado R$ 24,90, diferença de R$ 2,00 por unidade." width="780" height="1688" loading="lazy"></div></div>
+      <div><div class="aparelho"><img src="assets/telas/conferencia-detalhe.png" alt="Resultado da conferência: preço registrado R$ 22,90 por unidade, preço cobrado R$ 24,90, diferença de R$ 2,00 por unidade." width="780" height="1688" loading="lazy"></div></div>
     </div>
   </section>
 
@@ -185,37 +195,37 @@
   <!-- ---------- Recursos ---------- -->
   <section class="secao" id="recursos">
     <div class="limite">
-      <div class="cabecalho-secao revela">
+      <div class="cabecalho-secao">
         <h2>O que ele faz</h2>
         <p>Tudo pensado para funcionar de pé, no corredor do mercado, com uma mão só.</p>
       </div>
       <div class="recursos">
-        <article class="recurso revela">
+        <article class="recurso">
           <div class="recurso__icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6v12M8 6v12M12 6v12M16 6v12M20 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           <h3>Escaneie o código de barras</h3>
           <p>A câmera lê o código, o produto entra no carrinho e o preço fica registrado naquele supermercado.</p>
         </article>
-        <article class="recurso recurso--verde revela">
+        <article class="recurso">
           <div class="recurso__icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 1.6 4.2L18 8.8l-4.4 1.6L12 15l-1.6-4.6L6 8.8l4.4-1.6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M18 15.5 18.8 18l2.2.8-2.2.8-.8 2.4-.8-2.4-2.2-.8 2.2-.8.8-2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
           <h3>Fotografe o produto e a etiqueta</h3>
           <p>A leitura automática identifica nome, embalagem, preço normal e promocional — e você confere antes de salvar.</p>
         </article>
-        <article class="recurso recurso--amarelo revela">
+        <article class="recurso">
           <div class="recurso__icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h12v17l-3-1.6-3 1.6-3-1.6L6 20V3Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M9 8h6M9 12h4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></div>
           <h3>Confira a nota fiscal</h3>
           <p>Compara o cupom com o seu carrinho e aponta diferenças de preço, quantidade e itens repetidos.</p>
         </article>
-        <article class="recurso revela">
+        <article class="recurso">
           <div class="recurso__icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 19V5m16 14H4m3-3V9m5 7V6m5 10v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
           <h3>Compare preços entre mercados</h3>
           <p>O histórico mostra onde cada produto saiu mais barato e como o preço andou ao longo do tempo.</p>
         </article>
-        <article class="recurso revela">
+        <article class="recurso">
           <div class="recurso__icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5.5A2.5 2.5 0 0 1 3 16.5v-8Z" stroke="currentColor" stroke-width="1.9"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.9"/><circle cx="17" cy="14" r="1.4" fill="currentColor"/></svg></div>
           <h3>Acompanhe seus gastos</h3>
           <p>Resumo do mês com total, número de compras, média, maior compra e comparação com o mês anterior.</p>
         </article>
-        <article class="recurso recurso--verde revela">
+        <article class="recurso">
           <div class="recurso__icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 12.5 11 5h8v8l-7.5 7.5a2 2 0 0 1-2.8 0l-4.2-4.2a2 2 0 0 1 0-2.8Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="15.5" cy="8.5" r="1.4" fill="currentColor"/></svg></div>
           <h3>Compartilhe ofertas</h3>
           <p>Publique a promoção que encontrou e veja as que outras pessoas acharam perto de você.</p>
@@ -227,7 +237,7 @@
   <!-- ---------- Preços e economia ---------- -->
   <section class="secao secao--papel">
     <div class="limite par-telas">
-      <div class="par-telas__texto revela">
+      <div class="par-telas__texto">
         <h2>Onde está mais barato, e para onde foi o dinheiro</h2>
         <p>Cada preço que você registra fica guardado com o supermercado e a data. O app mostra a diferença entre as lojas e avisa quando um preço já tem mais de 30 dias — preço velho não entra na comparação.</p>
         <ul class="lista-marcada">
@@ -236,7 +246,7 @@
           <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Gasto por supermercado, para saber onde o dinheiro vai</li>
         </ul>
       </div>
-      <div class="revela duas-telas">
+      <div class="duas-telas">
         <div class="aparelho"><img src="assets/telas/precos.png" alt="Tela de preços do produto: café 500 g mais barato no Mercado do Bairro a R$ 19,90, contra R$ 22,90 no Supermercado Central, com o gráfico de evolução do preço." width="780" height="1688" loading="lazy"></div>
         <div class="aparelho aparelho--recuado"><img src="assets/telas/resumo-graficos.png" alt="Resumo do mês: R$ 229,48 gastos em novembro, gráfico de gasto por mês e gasto por supermercado." width="780" height="1688" loading="lazy"></div>
       </div>
@@ -246,134 +256,115 @@
   <!-- ---------- Planos ---------- -->
   <section class="secao" id="planos">
     <div class="limite">
-      <div class="cabecalho-secao revela">
+      <div class="cabecalho-secao">
         <h2>Quanto custa</h2>
         <p>O app é gratuito. O que tem custo para nós é a leitura automática por foto, que usa inteligência artificial e é paga por imagem — por isso ela tem um limite no plano gratuito.</p>
       </div>
       <div class="planos">
-        <article class="plano revela">
+        <article class="plano">
           <h3>Grátis</h3>
           <div class="plano__preco">R$ 0 <small>para sempre</small></div>
           <p class="plano__nota">Tudo que não depende de leitura automática, sem limite.</p>
           <ul>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Carrinho, orçamento e avisos sem limite</li>
+            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Carrinho, orçamento e avisos</li>
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Escaneamento de código de barras</li>
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Histórico de preços, compras e resumo do mês</li>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Conferência do cupom digitado, sem limite</li>
+            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Conferência do cupom digitado</li>
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 20 fotos de etiqueta e 4 cupons lidos por mês</li>
           </ul>
-          <a class="botao botao--verde botao--largo" href="__APP_URL__/auth/criar-conta" data-abrir>Começar agora</a>
+          <a class="botao botao--contorno botao--largo" href="__APP_URL__/auth/criar-conta" data-abrir>Começar grátis</a>
         </article>
-        <article class="plano plano--destaque revela">
-          <span class="etiqueta">MAIS LEITURAS</span>
+        <article class="plano plano--destaque">
+          <span class="etiqueta">Para quem lê por foto em toda compra</span>
           <h3 class="plano__titulo">Meu Carrin Mais</h3>
           <div class="plano__preco">R$ 9,90 <small>por mês, ou R$ 89 por ano</small></div>
-          <p class="plano__nota">Para quem usa a leitura por foto em toda compra.</p>
+          <p class="plano__nota">Mais leituras automáticas por foto, para etiquetas e cupons.</p>
           <ul>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Tudo do plano gratuito</li>
+            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Tudo do plano grátis</li>
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 300 leituras automáticas por mês</li>
             <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Apoia o desenvolvimento do app</li>
           </ul>
-          <a class="botao botao--navy botao--largo" href="__APP_URL__/planos" data-abrir>Assinar o Mais</a>
-          <p class="plano__nota">Pagamento com cartão, pela Stripe. Cancele quando quiser, pelo próprio app.</p>
-        </article>
-        <article class="plano revela">
-          <span class="etiqueta">EM BREVE</span>
-          <h3 class="plano__titulo">Meu Carrin IA</h3>
-          <div class="plano__preco">R$ 19,90 <small>por mês, ou R$ 179 por ano</small></div>
-          <p class="plano__nota">Fale o que você precisa e o assistente monta a lista. Ainda estamos terminando: não está disponível hoje.</p>
-          <ul>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Tudo do Meu Carrin Mais</li>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Assistente de voz: você fala, ele sugere, você confirma</li>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 600 leituras automáticas por mês</li>
-          </ul>
-        </article>
-        <article class="plano revela">
-          <span class="etiqueta">EM BREVE</span>
-          <h3 class="plano__titulo">Meu Carrin Família</h3>
-          <div class="plano__preco">R$ 19,90 <small>por mês, previsto</small></div>
-          <p class="plano__nota">A lista da casa em várias mãos. Ainda estamos construindo: nada aqui está disponível hoje.</p>
-          <ul>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Tudo do Meu Carrin Mais</li>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Lista de compras compartilhada entre as pessoas da casa</li>
-            <li><svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Gastos da casa somados, mantendo a privacidade de cada um</li>
-          </ul>
-          <!--[LISTA]-->
-          <form class="aviso-lista" id="lista-espera">
-            <label for="email-espera" class="aviso-lista__rotulo">Quer ser avisado quando o Família abrir?</label>
-            <input type="email" id="email-espera" name="email" placeholder="seu@email.com" required autocomplete="email">
-            <button type="submit" class="botao botao--navy botao--largo">Avise-me quando abrir</button>
-            <p role="status" aria-live="polite" id="lista-resposta"></p>
-            <p>Usamos o e-mail só para esse aviso. Você pode pedir a remoção quando quiser.</p>
-          </form>
-          <!--[/LISTA]-->
+          <a class="botao botao--primario botao--largo" href="__APP_URL__/planos" data-abrir>Assinar o Mais</a>
+          <p class="plano__nota plano__rodape">Pagamento com cartão, pela Stripe. Renova sozinho; cancele quando quiser, pelo próprio app.</p>
         </article>
       </div>
+      <p class="planos__rodape">Digitar os itens e conferir o cupom digitado não têm limite em nenhum plano. A cota de leituras volta no dia 1 de cada mês.</p>
     </div>
   </section>
 
   <!-- ---------- Perguntas ---------- -->
   <section class="secao secao--papel" id="perguntas">
     <div class="limite">
-      <div class="cabecalho-secao revela">
+      <div class="cabecalho-secao">
         <h2>Perguntas frequentes</h2>
       </div>
       <div class="perguntas">
-        <details class="pergunta revela">
+        <h3 class="grupo-perguntas">Sobre o app</h3>
+        <details class="pergunta">
           <summary>O que é o Meu Carrin?</summary>
-          <div class="pergunta__corpo"><p>Um aplicativo gratuito que confere a sua compra de supermercado. Você registra os produtos enquanto compra — pelo código de barras ou digitando — e, no caixa, o Meu Carrin compara o que você registrou com o que foi cobrado, item por item. De quebra, acompanha o orçamento em tempo real.</p></div>
+          <div class="pergunta__corpo"><p>Um aplicativo gratuito que confere a sua compra de supermercado. Você registra os produtos enquanto compra, pelo código de barras, por foto ou digitando, e no caixa o Meu Carrin compara o que você registrou com o que foi cobrado, item por item. De quebra, acompanha o orçamento em tempo real.</p></div>
         </details>
-        <details class="pergunta revela">
-          <summary>Preciso criar conta?</summary>
-          <div class="pergunta__corpo"><p>Não para começar. Sem conta, tudo fica salvo no seu aparelho. A conta serve para ter cópia de segurança, abrir o histórico em outro celular e usar as partes que dependem da comunidade, como as ofertas.</p></div>
-        </details>
-        <details class="pergunta revela">
+        <details class="pergunta">
           <summary>Como funciona a conferência da nota fiscal?</summary>
-          <div class="pergunta__corpo">
-            <p>Você fotografa ou digita o cupom. O app compara cada linha com os produtos que você registrou e aponta preço diferente do que estava na gôndola, quantidade a mais, item repetido e produto que não aparece na nota.</p>
-            <p>As cores indicam o nível de atenção, não a confirmação de um erro de cobrança. A conferência final, com o atendente, é sempre sua.</p>
-          </div>
+          <div class="pergunta__corpo"><p>Você fotografa ou digita o cupom. O app compara cada linha com os produtos que você registrou e aponta preço diferente do que estava na gôndola, quantidade a mais, item repetido e produto que não aparece na nota.</p><p>As cores indicam o nível de atenção, não a confirmação de um erro de cobrança. A conferência final, com o atendente, é sempre sua.</p></div>
         </details>
-        <details class="pergunta revela">
-          <summary>Como a inteligência artificial identifica os produtos?</summary>
-          <div class="pergunta__corpo">
-            <p>Você fotografa o produto junto com a etiqueta de preço. A imagem vai por conexão criptografada para o nosso servidor, que a envia ao serviço de leitura de texto e devolve o que foi lido: nome, embalagem, código de barras, preço normal e preço promocional.</p>
-            <p>O resultado aparece em um formulário para você conferir e corrigir antes de salvar. Nada é gravado sem a sua confirmação.</p>
-          </div>
+        <details class="pergunta">
+          <summary>Preciso criar conta?</summary>
+          <div class="pergunta__corpo"><p>Não para começar. Sem conta, tudo fica salvo no seu aparelho. A conta serve para ter cópia de segurança, abrir o histórico em outro celular, usar as ofertas da comunidade e assinar o Meu Carrin Mais.</p></div>
         </details>
-        <details class="pergunta revela">
+        <details class="pergunta">
           <summary>Preciso de internet dentro do mercado?</summary>
           <div class="pergunta__corpo"><p>Não para o essencial. Registrar produtos, acompanhar o orçamento, conferir a nota digitada e ver o histórico funcionam sem conexão. Só a leitura automática de fotos e a sincronização entre aparelhos precisam de internet.</p></div>
         </details>
-        <details class="pergunta revela">
-          <summary>O aplicativo é gratuito?</summary>
-          <div class="pergunta__corpo"><p>Sim. O plano gratuito inclui tudo, com um limite mensal apenas para a leitura automática por foto, que tem custo por imagem para nós: 20 fotos de etiqueta e 4 cupons lidos por mês. Quem usa a leitura em toda compra pode assinar o Meu Carrin Mais, por R$ 9,90 ao mês, e ter 300 leituras mensais. Nada mais no aplicativo é pago.</p></div>
+        <details class="pergunta">
+          <summary>Como a inteligência artificial identifica os produtos?</summary>
+          <div class="pergunta__corpo"><p>Você fotografa o produto junto com a etiqueta de preço. A imagem vai por conexão criptografada para o nosso servidor, que a envia ao serviço de leitura de texto e devolve o que foi lido: nome, embalagem, código de barras, preço normal e preço promocional.</p><p>O resultado aparece em um formulário para você conferir e corrigir antes de salvar. Nada é gravado sem a sua confirmação.</p></div>
         </details>
-        <details class="pergunta revela">
-          <summary>Meus dados estão protegidos?</summary>
-          <div class="pergunta__corpo">
-            <p>Suas compras ficam no seu aparelho. Com conta, são sincronizadas com acesso restrito a você por regras de segurança no banco de dados.</p>
-            <p>Os preços enviados para a base da comunidade são opcionais e não identificam quem informou. Os detalhes estão na <a href="/privacidade">política de privacidade</a>.</p>
-          </div>
-        </details>
-        <details class="pergunta revela">
+        <details class="pergunta">
           <summary>Como instalo no celular?</summary>
-          <div class="pergunta__corpo">
-            <p>O Meu Carrin é um site: abre direto no navegador, sem loja de aplicativos. No Android, abra pelo Chrome e use o menu <b>⋮ → Instalar app</b> para ele ficar na tela de início e abrir em tela cheia.</p>
-            <p>No iPhone, abra pelo Safari e use <b>Compartilhar → Adicionar à Tela de Início</b>.</p>
-          </div>
+          <div class="pergunta__corpo"><p>O Meu Carrin abre direto no navegador, sem loja de aplicativos. No Android, abra pelo Chrome e use o menu <b>⋮ → Instalar app</b> para ele ficar na tela de início e abrir em tela cheia.</p><p>No iPhone, abra pelo Safari e use <b>Compartilhar → Adicionar à Tela de Início</b>.</p></div>
+        </details>
+        <h3 class="grupo-perguntas">Planos e pagamento</h3>
+        <details class="pergunta">
+          <summary>O aplicativo é gratuito? Qual é o limite do plano grátis?</summary>
+          <div class="pergunta__corpo"><p>Sim. O plano grátis inclui tudo, com um limite mensal só para a leitura automática por foto, que tem custo por imagem para nós: 20 fotos de etiqueta e 4 cupons lidos por mês. Digitar os itens e conferir o cupom digitado não têm limite.</p><p>A cota volta no dia 1 de cada mês. Quando ela acaba, o app avisa e você continua usando todo o resto normalmente.</p></div>
+        </details>
+        <details class="pergunta">
+          <summary>Como assino o Meu Carrin Mais?</summary>
+          <div class="pergunta__corpo"><p>No app, entre na sua conta, abra <b>Perfil → Meu plano e cota do mês</b> e escolha o pagamento mensal ou anual. O pagamento é feito na página segura da Stripe, com cartão.</p></div>
+        </details>
+        <details class="pergunta">
+          <summary>Como é feita a cobrança?</summary>
+          <div class="pergunta__corpo"><p>No cartão, em reais: R$ 9,90 por mês ou R$ 89 por ano, cobrados no início de cada período. Quem processa o pagamento é a Stripe; o Meu Carrin não vê nem guarda o número do seu cartão. Os recibos ficam em <b>Gerenciar assinatura</b>, na tela Meu plano.</p></div>
+        </details>
+        <details class="pergunta">
+          <summary>A assinatura renova sozinha?</summary>
+          <div class="pergunta__corpo"><p>Sim. Ela renova automaticamente ao fim de cada período, mensal ou anual, até você cancelar. A data da próxima renovação aparece na tela Meu plano.</p></div>
+        </details>
+        <details class="pergunta">
+          <summary>Como cancelo?</summary>
+          <div class="pergunta__corpo"><p>Na tela Meu plano, toque em <b>Gerenciar assinatura</b> e cancele no portal da Stripe. O plano Mais continua valendo até o fim do período já pago e depois a conta volta ao plano grátis. Suas compras, preços e históricos continuam todos lá.</p></div>
+        </details>
+        <details class="pergunta">
+          <summary>E se o pagamento não passar?</summary>
+          <div class="pergunta__corpo"><p>O plano Mais continua valendo por até 3 dias enquanto você atualiza o cartão em <b>Gerenciar assinatura</b>. Depois disso, a conta volta ao plano grátis, sem perder nenhum dado.</p></div>
+        </details>
+        <h3 class="grupo-perguntas">Privacidade</h3>
+        <details class="pergunta">
+          <summary>Meus dados estão protegidos?</summary>
+          <div class="pergunta__corpo"><p>Suas compras ficam no seu aparelho. Com conta, são sincronizadas com acesso restrito a você por regras de segurança no banco de dados.</p><p>Os preços enviados para a base da comunidade são opcionais e não identificam quem informou. Os detalhes estão na <a href="/privacidade">política de privacidade</a>.</p></div>
         </details>
       </div>
     </div>
   </section>
 
   <!-- ---------- Fecho ---------- -->
-  <section class="secao secao--navy fecho">
+  <section class="secao secao--destaque fecho">
     <div class="limite">
-      <h2 class="revela">Da próxima vez, confira antes de sair do mercado.</h2>
-      <p class="revela">Leva o tempo da fila do caixa. E é lá que o erro aparece, enquanto ainda dá para resolver.</p>
-      <div class="capa__acoes revela">
-        <a class="botao botao--verde" href="__APP_URL__/auth/criar-conta" data-abrir>Conferir minha próxima compra</a>
+      <h2>Da próxima vez, confira antes de sair do mercado.</h2>
+      <p>Leva o tempo da fila do caixa. E é lá que o erro aparece, enquanto ainda dá para resolver.</p>
+      <div class="capa__acoes">
+        <a class="botao botao--destaque" href="__APP_URL__/auth/criar-conta" data-abrir>Conferir minha próxima compra</a>
       </div>
     </div>
   </section>
@@ -420,17 +411,13 @@
       "inLanguage": "pt-BR",
       "url": "__SITE_URL__/",
       "description": "Aplicativo gratuito que compara o que você registrou no carrinho com o que foi cobrado no cupom fiscal, item por item, e ainda acompanha o orçamento da compra em tempo real.",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" }
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "O que é o Meu Carrin?", "acceptedAnswer": { "@type": "Answer", "text": "Um aplicativo gratuito que confere a sua compra de supermercado: você registra os produtos enquanto compra e, no caixa, o Meu Carrin compara o que você registrou com o que foi cobrado, item por item. De quebra, acompanha o orçamento em tempo real." } },
-        { "@type": "Question", "name": "Preciso criar conta?", "acceptedAnswer": { "@type": "Answer", "text": "Não para começar. Sem conta, tudo fica salvo no aparelho. A conta serve para cópia de segurança, acesso em outro celular e recursos da comunidade." } },
-        { "@type": "Question", "name": "O aplicativo é gratuito?", "acceptedAnswer": { "@type": "Answer", "text": "Sim. O plano gratuito inclui tudo, com um limite mensal apenas para a leitura automática por foto: 20 fotos de etiqueta e 4 cupons por mês. O plano Meu Carrin Mais, de R$ 9,90 ao mês, eleva esse limite para 300 leituras mensais." } },
-        { "@type": "Question", "name": "Preciso de internet dentro do mercado?", "acceptedAnswer": { "@type": "Answer", "text": "Não para o essencial. Registrar produtos, acompanhar o orçamento e conferir a nota digitada funcionam sem conexão." } }
+      "offers": [
+        { "@type": "Offer", "name": "Grátis", "price": "0", "priceCurrency": "BRL" },
+        { "@type": "Offer", "name": "Meu Carrin Mais, mensal", "price": "9.90", "priceCurrency": "BRL" },
+        { "@type": "Offer", "name": "Meu Carrin Mais, anual", "price": "89.00", "priceCurrency": "BRL" }
       ]
-    }
+    },
+    { "@type": "FAQPage", "mainEntity": __PERGUNTAS_JSON__ }
   ]
 }
 </script>

@@ -5,9 +5,6 @@
 // Variáveis (todas opcionais, com padrão):
 //   SITE_URL      endereço público do site            (padrão https://meucarrin.com)
 //   SITE_APP_URL  endereço do aplicativo              (padrão https://app.meucarrin.com)
-//   EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY
-//                 quando as duas existem, a lista de espera do plano pago é publicada;
-//                 sem elas, o formulário é removido da página (nada de botão que não funciona).
 //
 // O que o build faz: converte as capturas para WebP em dois tamanhos, gera a imagem de
 // compartilhamento, o manifesto de cabeçalhos, robots.txt e sitemap.xml, e copia a
@@ -25,27 +22,6 @@ const saida = join(root, 'site-dist');
 
 const SITE_URL = (process.env.SITE_URL || 'https://meucarrin.com').replace(/\/+$/, '');
 const APP_URL = (process.env.SITE_APP_URL || 'https://app.meucarrin.com').replace(/\/+$/, '');
-// Os dois valores abaixo são públicos por natureza (já viajam no pacote do aplicativo); quem
-// protege os dados são as políticas RLS do banco. Ficam aqui, e não só no painel de quem
-// compila, para a landing publicar certo de qualquer lugar — como o app faz em src/lib/config.ts.
-// A chave `service_role` NUNCA entra aqui.
-const SUPABASE_PADRAO = 'https://urfqgajoauryxmkbseet.supabase.co';
-const CHAVE_PADRAO =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZnFnYWpvYXVyeXhta2JzZWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDIyNjMsImV4cCI6MjExMDY3ODI2M30.LGLXovbKtCQ3__cRKXqH-wcJ8jgDeksH5qIFbXj3KJs';
-// Um endereço de servidor, não uma chave: trocar os dois campos no painel de compilação é um
-// engano fácil, e aqui ele é ignorado em vez de publicar uma página quebrada.
-const pareceEndereco = (v) => /^https?:\/\/[^\s"']+$/.test(v);
-const doAmbiente = (valor, valido, padrao, nome) => {
-  const v = (valor || '').trim();
-  if (!v) return padrao;
-  if (valido(v)) return v;
-  console.warn(`  aviso: ${nome} foi ignorada (formato inesperado); usando o valor padrão.`);
-  return padrao;
-};
-const SUPABASE_URL = doAmbiente(process.env.EXPO_PUBLIC_SUPABASE_URL, pareceEndereco, SUPABASE_PADRAO, 'EXPO_PUBLIC_SUPABASE_URL').replace(/\/+$/, '');
-const SUPABASE_KEY = doAmbiente(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY, (v) => !pareceEndereco(v) && v.length >= 8, CHAVE_PADRAO, 'EXPO_PUBLIC_SUPABASE_ANON_KEY');
-const COM_LISTA = !!(SUPABASE_URL && SUPABASE_KEY);
-
 rmSync(saida, { recursive: true, force: true });
 mkdirSync(saida, { recursive: true });
 cpSync(origem, saida, {
@@ -117,10 +93,17 @@ html = html.replace(/<img src="assets\/telas\/([a-z-]+)\.png"([^>]*?)width="\d+"
 const COM_FILME = existsSync(join(origem, 'assets', 'filme', 'meu-carrin.mp4'));
 if (!COM_FILME) html = html.replace(/<!--\[FILME\]-->[\s\S]*?<!--\[\/FILME\]-->/, '');
 
-if (!COM_LISTA) {
-  html = html.replace(/<!--\[LISTA\]-->[\s\S]*?<!--\[\/LISTA\]-->/,
-    '<p class="plano__nota">A lista de avisos está fora do ar neste momento.</p>');
-}
+// Dados estruturados das perguntas frequentes, tirados das próprias perguntas da página:
+// o Google pede que o JSON-LD seja igual ao que a pessoa vê, e assim os dois nunca divergem.
+const semTags = (t) => t.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+const perguntas = [...html.matchAll(/<details class="pergunta">\s*<summary>([\s\S]*?)<\/summary>\s*<div class="pergunta__corpo">([\s\S]*?)<\/div>\s*<\/details>/g)]
+  .map(([, pergunta, corpo]) => ({
+    '@type': 'Question',
+    name: semTags(pergunta),
+    acceptedAnswer: { '@type': 'Answer', text: [...corpo.matchAll(/<p>([\s\S]*?)<\/p>/g)].map(([, p]) => semTags(p)).join(' ') },
+  }));
+if (!perguntas.length) throw new Error('Nenhuma pergunta frequente encontrada em site/index.html.');
+html = html.replace('__PERGUNTAS_JSON__', JSON.stringify(perguntas, null, 2).replace(/\n/g, '\n      '));
 
 html = html.replaceAll('__APP_URL__', APP_URL).replaceAll('__SITE_URL__', SITE_URL);
 writeFileSync(join(saida, 'index.html'), html);
@@ -132,9 +115,6 @@ for (const outra of ['404.html', 'termos.html']) {
   writeFileSync(caminho, readFileSync(caminho, 'utf8').replaceAll('__APP_URL__', APP_URL).replaceAll('__SITE_URL__', SITE_URL));
 }
 
-let js = readFileSync(join(origem, 'pagina.js'), 'utf8');
-js = js.replaceAll('__SUPABASE_URL__', SUPABASE_URL).replaceAll('__SUPABASE_KEY__', SUPABASE_KEY);
-writeFileSync(join(saida, 'pagina.js'), js);
 
 // ---- Política de privacidade (a mesma do aplicativo)
 copyFileSync(join(root, 'docs', 'privacidade.html'), join(saida, 'privacidade.html'));
@@ -164,20 +144,20 @@ if (chromium) {
   await pagina.setContent(`<html><head><meta charset="utf-8"><style>
     @font-face { font-family: Archivo; src: url(data:font/woff2;base64,${fonte}) format('woff2-variations'); font-weight: 400 800; }
     html,body { margin:0; width:1200px; height:630px; overflow:hidden; }
-    .capa { width:1200px; height:630px; background:#0E2A47; display:flex; align-items:center; gap:56px; padding:0 72px; box-sizing:border-box;
+    .capa { width:1200px; height:630px; background:#0B5D3B; display:flex; align-items:center; gap:56px; padding:0 72px; box-sizing:border-box;
             font-family:Archivo, Arial, sans-serif; color:#fff; position:relative; }
     .capa::after { content:''; position:absolute; inset:auto -200px -320px auto; width:620px; height:620px; border-radius:50%;
-                   background:radial-gradient(circle, rgba(17,145,90,.30), transparent 68%); }
+                   background:radial-gradient(circle, rgba(60,194,127,.28), transparent 68%); }
     .marca { display:flex; align-items:center; gap:14px; font-size:30px; font-weight:800; letter-spacing:-1px; }
-    .marca span { color:#2FB87A; }
+    .marca span { color:#3CC27F; }
     h1 { font-size:62px; line-height:1.03; letter-spacing:-2.6px; margin:26px 0 0; max-width:12em; font-weight:800; }
-    p { font-size:27px; color:#AFC3D8; margin:22px 0 0; max-width:17em; }
-    .fone { flex:none; width:286px; border-radius:30px; padding:9px; background:#13365A; box-shadow:0 30px 60px -20px rgba(0,0,0,.6); position:relative; z-index:2; }
+    p { font-size:27px; color:#C9E3D5; margin:22px 0 0; max-width:17em; }
+    .fone { flex:none; width:286px; border-radius:30px; padding:9px; background:#06140D; box-shadow:0 30px 60px -20px rgba(0,0,0,.6); position:relative; z-index:2; }
     .fone img { width:100%; border-radius:22px; display:block; }
   </style></head><body><div class="capa">
     <div><div class="marca">${simbolo.replace('width="64" height="64"', 'width="46" height="46"')} Meu <span>Carrin</span></div>
       <h1>O mercado te cobrou certo?</h1>
-      <p>Confira o cupom item por item antes de sair da loja · grátis</p></div>
+      <p>Confira o cupom item por item antes de sair da loja. Grátis.</p></div>
     <div class="fone"><img src="data:image/png;base64,${telaInicio}" alt=""></div>
   </div></body></html>`);
   await pagina.waitForTimeout(350);
@@ -197,9 +177,7 @@ copyFileSync(capaGuardada, join(saida, 'assets', 'compartilhar.png'));
 // static.cloudflareinsights.com e a medição é enviada para cloudflareinsights.com.
 const RASTREADOR_ORIGEM = 'https://static.cloudflareinsights.com';
 const RASTREADOR_DESTINO = 'https://cloudflareinsights.com';
-const conecta = ["'self'", COM_LISTA ? new URL(SUPABASE_URL).origin : null, RASTREADOR_DESTINO]
-  .filter(Boolean)
-  .join(' ');
+const conecta = ["'self'", RASTREADOR_DESTINO].join(' ');
 writeFileSync(join(saida, '_headers'), `/*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
@@ -233,4 +211,4 @@ console.log(`\nLanding pronta em site-dist/`);
 console.log(`  site: ${SITE_URL}   app: ${APP_URL}`);
 console.log(`  ${economizados} capturas em WebP (${LARGURAS.join(' e ')} px)`);
 console.log(`  filme: ${COM_FILME ? 'publicado' : 'fora da página (ainda não renderizado)'}`);
-console.log(`  lista de espera do plano Família: ${COM_LISTA ? 'publicada' : 'fora da página (sem Supabase configurado)'}`);
+console.log(`  perguntas frequentes nos dados estruturados: ${perguntas.length}`);

@@ -288,7 +288,6 @@ npm run build:site && npm run check:site
 |---|---|---|
 | `SITE_URL` | `https://meucarrin.com` | endereço canônico, Open Graph e sitemap |
 | `SITE_APP_URL` | `https://app.meucarrin.com` | destino de todos os botões "abrir o app" |
-| `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` | — | quando as duas existem, a lista de espera do plano pago é publicada; sem elas o formulário sai da página (nada de botão que não funciona) |
 
 ### Publicar
 
@@ -402,9 +401,12 @@ critica composição, contraste e intervalos sem batida.
 - A tela da leitura por foto foi capturada com uma **resposta simulada** no formato da função
   real. Antes de publicar, rode `npm run capturas` com o Supabase e a chave da API no ar para
   trocá-la por uma leitura verdadeira.
-- A lista de espera é agora do plano **Família**, que ainda não existe no aplicativo; ela grava
-  com origem `landing-familia`. Avisar essas pessoas depende de um SMTP próprio (ver
-  [Telas de conta](#telas-de-conta)); hoje a leitura da lista é pelo painel do Supabase.
+- Desde a reformulação 2.0 (decisão 4 em `.planning/DECISOES.md`) a landing mostra só os planos
+  Grátis e Mais, e o formulário da lista de espera do **Família** saiu da página. A tabela e a
+  função `join_waitlist` continuam no banco, com os e-mails já gravados (origem `landing-familia`).
+- O filme da landing (`site/assets/filme/meu-carrin.mp4`) ainda mostra o visual antigo, em marinho.
+- A landing anuncia a leitura por foto e a assinatura do Mais: só pode ir ao ar depois que as
+  duas estiverem ligadas em produção (chave da Anthropic e segredos da Stripe no Supabase).
 
 ## Publicar na Netlify
 

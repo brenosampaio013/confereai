@@ -78,7 +78,7 @@
       var diferenca = COBRADO - ITENS[DIVERGENTE].valor;
       var cupom = carrinho + diferenca;
 
-      elRotulo.textContent = 'CONFERÊNCIA DO CUPOM';
+      elRotulo.textContent = 'Conferência do cupom';
       elTotal.textContent = brl(cupom);
       elItens.textContent = 'cobrado no caixa';
       elSaldoRotulo.textContent = 'No seu carrinho';
@@ -92,14 +92,14 @@
       var alvo = elLista.querySelector('[data-item="' + ITENS[DIVERGENTE].nome + '"]');
       if (alvo) {
         alvo.className = 'divergente';
-        alvo.querySelector('small').textContent = 'cobrado 2 un × R$ 24,90 · etiqueta R$ 22,90';
+        alvo.querySelector('small').textContent = 'cobrado 2 un × R$ 24,90, etiqueta R$ 22,90';
         alvo.querySelector('b').textContent = brl(COBRADO);
         elLista.insertBefore(alvo, elLista.firstChild);
       }
     }
 
     function restaurar() {
-      elRotulo.textContent = 'COMPRA EM ANDAMENTO';
+      elRotulo.textContent = 'Compra em andamento';
       elSaldoRotulo.textContent = 'Orçamento';
       elItens.textContent = 'nenhum produto registrado';
     }
@@ -143,21 +143,6 @@
     }
   }
 
-  /* ---------- Revelação dos blocos na rolagem ---------- */
-  var alvos = document.querySelectorAll('.revela');
-  if ('IntersectionObserver' in window && !semMovimento) {
-    var obs = new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('visivel');
-        obs.unobserve(e.target);
-      });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-    alvos.forEach(function (a) { obs.observe(a); });
-  } else {
-    alvos.forEach(function (a) { a.classList.add('visivel'); });
-  }
-
   /* ---------- O filme ---------- */
   var filme = document.getElementById('video-filme');
   var play = document.getElementById('filme-play');
@@ -170,33 +155,4 @@
     filme.addEventListener('ended', function () { play.hidden = false; filme.load(); });
   }
 
-  /* ---------- Lista de espera do plano Família (ainda em construção) ---------- */
-  var form = document.getElementById('lista-espera');
-  if (form) {
-    var SUPABASE_URL = '__SUPABASE_URL__';
-    var SUPABASE_KEY = '__SUPABASE_KEY__';
-    var resposta = document.getElementById('lista-resposta');
-    var botao = form.querySelector('button[type="submit"]');
-    form.addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      var email = form.querySelector('#email-espera').value.trim();
-      if (!email) return;
-      botao.disabled = true;
-      resposta.style.color = '';
-      resposta.textContent = 'Enviando…';
-      fetch(SUPABASE_URL + '/rest/v1/rpc/join_waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
-        body: JSON.stringify({ p_email: email, p_origem: 'landing-familia' })
-      }).then(function (r) {
-        if (!r.ok) throw new Error(String(r.status));
-        resposta.style.color = '#0A6B42';
-        resposta.textContent = 'Pronto. Avisamos nesse e-mail quando o Família abrir.';
-        form.querySelector('#email-espera').value = '';
-      }).catch(function () {
-        resposta.style.color = '#A12626';
-        resposta.textContent = 'Não consegui registrar agora. Tente de novo em instantes.';
-      }).finally(function () { botao.disabled = false; });
-    });
-  }
 })();
