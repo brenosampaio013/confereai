@@ -42,7 +42,7 @@ export interface PlanoAnunciado {
   anualCents: number | null;
   itens: string[];
   /**
-   * Se já dá para assinar. Um plano com `disponivel: false` aparece como "em breve", sem botão
+   * Se já dá para assinar. Um plano com `disponivel: false` não aparece na vitrine nem tem botão
    * de compra: não se vende o que o aplicativo ainda não entrega. Ligar só depois que o
    * recurso do plano estiver funcionando de verdade em produção.
    */
@@ -62,6 +62,7 @@ export const PLANOS: PlanoAnunciado[] = [
       'Escaneamento de código de barras',
       'Histórico de preços, compras e resumo do mês',
       'Conferência do cupom digitado, sem limite',
+      '20 fotos de etiqueta e 4 cupons lidos por mês',
     ],
   },
   {
@@ -83,8 +84,8 @@ export const PLANOS: PlanoAnunciado[] = [
     chamada: 'Fale o que você precisa e o assistente monta o carrinho.',
     mensalCents: 1990,
     anualCents: 17900,
-    // Em breve: o assistente depende das chaves de IA, que ainda não estão configuradas em
-    // produção. Enquanto isso o plano aparece na lista, sem botão de assinar.
+    // Fora da vitrine: o assistente depende das chaves de IA, que ainda não estão configuradas
+    // em produção. O código fica pronto; ligar aqui quando funcionar de verdade.
     disponivel: false,
     itens: [
       'Tudo do Meu Carrin Mais',
@@ -94,8 +95,17 @@ export const PLANOS: PlanoAnunciado[] = [
   },
 ];
 
-/** Os planos que se pode assinar, na ordem em que a tela os mostra. */
+/** Os planos pagos que existem no código (inclusive os que ainda não estão à venda). */
 export const PLANOS_PAGOS = PLANOS.filter((p) => p.mensalCents !== null);
+
+/**
+ * O que a pessoa vê na tela de planos: só os planos à venda. Um plano com `disponivel: false`
+ * fica fora da vitrine (decisão 4 da reformulação 2.0) até o recurso funcionar em produção.
+ */
+export const VITRINE = PLANOS.filter((p) => p.disponivel);
+
+/** Os planos que se pode assinar agora, na ordem em que a tela os mostra. */
+export const OFERTAS = VITRINE.filter((p) => p.mensalCents !== null);
 
 /** A chave de busca do preço na Stripe: "<plano>_<periodo>". */
 export const precoDe = (plano: PlanoId, periodo: 'mensal' | 'anual') => `${plano}_${periodo}` as PrecoId;

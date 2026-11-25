@@ -122,6 +122,25 @@ export function Card({ children, style, onPress, accessibilityLabel }: { childre
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
+/**
+ * Linha tocável de lista: ícone num quadrado verde claríssimo, título, uma linha de apoio e a
+ * seta. É a forma de mostrar "o que você pode fazer aqui" (design system: Card, linha tocável).
+ */
+export function LinkRow({ icon, title, text, onPress, tone: t = 'navy' }: { icon: IconName; title: string; text?: string; onPress: () => void; tone?: SeverityTone }) {
+  return (
+    <Card onPress={onPress} accessibilityLabel={title} style={styles.linkRow}>
+      <View style={[styles.linkRowIcon, { backgroundColor: tone[t].bg }]}>
+        <Ionicons name={icon} size={22} color={tone[t].fg} />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <T v="heading">{title}</T>
+        {text ? <T v="small" color={colors.textMuted}>{text}</T> : null}
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
+    </Card>
+  );
+}
+
 export function Row({ children, style, gap = space.sm }: { children: ReactNode; style?: StyleProp<ViewStyle>; gap?: number }) {
   return <View style={[{ flexDirection: 'row', alignItems: 'center', gap }, style]}>{children}</View>;
 }
@@ -220,7 +239,8 @@ export function IconButton({ icon, onPress, label, color = colors.action, size =
       hitSlop={8}
       style={(e) => {
         const { pressed, focused, hovered } = e as Estado;
-        return [styles.iconButton, { backgroundColor: pressed || hovered ? colors.actionSoft : (bg ?? 'transparent') }, anelDeFoco(focused)];
+        // Sobre a câmera o botão tem fundo escuro próprio: ali o toque só escurece um pouco.
+        return [styles.iconButton, { backgroundColor: bg ? bg : pressed || hovered ? colors.actionSoft : 'transparent' }, bg && pressed ? { opacity: 0.7 } : null, anelDeFoco(focused)];
       }}
     >
       <Ionicons name={icon} size={size} color={color} />
@@ -488,6 +508,8 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },
+  linkRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 14 },
+  linkRowIcon: { width: 44, height: 44, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

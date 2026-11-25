@@ -140,12 +140,12 @@ await step('o botão de assinar oferece mensal e anual com os preços certos', a
   assert.match(depois, /Economia de/);
 });
 
-await step('o plano IA aparece como em breve, sem botão de assinar', async () => {
+await step('o plano IA fica fora da vitrine enquanto o assistente não funciona', async () => {
   const texto = await planos(page);
-  assert.match(texto, /Meu Carrin IA/);
-  assert.match(texto, /EM BREVE/);
-  assert.match(texto, /Ainda estamos terminando este plano/);
+  assert.ok(!texto.includes('Meu Carrin IA'), 'o plano IA não aparece na tela de planos');
+  assert.ok(!/19,90|179/.test(texto), 'nenhum preço do plano IA aparece');
   assert.ok(!texto.includes('Assinar por R$ 19,90/mês'), 'não se vende o que ainda não funciona');
+  assert.match(texto, /Meu Carrin Mais/);
 });
 
 await step('o assistente avisa que faz parte do plano IA, sem deixar a pessoa na mão', async () => {

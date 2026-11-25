@@ -2,7 +2,7 @@
  * Resumo financeiro das compras. Funções puras sobre centavos inteiros.
  * Os meses seguem o fuso do aparelho (uma compra às 23h do dia 31 pertence àquele mês).
  */
-import { Cents, divRoundHalfUp, sumCents } from './money';
+import { Cents, divRoundHalfUp, formatBRL, sumCents } from './money';
 import { normalizeText } from './matching';
 import type { CartItem } from './types';
 import { lineSubtotal } from './units';
@@ -177,4 +177,38 @@ export function comparePurchases(a: readonly ComparableItem[], b: readonly Compa
   }
   const onlyB = [...mapB.entries()].filter(([k]) => !matched.has(k)).map(([, o]) => o.name);
   return { common, onlyA, onlyB, commonDiffCents: sumCents(common.map((c) => c.diffCents)) };
+}
+
+const MESES_POR_EXTENSO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+export interface PainelDoMes {
+  totalCents: Cents;
+  compras: number;
+  /** "R$ 25,20 a mais que em outubro", ou null quando não há base para comparar. */
+  comparacao: string | null;
+}
+
+/**
+ * O resumo curto da tela inicial: quanto já foi gasto no mês, em quantas compras, e a diferença
+ * para o mês anterior. Só aparece quando há compra neste mês ou no anterior; a comparação só
+ * aparece quando os dois meses têm compras (nada de "a menos" no dia 1).
+ */
+export function painelDoMes(records: readonly SpendRecord[], hoje: Date): PainelDoMes | null {
+  const mes = monthKey(hoje);
+  const anterior = shiftMonth(mes, -1);
+  const doMes = records.filter((r) => monthKey(r.date) === mes);
+  const doAnterior = records.filter((r) => monthKey(r.date) === anterior);
+  if (!doMes.length && !doAnterior.length) return null;
+  const total = sumCents(doMes.map((r) => r.totalCents));
+  const totalAnterior = sumCents(doAnterior.map((r) => r.totalCents));
+  const nome = MESES_POR_EXTENSO[Number(anterior.slice(5)) - 1];
+  let comparacao: string | null = null;
+  if (doMes.length && doAnterior.length) {
+    const diferenca = total - totalAnterior;
+    comparacao =
+      diferenca === 0
+        ? `O mesmo que em ${nome}`
+        : `${formatBRL(Math.abs(diferenca))} a ${diferenca > 0 ? 'mais' : 'menos'} que em ${nome}`;
+  }
+  return { totalCents: total, compras: doMes.length, comparacao };
 }

@@ -10,7 +10,7 @@ export function purchaseStatusPill(s: PurchaseSummary) {
   if (s.purchase.status === 'active') return <Pill label="Em andamento" t="navy" icon="cart-outline" />;
   if (s.reportOverall) {
     if (s.reportComplete === false) return <Pill label="Conferência incompleta" t="yellow" icon="alert-circle" />;
-    return <Pill label={s.openDivergences ? `${SEVERITY_LABEL[s.reportOverall]} · ${s.openDivergences}` : SEVERITY_LABEL[s.reportOverall]} t={s.reportOverall} icon={SEVERITY_ICON[s.reportOverall]} />;
+    return <Pill label={s.openDivergences ? `${SEVERITY_LABEL[s.reportOverall]}: ${s.openDivergences}` : SEVERITY_LABEL[s.reportOverall]} t={s.reportOverall} icon={SEVERITY_ICON[s.reportOverall]} />;
   }
   if (s.receiptStatus === 'draft') return <Pill label="Nota em revisão" t="yellow" icon="document-text-outline" />;
   return <Pill label="Sem conferência" t="neutral" icon="ellipse-outline" />;
@@ -29,10 +29,13 @@ export function PurchaseRow({ s }: { s: PurchaseSummary }) {
         <Ionicons name={s.purchase.mode === 'cart' ? 'cart-outline' : 'receipt-outline'} size={20} color={colors.action} />
       </View>
       <View style={{ flex: 1, gap: 4 }}>
-        <T v="bodyStrong" numberOfLines={1}>{s.purchase.storeName || (s.purchase.mode === 'cart' ? 'Compra' : 'Conferência de nota')}</T>
+        <Row gap={space.sm} style={{ alignItems: 'flex-start' }}>
+          <T v="bodyStrong" numberOfLines={2} style={{ flex: 1 }}>{s.purchase.storeName || (s.purchase.mode === 'cart' ? 'Compra' : 'Conferência de nota')}</T>
+          <Money cents={total} v="heading" />
+        </Row>
         <T v="small" color={colors.textMuted}>
           {fmtDate(s.purchase.startedAt)}
-          {s.purchase.mode === 'cart' ? ` · ${plural(s.itemCount, 'item', 'itens')}` : ''}
+          {s.purchase.mode === 'cart' ? `, ${plural(s.itemCount, 'item', 'itens')}` : ''}
         </T>
         <Row gap={6} style={{ flexWrap: 'wrap' }}>
           {purchaseStatusPill(s)}
@@ -41,15 +44,12 @@ export function PurchaseRow({ s }: { s: PurchaseSummary }) {
           ) : null}
         </Row>
       </View>
-      <Row gap={4}>
-        <Money cents={total} />
-        <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
-      </Row>
+      <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md },
-  icon: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.actionSoft, alignItems: 'center', justifyContent: 'center' },
+  icon: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.actionSoft, alignItems: 'center', justifyContent: 'center' },
 });

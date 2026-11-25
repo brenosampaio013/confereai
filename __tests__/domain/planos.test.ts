@@ -1,6 +1,6 @@
 import {
   descreveCobranca, economiaAnualCents, type EstadoDoPlano, fracaoUsada, fraseDeUso, lerEstado,
-  planoAnunciado, PLANOS_PAGOS, precoDe, quandoZera,
+  OFERTAS, planoAnunciado, PLANOS_PAGOS, precoDe, quandoZera, VITRINE,
 } from '@/domain/planos';
 
 const base: EstadoDoPlano = {
@@ -133,5 +133,20 @@ describe('preços anunciados', () => {
   it('o plano grátis não tem preço nem economia', () => {
     expect(economiaAnualCents(planoAnunciado('gratis'))).toBeNull();
     expect(planoAnunciado('gratis').mensalCents).toBeNull();
+  });
+});
+
+describe('vitrine de planos (decisão 4 da reformulação)', () => {
+  it('mostra só Grátis e Mais; o plano IA fica fora até o assistente funcionar', () => {
+    expect(VITRINE.map((p) => p.id)).toEqual(['gratis', 'mais']);
+  });
+
+  it('só oferece para assinar o que está à venda', () => {
+    expect(OFERTAS.map((p) => p.id)).toEqual(['mais']);
+    expect(OFERTAS.every((p) => p.disponivel && p.mensalCents !== null)).toBe(true);
+  });
+
+  it('os preços do Mais continuam os aprovados', () => {
+    expect(planoAnunciado('mais')).toMatchObject({ mensalCents: 990, anualCents: 8900 });
   });
 });

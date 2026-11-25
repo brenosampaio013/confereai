@@ -1,15 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { painelDoMes } from '@/domain/finance';
 import { plural } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
 import { useOnline } from '@/services/network';
 import { planoAnunciado } from '@/domain/planos';
 import { useApp } from '@/state/AppContext';
 import { BudgetSheet, BudgetStrip } from '@/ui/Budget';
-import { Banner, Button, Card, Divider, EmptyState, Money, Row, SectionTitle, T, IconName } from '@/ui/components';
+import { Banner, Button, Card, Divider, EmptyState, LinkRow, Money, Row, SectionTitle, T } from '@/ui/components';
 import { Logo } from '@/ui/Logo';
 import { PurchaseRow } from '@/ui/PurchaseRow';
 import { colors, highlightShadow, radius, space } from '@/ui/theme';
@@ -20,6 +21,8 @@ export default function Home() {
   const [budgetOpen, setBudgetOpen] = useState(false);
   const online = useOnline();
   const { data: summaries } = useLoad(() => repo.listPurchaseSummaries(50), [version]);
+  const { data: gastos } = useLoad(() => repo.listSpendRecords(), [version]);
+  const mes = gastos ? painelDoMes(gastos, new Date()) : null;
   const recent = (summaries ?? []).filter((s) => s.purchase.status !== 'active').slice(0, 4);
   const withIssues = (summaries ?? []).filter((s) => s.openDivergences > 0);
   const openTotal = withIssues.reduce((a, s) => a + s.openDivergences, 0);
@@ -65,16 +68,16 @@ export default function Home() {
         ) : null}
 
         {active ? (
-          <Card style={{ backgroundColor: colors.highlight, borderColor: colors.highlight, borderRadius: radius.xl, ...highlightShadow }}>
+          <Card style={styles.destaque}>
             <Row style={{ justifyContent: 'space-between' }}>
-              <T v="caption" color={colors.onHighlightMuted}>Compra em andamento</T>
+              <T v="bodyStrong" color={colors.onHighlight}>Compra em andamento</T>
               <T v="small" color={colors.onHighlightMuted}>{plural(totals.unitCount, 'unidade', 'unidades')}</T>
             </Row>
             <View>
               <Money cents={totals.totalCents} v="moneyLarge" color={colors.onHighlight} />
               <T v="small" color={colors.onHighlightMuted}>
                 {plural(totals.lineCount, 'produto registrado', 'produtos registrados')}
-                {active.storeName ? ` · ${active.storeName}` : ''}
+                {active.storeName ? `, ${active.storeName}` : ''}
               </T>
             </View>
             {budget ? (
@@ -89,12 +92,7 @@ export default function Home() {
             {/* O assistente só aparece quando o plano que o inclui estiver à venda: não se
                 oferece no aplicativo o que ainda não dá para contratar. */}
             {planoAnunciado('ia').disponivel ? (
-              <Button
-                title="Falar o que você precisa"
-                icon="mic-outline"
-                kind="onDark"
-                onPress={() => router.push('/assistente')}
-              />
+              <Button title="Falar o que você precisa" icon="mic-outline" kind="onDark" onPress={() => router.push('/assistente')} />
             ) : null}
             <Button
               title="Conferir a nota desta compra"
@@ -104,68 +102,65 @@ export default function Home() {
             />
           </Card>
         ) : (
-          <Button title="Nova compra" icon="add-circle" onPress={startNew} style={{ minHeight: 60 }} />
+          <Button title="Nova compra" icon="add-circle" onPress={startNew} />
         )}
 
-        <View style={styles.actions}>
-          <ActionTile
-            icon="receipt-outline"
-            title="Conferir o cupom"
-            text="Compare o que foi cobrado com o que você levou"
-            onPress={() => router.push('/receipt/capture')}
-            accent
-          />
-          <ActionTile icon="barcode-outline" title="Registrar o carrinho" text="Escaneie e informe o preço: é o que o cupom confere depois" onPress={startNew} />
-        </View>
-
-        <View style={styles.actions}>
-          <ActionTile icon="camera-outline" title="Foto do produto e preço" text="A IA lê o nome, a marca e o preço da etiqueta" onPress={() => router.push('/capture')} />
-          <ActionTile icon="trending-down-outline" title="Preços e gastos" text="Compare supermercados e veja o resumo do mês" onPress={() => router.push('/prices')} accent />
-        </View>
-
-        <Card onPress={() => router.push('/offers')} accessibilityLabel="Ver ofertas da comunidade">
-          <Row>
-            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' }}>
-              <Ionicons name="pricetags-outline" size={22} color={colors.green} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <T v="bodyStrong">Ofertas da comunidade</T>
-              <T v="small" color={colors.textMuted}>Promoções encontradas por pessoas da sua região. Compartilhe as que você achar.</T>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
-          </Row>
-        </Card>
-
-        {withIssues.length ? (
-          <Card onPress={() => router.push({ pathname: '/purchases', params: { view: 'history' } })} accessibilityLabel="Ver divergências anteriores">
-            <Row>
-              <Ionicons name="alert-circle" size={22} color={colors.yellow} />
-              <View style={{ flex: 1 }}>
-                <T v="bodyStrong">{plural(openTotal, 'ponto a revisar', 'pontos a revisar')}</T>
-                <T v="small" color={colors.textMuted}>
-                  Em {plural(withIssues.length, 'conferência anterior', 'conferências anteriores')}. Toque para ver.
-                </T>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
+        {mes ? (
+          <Card onPress={() => router.push({ pathname: '/purchases', params: { view: 'summary' } })} accessibilityLabel="Ver o resumo do mês">
+            <Row style={{ justifyContent: 'space-between' }}>
+              <T v="heading">Este mês</T>
+              <Row gap={4}>
+                <T v="small" color={colors.action} style={{ fontWeight: '600' }}>Ver resumo</T>
+                <Ionicons name="chevron-forward" size={16} color={colors.action} />
+              </Row>
             </Row>
+            <View>
+              <Money cents={mes.totalCents} />
+              <T v="small" color={colors.textMuted}>
+                {mes.compras ? plural(mes.compras, 'compra encerrada', 'compras encerradas') : 'Nenhuma compra encerrada ainda'}
+                {mes.comparacao ? `. ${mes.comparacao}.` : ''}
+              </T>
+            </View>
           </Card>
         ) : null}
 
-        <SectionTitle action={recent.length ? <Button title="Ver tudo" kind="ghost" compact onPress={() => router.push({ pathname: '/purchases', params: { view: 'history' } })} /> : null}>
-          Últimas compras
-        </SectionTitle>
-        <Card style={{ paddingVertical: space.xs }}>
-          {recent.length ? (
-            recent.map((s, i) => (
-              <View key={s.purchase.id}>
-                {i > 0 ? <Divider /> : null}
-                <PurchaseRow s={s} />
-              </View>
-            ))
-          ) : (
-            <EmptyState icon="bag-handle-outline" title="Nenhuma compra salva ainda" text="Suas compras e conferências aparecem aqui." />
-          )}
-        </Card>
+        {withIssues.length ? (
+          <Banner
+            t="yellow"
+            icon="alert-circle"
+            title={plural(openTotal, 'ponto a revisar', 'pontos a revisar')}
+            action={<Button title="Ver as conferências" kind="secondary" compact onPress={() => router.push({ pathname: '/purchases', params: { view: 'history' } })} />}
+          >
+            {`Em ${plural(withIssues.length, 'conferência anterior', 'conferências anteriores')}.`}
+          </Banner>
+        ) : null}
+
+        <View style={{ gap: space.md }}>
+          <SectionTitle>O que você quer fazer</SectionTitle>
+          <LinkRow icon="receipt-outline" title="Conferir o cupom" text="Compare o que foi cobrado com o que você levou" onPress={() => router.push('/receipt/capture')} />
+          <LinkRow icon="barcode-outline" title="Registrar o carrinho" text="Escaneie e informe o preço: é o que o cupom confere depois" onPress={startNew} />
+          <LinkRow icon="camera-outline" title="Foto do produto e preço" text="Lê o nome, a marca e o preço da etiqueta" onPress={() => router.push('/capture')} />
+          <LinkRow icon="stats-chart-outline" title="Preços e gastos" text="Compare supermercados e veja o resumo do mês" onPress={() => router.push('/prices')} />
+          <LinkRow icon="pricetags-outline" title="Ofertas da comunidade" text="Promoções encontradas por pessoas da sua região" onPress={() => router.push('/offers')} />
+        </View>
+
+        <View style={{ gap: space.md }}>
+          <SectionTitle action={recent.length ? <Button title="Ver tudo" kind="ghost" compact onPress={() => router.push({ pathname: '/purchases', params: { view: 'history' } })} /> : null}>
+            Últimas compras
+          </SectionTitle>
+          <Card style={{ paddingVertical: space.xs }}>
+            {recent.length ? (
+              recent.map((s, i) => (
+                <View key={s.purchase.id}>
+                  {i > 0 ? <Divider /> : null}
+                  <PurchaseRow s={s} />
+                </View>
+              ))
+            ) : (
+              <EmptyState icon="bag-handle-outline" title="Nenhuma compra salva ainda" text="Suas compras e conferências aparecem aqui." />
+            )}
+          </Card>
+        </View>
       </ScrollView>
       <BudgetSheet
         visible={budgetOpen}
@@ -185,34 +180,6 @@ export default function Home() {
   );
 }
 
-function ActionTile({ icon, title, text, onPress, accent }: { icon: IconName; title: string; text: string; onPress: () => void; accent?: boolean }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      style={({ pressed }) => [styles.tile, pressed && { opacity: 0.85 }]}
-    >
-      <View style={[styles.tileIcon, accent && { backgroundColor: colors.greenSoft }]}>
-        <Ionicons name={icon} size={24} color={accent ? colors.green : colors.action} />
-      </View>
-      <T v="bodyStrong">{title}</T>
-      <T v="small" color={colors.textMuted}>{text}</T>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  actions: { flexDirection: 'row', gap: space.md },
-  tile: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: space.lg,
-    gap: 6,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    minHeight: 150,
-  },
-  tileIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.actionSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  destaque: { backgroundColor: colors.highlight, borderColor: colors.highlight, borderRadius: radius.xl, padding: 20, gap: space.lg, ...highlightShadow },
 });

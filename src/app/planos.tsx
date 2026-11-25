@@ -14,12 +14,12 @@ import { isCloudConfigured } from '@/lib/config';
 import { showAlert } from '@/lib/dialog';
 import { useLoad } from '@/lib/useLoad';
 import {
-  type Balde, descreveCobranca, economiaAnualCents, fracaoUsada, fraseDeUso, PLANOS, PLANOS_PAGOS,
-  type PlanoAnunciado, planoAnunciado, precoDe, quandoZera,
+  type Balde, descreveCobranca, economiaAnualCents, fracaoUsada, fraseDeUso, OFERTAS,
+  type PlanoAnunciado, planoAnunciado, precoDe, quandoZera, VITRINE,
 } from '@/domain/planos';
 import { assinar, gerenciarAssinatura, meuPlano, PlanoError } from '@/services/planos';
 import { useApp } from '@/state/AppContext';
-import { Banner, Button, Card, Divider, type IconName, Money, Pill, Row, Screen, SectionTitle, Segmented, T } from '@/ui/components';
+import { Banner, Button, Card, Divider, type IconName, Money, Row, Screen, SectionTitle, Segmented, T } from '@/ui/components';
 import { colors, radius, space } from '@/ui/theme';
 
 /** O Google Play exige a cobrança dele para conteúdo digital dentro do app. */
@@ -175,11 +175,10 @@ export default function Planos() {
         ) : null}
       </Card>
 
-      {PLANOS_PAGOS.filter((p) => p.id !== estado?.plano).map((p) => (
+      {OFERTAS.filter((p) => p.id !== estado?.plano).map((p) => (
         <Oferta
           key={p.id}
           plano={p}
-          destaque={p.id === 'ia'}
           ocupado={indo}
           onAssinar={(periodo) => ir(() => assinar(precoDe(p.id, periodo)))}
         />
@@ -190,9 +189,8 @@ export default function Planos() {
   );
 }
 
-function Oferta({ plano, destaque, ocupado, onAssinar }: {
+function Oferta({ plano, ocupado, onAssinar }: {
   plano: PlanoAnunciado;
-  destaque?: boolean;
   ocupado: boolean;
   onAssinar: (periodo: 'mensal' | 'anual') => void;
 }) {
@@ -203,12 +201,9 @@ function Oferta({ plano, destaque, ocupado, onAssinar }: {
   const porAno = `R$ ${((plano.anualCents ?? 0) / 100).toFixed(0)}/ano`;
   return (
     <>
-      <SectionTitle>{destaque ? 'O plano com o assistente' : 'Quer mais leituras?'}</SectionTitle>
-      <Card>
-        <Row>
-          <T v="heading" style={styles.item}>{plano.nome}</T>
-          {plano.disponivel ? null : <Pill label="EM BREVE" t="yellow" />}
-        </Row>
+      <SectionTitle>Quer mais leituras?</SectionTitle>
+      <Card style={styles.oferta}>
+        <T v="title">{plano.nome}</T>
         <T v="small" color={colors.textMuted}>{plano.chamada}</T>
         <Segmented
           label={`Como pagar o ${plano.nome}`}
@@ -234,11 +229,7 @@ function Oferta({ plano, destaque, ocupado, onAssinar }: {
             <T v="small" style={styles.item}>{item}</T>
           </Row>
         ))}
-        {!plano.disponivel ? (
-          <T v="small" color={colors.yellowText}>
-            Ainda estamos terminando este plano. Nada aqui está disponível hoje, e por isso ele não pode ser assinado.
-          </T>
-        ) : COMPRA_NO_APP ? (
+        {COMPRA_NO_APP ? (
           <>
             <Button
               title={`Assinar por ${periodo === 'mensal' ? porMes : porAno}`}
@@ -271,7 +262,7 @@ function Uso({ icone, titulo, balde, frase }: { icone: IconName; titulo: string;
       </Row>
       {fracao === null ? null : (
         <View style={styles.trilho} accessibilityRole="progressbar" accessibilityLabel={`${titulo}: ${frase}`}>
-          <View style={[styles.preenchido, { width: `${Math.round(fracao * 100)}%`, backgroundColor: acabou ? colors.red : colors.action }]} />
+          <View style={[styles.preenchido, { width: `${Math.round(fracao * 100)}%`, backgroundColor: acabou ? colors.red : fracao >= 0.8 ? colors.yellow : colors.action }]} />
         </View>
       )}
       <T v="small" color={acabou ? colors.redText : colors.textMuted}>{frase}</T>
@@ -283,7 +274,7 @@ function Comparacao() {
   return (
     <>
       <SectionTitle>O que cada plano inclui</SectionTitle>
-      {PLANOS.map((p) => (
+      {VITRINE.map((p) => (
         <Card key={p.id}>
           <Row>
             <T v="heading" style={styles.item}>{p.nome}</T>
@@ -308,6 +299,7 @@ function Comparacao() {
 const styles = StyleSheet.create({
   item: { flex: 1 },
   uso: { gap: space.xs },
-  trilho: { height: 8, borderRadius: radius.pill, backgroundColor: colors.border, overflow: 'hidden' },
-  preenchido: { height: 8, borderRadius: radius.pill },
+  trilho: { height: 10, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
+  preenchido: { height: '100%', borderRadius: radius.pill },
+  oferta: { borderWidth: 2, borderColor: colors.action },
 });
