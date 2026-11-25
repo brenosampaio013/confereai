@@ -31,7 +31,7 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 | Etapa | Situação |
 |---|---|
 | 0 · Base segura | concluída em 25/11 — Banner corrigido; encerramento corrigido (causa: corrida da sincronização) |
-| 1 · Design system | em revisão — referência publicada em https://claude.ai/artifact/DaYfDXtkbHv9yRhWNb3qKK (cópia dos tokens e do guia em `.planning/design-system/`); nada aplicado ao app até a aprovação |
+| 1 · Design system | concluída em 25/11 — aprovado e aplicado: `src/ui/theme.ts`, componentes de `src/ui/`, telas de conta no visual do app, Archivo no app, cupom serrilhado no relatório. Referência: https://claude.ai/artifact/DaYfDXtkbHv9yRhWNb3qKK |
 | 2 · Site | — |
 | 3 · Aplicativo | — |
 | 4 · Conversão | aguarda a leitura por foto em produção |
@@ -39,3 +39,9 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 | 6 · Stripe em teste | — |
 | 7 · Acessibilidade | — |
 | 8 · Regressão e publicação | — |
+
+## Pendências registradas na etapa 1
+
+- Fonte no iOS: o iOS lê o nome da família de dentro de cada arquivo; não deu para conferir num aparelho. No Android, o projeto gerado registra a família "Archivo" com os cinco pesos.
+- Textos com `fontWeight` em `<Text>` soltos (fora de `T` e dos estilos de `type`) ainda podem sair na fonte do sistema no celular: entram na etapa 3, tela a tela.
+- A tela inicial ainda mostra "Foto do produto e preço" (leitura por IA), que depende da leitura por foto ligada em produção (decisão 7).

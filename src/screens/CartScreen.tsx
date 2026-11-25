@@ -90,7 +90,7 @@ export default function CartScreen() {
         <>
           <Row style={{ justifyContent: 'space-between' }}>
             <View>
-              <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>Total registrado</T>
+              <T v="caption" color={colors.textMuted}>Total registrado</T>
               <T v="small" color={colors.textMuted}>
                 {plural(totals.lineCount, 'item', 'itens')}
                 {totals.discountCents ? ` · descontos ${formatBRL(totals.discountCents)}` : ''}
@@ -110,7 +110,7 @@ export default function CartScreen() {
       ) : (
         <Card onPress={() => setBudgetOpen(true)} accessibilityLabel="Definir orçamento da compra">
           <Row>
-            <Ionicons name="wallet-outline" size={22} color={colors.navy} />
+            <Ionicons name="wallet-outline" size={22} color={colors.action} />
             <View style={{ flex: 1 }}>
               <T v="bodyStrong">Definir orçamento</T>
               <T v="small" color={colors.textMuted}>Informe quanto pretende gastar e acompanhe o saldo a cada produto</T>
@@ -122,7 +122,7 @@ export default function CartScreen() {
 
       <Card onPress={() => setStoreOpen(true)} accessibilityLabel="Informar estabelecimento">
         <Row>
-          <Ionicons name="storefront-outline" size={22} color={colors.navy} />
+          <Ionicons name="storefront-outline" size={22} color={colors.action} />
           <View style={{ flex: 1 }}>
             <T v="bodyStrong">{active.storeName || 'Informar o estabelecimento'}</T>
             <T v="small" color={colors.textMuted}>Ajuda a comparar preços entre supermercados</T>

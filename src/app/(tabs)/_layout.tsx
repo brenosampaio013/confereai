@@ -3,20 +3,20 @@ import { router } from 'expo-router';
 import { Tabs } from 'expo-router/tabs';
 import { View } from 'react-native';
 import { useApp } from '@/state/AppContext';
-import { colors } from '@/ui/theme';
+import { colors, floating, font } from '@/ui/theme';
 
 export default function TabsLayout() {
   const { cart } = useApp();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.navy,
-        tabBarInactiveTintColor: colors.textFaint,
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
+        tabBarActiveTintColor: colors.action,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarLabelStyle: { fontFamily: font.family, fontSize: 12.5, fontWeight: '600' },
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, minHeight: 62 },
         headerStyle: { backgroundColor: colors.surface },
         headerShadowVisible: false,
-        headerTitleStyle: { fontWeight: '700', color: colors.text },
+        headerTitleStyle: { fontFamily: font.family, fontWeight: '700', color: colors.text },
         sceneStyle: { backgroundColor: colors.bg },
       }}
     >
@@ -34,8 +34,8 @@ export default function TabsLayout() {
           title: 'Escanear',
           tabBarAccessibilityLabel: 'Escanear produtos',
           tabBarIcon: () => (
-            <View style={{ width: 50, height: 50, borderRadius: 25, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center', marginTop: -14, borderWidth: 4, borderColor: colors.surface }}>
-              <Ionicons name="barcode-outline" color={colors.white} size={24} />
+            <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: colors.action, alignItems: 'center', justifyContent: 'center', marginTop: -16, borderWidth: 4, borderColor: colors.surface, ...floating }}>
+              <Ionicons name="barcode-outline" color={colors.onAction} size={25} />
             </View>
           ),
         }}
@@ -51,7 +51,7 @@ export default function TabsLayout() {
         options={{
           title: 'Compras',
           tabBarBadge: cart.length ? cart.length : undefined,
-          tabBarBadgeStyle: { backgroundColor: colors.green, fontSize: 11 },
+          tabBarBadgeStyle: { backgroundColor: colors.action, color: colors.onAction, fontSize: 11 },
           tabBarIcon: ({ color, size }) => <Ionicons name="cart-outline" color={String(color)} size={size} />,
         }}
       />

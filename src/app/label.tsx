@@ -152,7 +152,7 @@ export default function LabelScreen() {
           <Button title="Usar estes dados" icon="checkmark" kind="confirm" onPress={confirm} />
           {rawLines.length ? (
             <View style={{ gap: 2 }}>
-              <T v="caption" color={colors.textMuted}>TEXTO LIDO</T>
+              <T v="caption" color={colors.textMuted}>Texto lido</T>
               {rawLines.map((l, i) => <T key={`${i}-${l}`} v="small" color={colors.textMuted}>{l}</T>)}
             </View>
           ) : null}

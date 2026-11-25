@@ -102,7 +102,7 @@ const { ctx, page } = await entrar();
 
 await step('quem não assinou vê o plano grátis e a cota do mês zerada', async () => {
   const texto = await planos(page);
-  assert.match(texto, /SEU PLANO/);
+  assert.match(texto, /Seu plano/);
   assert.match(texto, /Grátis/);
   assert.match(texto, /Você está no plano grátis/);
   assert.match(texto, /0 de 20 fotos usadas neste mês/);
@@ -202,7 +202,7 @@ await step('o perfil leva à tela de planos', async () => {
   await page.waitForTimeout(2000);
   await clicar(page, 'Meu plano e cota do mês');
   await page.waitForTimeout(1500);
-  assert.match(await page.locator('body').innerText(), /SEU PLANO/);
+  assert.match(await page.locator('body').innerText(), /Seu plano/);
 });
 
 await ctx.close();

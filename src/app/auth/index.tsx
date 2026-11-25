@@ -42,7 +42,7 @@ export default function Entrar() {
       <AccountScreen onBack={leave} backLabel="Fechar">
         <AccountHeader title="Você já está conectado" subtitle="Suas compras estão sendo guardadas nesta conta." />
         <Plate inset style={{ padding: space.lg, alignItems: 'center' }}>
-          <Text style={[type.bodyStrong, { color: colors.navy }]}>{session.user.email}</Text>
+          <Text style={[type.bodyStrong, { color: colors.action }]}>{session.user.email}</Text>
         </Plate>
         <GradientButton title="Voltar ao aplicativo" onPress={leave} icon="arrow-back" />
       </AccountScreen>

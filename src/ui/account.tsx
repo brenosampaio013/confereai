@@ -4,7 +4,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Strength } from '@/domain/auth';
 import { LogoMark } from './Logo';
 import { GradientButton, Plate, SoftHeader, SoftScreen } from './soft';
-import { colors, raised, soft, space, sunken, type } from './theme';
+import { colors, radius, space, type } from './theme';
+
+/** Âmbar da marca do meio do medidor: escurecido para passar em 3:1 sobre o trilho. */
+const AMBAR_MARCA = '#AE7400';
 
 /**
  * Peças comuns às telas de conta (entrar, criar conta, recuperar, confirmar).
@@ -33,9 +36,9 @@ export function AccountScreen({
             accessibilityRole="button"
             accessibilityLabel={backLabel}
             hitSlop={10}
-            style={({ pressed }) => [styles.back, { boxShadow: pressed ? sunken(1) : raised(1) }]}
+            style={({ pressed }) => [styles.back, pressed && { backgroundColor: colors.actionSoft }]}
           >
-            <Ionicons name="arrow-back" size={20} color={colors.navy} />
+            <Ionicons name="arrow-back" size={20} color={colors.action} />
           </Pressable>
         ) : null
       }
@@ -46,7 +49,7 @@ export function AccountScreen({
 }
 
 /**
- * Cabeçalho com a marca em relevo. Nas telas de desfecho, `done` troca a marca por um
+ * Cabeçalho com a marca. Nas telas de desfecho, `done` troca a marca por um
  * visto verde — o mesmo verde que o aplicativo usa para "conferido".
  */
 export function AccountHeader({ title, subtitle, done }: { title: string; subtitle: string; done?: boolean }) {
@@ -63,10 +66,10 @@ export function AccountHeader({ title, subtitle, done }: { title: string; subtit
   );
 }
 
-/** Medidor de força da senha: quatro marcas num trilho afundado. */
+/** Medidor de força da senha: quatro marcas num trilho. */
 export function StrengthMeter({ strength }: { strength: Strength }) {
   // A marca no trilho pode ser clara (3:1 basta); o rótulo é texto e precisa de 4,5:1.
-  const marca = [colors.red, colors.red, soft.meterMid, colors.green, colors.green][strength.score];
+  const marca = [colors.red, colors.red, AMBAR_MARCA, colors.green, colors.green][strength.score];
   const rotulo = [colors.redText, colors.redText, colors.yellowText, colors.greenText, colors.greenText][strength.score];
   return (
     <View style={{ gap: 6 }} accessibilityRole="progressbar" accessibilityLabel={`Força da senha: ${strength.label || 'vazia'}`}>
@@ -109,7 +112,7 @@ export function SwapLine({ text, action, onPress }: { text: string; action: stri
       <Text style={[type.small, { color: colors.textMuted }]}>{text}</Text>
       <Pressable onPress={onPress} accessibilityRole="link" hitSlop={8} style={styles.swapLink}>
         {({ pressed }) => (
-          <Text style={[type.small, { color: soft.ring, fontWeight: '700' }, pressed && { textDecorationLine: 'underline' }]}>
+          <Text style={[type.small, { color: colors.action, fontWeight: '700' }, pressed && { textDecorationLine: 'underline' }]}>
             {action}
           </Text>
         )}
@@ -123,7 +126,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: soft.plate,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -134,16 +139,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: [{ offsetX: 0, offsetY: 6, blurRadius: 14, color: 'rgba(17, 145, 90, 0.35)' }],
   },
   track: {
     flexDirection: 'row',
     gap: 6,
     height: 8,
-    borderRadius: 4,
-    backgroundColor: soft.sunken,
-    boxShadow: sunken(1),
-    padding: 1.5,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 1,
   },
   tick: { flex: 1, borderRadius: 3 },
   strengthRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },

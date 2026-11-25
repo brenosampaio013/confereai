@@ -71,10 +71,10 @@ export default function PublishOffer() {
       <View style={styles.stepper}>
         {STEPS.map((s, i) => (
           <Pressable key={s} style={styles.stepItem} onPress={() => i < step && setStep(i)} accessibilityRole="button" accessibilityLabel={`Etapa ${i + 1}: ${s}`} accessibilityState={{ selected: i === step }}>
-            <View style={[styles.dot, i <= step && { backgroundColor: i < step ? colors.green : colors.navy, borderColor: i < step ? colors.green : colors.navy }]}>
+            <View style={[styles.dot, i <= step && { backgroundColor: i < step ? colors.green : colors.action, borderColor: i < step ? colors.green : colors.action }]}>
               {i < step ? <Ionicons name="checkmark" size={14} color={colors.white} /> : <T v="small" color={i === step ? colors.white : colors.textMuted} style={{ fontWeight: '700' }}>{i + 1}</T>}
             </View>
-            <T v="small" center color={i === step ? colors.navy : colors.textMuted} style={{ fontSize: 11.5, fontWeight: i === step ? '700' : '500' }} numberOfLines={1}>{s}</T>
+            <T v="small" center color={i === step ? colors.action : colors.textMuted} style={{ fontSize: 11.5, fontWeight: i === step ? '700' : '500' }} numberOfLines={1}>{s}</T>
           </Pressable>
         ))}
       </View>
@@ -191,7 +191,7 @@ function PhotosStep({ d, set }: { d: PromotionDraft; set: (p: Partial<PromotionD
         <T v="small" style={{ fontWeight: '600' }}>O que você vai fotografar agora?</T>
         <View style={styles.wrap}>
           {IMAGE_TYPES.map((t) => (
-            <Pressable key={t.id} onPress={() => setNextType(t.id)} style={[styles.choice, nextType === t.id && { backgroundColor: colors.navy, borderColor: colors.navy }]} accessibilityRole="radio" accessibilityState={{ selected: nextType === t.id }}>
+            <Pressable key={t.id} onPress={() => setNextType(t.id)} style={[styles.choice, nextType === t.id && { backgroundColor: colors.action, borderColor: colors.action }]} accessibilityRole="radio" accessibilityState={{ selected: nextType === t.id }}>
               <T v="small" color={nextType === t.id ? colors.white : colors.text} style={{ fontWeight: '600' }}>{t.label}</T>
             </Pressable>
           ))}
@@ -211,7 +211,7 @@ function PhotosStep({ d, set }: { d: PromotionDraft; set: (p: Partial<PromotionD
             <Row gap={4}>
               {IMAGE_TYPES.map((t) => (
                 <Pressable key={t.id} onPress={() => set({ photos: d.photos.map((x, k) => (k === i ? { ...x, type: t.id } : x)) })} hitSlop={4} accessibilityLabel={`Marcar como ${t.label}`}>
-                  <View style={[styles.miniDot, p.type === t.id && { backgroundColor: colors.navy }]} />
+                  <View style={[styles.miniDot, p.type === t.id && { backgroundColor: colors.action }]} />
                 </Pressable>
               ))}
             </Row>
@@ -337,7 +337,7 @@ function StoreStep({ d, set, store, setStore }: { d: PromotionDraft; set: (p: Pa
         const on = store?.location_id === s.location_id;
         return (
           <Pressable key={s.location_id} onPress={() => choose(s)} style={[styles.store, on && { borderColor: colors.green, backgroundColor: colors.greenSoft }]} accessibilityRole="radio" accessibilityState={{ selected: on }}>
-            {s.logo_url ? <Image source={{ uri: s.logo_url }} style={styles.logo} contentFit="contain" /> : <View style={[styles.logo, { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.navySoft }]}><Ionicons name="storefront-outline" size={20} color={colors.navy} /></View>}
+            {s.logo_url ? <Image source={{ uri: s.logo_url }} style={styles.logo} contentFit="contain" /> : <View style={[styles.logo, { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.actionSoft }]}><Ionicons name="storefront-outline" size={20} color={colors.action} /></View>}
             <View style={{ flex: 1, gap: 2 }}>
               <T v="bodyStrong">{s.name}</T>
               <T v="small" color={colors.textMuted}>{[s.address, s.neighborhood].filter(Boolean).join(' · ')}</T>
@@ -352,7 +352,7 @@ function StoreStep({ d, set, store, setStore }: { d: PromotionDraft; set: (p: Pa
       <Button title="Não encontrei: sugerir estabelecimento" icon="add" kind="ghost" onPress={() => setSuggesting(true)} />
       {store ? (
         <Card>
-          <T v="caption" color={colors.textMuted}>UNIDADE SELECIONADA</T>
+          <T v="caption" color={colors.textMuted}>Unidade selecionada</T>
           <T v="bodyStrong">{store.name}</T>
           <T v="small" color={colors.textMuted}>{store.address}, {store.city} - {store.state}</T>
           {mapAvailable ? <PickLocationMap value={{ latitude: store.latitude, longitude: store.longitude }} onChange={() => {}} center={null} /> : null}
@@ -475,7 +475,7 @@ function SuggestStoreSheet({ visible, onClose, onCreated, pos }: { visible: bool
           <T v="small" color={colors.textMuted}>Toque no local certo:</T>
           {achados.map((l) => (
             <Pressable key={`${l.latitude},${l.longitude},${l.rotulo}`} onPress={() => usarLugar(l)} accessibilityRole="button" style={styles.achado}>
-              <Ionicons name="location-outline" size={18} color={colors.navy} />
+              <Ionicons name="location-outline" size={18} color={colors.action} />
               <T v="small" style={{ flex: 1 }}>{l.rotulo}</T>
             </Pressable>
           ))}
@@ -560,7 +560,7 @@ function LocationStep({ d, store, onPublished }: { d: PromotionDraft; store: Sto
     <>
       <T v="title">Onde você encontrou a oferta</T>
       <Card>
-        <T v="caption" color={colors.textMuted}>RESUMO</T>
+        <T v="caption" color={colors.textMuted}>Resumo</T>
         <T v="bodyStrong">{d.productName}{d.brand ? ` · ${d.brand}` : ''}</T>
         <T v="heading" color={colors.greenText}>{formatOfferPrice(d.promoPriceCents ?? 0, d.saleUnit)}</T>
         <T v="small" color={colors.textMuted}>{store.name} · {store.address}</T>
@@ -569,7 +569,7 @@ function LocationStep({ d, store, onPublished }: { d: PromotionDraft; store: Sto
 
       {view.kind === 'request' ? (
         <Banner t="navy" icon="navigate-outline" title="Por que pedimos a localização">
-          <T v="small" color={colors.navy}>{view.message}</T>
+          <T v="small" color={colors.action}>{view.message}</T>
           <Button title="Permitir localização" icon="navigate" compact onPress={() => request()} />
         </Banner>
       ) : null}
@@ -658,7 +658,7 @@ const styles = StyleSheet.create({
   achado: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 48, paddingVertical: 6 },
   choice: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, minHeight: 40, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   thumb: { width: 64, height: 64, borderRadius: radius.sm, marginRight: space.sm, backgroundColor: colors.border },
-  miniDot: { width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: colors.navy },
+  miniDot: { width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: colors.action },
   condition: { flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   store: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.surface },
   logo: { width: 44, height: 44, borderRadius: radius.sm },

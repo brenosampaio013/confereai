@@ -43,7 +43,7 @@ export default function Recuperar() {
           subtitle="Se houver uma conta com este e-mail, o link para criar uma nova senha chega em instantes."
         />
         <Plate inset style={{ padding: space.lg, alignItems: 'center', gap: 4 }}>
-          <Text style={[type.bodyStrong, { color: colors.navy }]}>{email.trim()}</Text>
+          <Text style={[type.bodyStrong, { color: colors.action }]}>{email.trim()}</Text>
           <Text style={[type.small, { color: colors.textMuted, textAlign: 'center' }]}>
             O link vale por uma hora. Se não aparecer, procure na caixa de spam.
           </Text>

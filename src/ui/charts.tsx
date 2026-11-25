@@ -37,7 +37,7 @@ export function BarChart({ data, height = 140, initialKey, accessibilityLabel }:
           const on = d.key === selected;
           return (
             <Pressable key={d.key} onPress={() => setSelected(d.key)} style={styles.col} accessibilityRole="button" accessibilityLabel={`${d.label}: ${formatBRL(d.valueCents)}`}>
-              <View style={[styles.bar, { height: h, backgroundColor: on ? colors.navy : '#9DB4CC' }]} />
+              <View style={[styles.bar, { height: h, backgroundColor: on ? colors.action : colors.chartMuted }]} />
             </Pressable>
           );
         })}
@@ -65,7 +65,7 @@ export function HBarList({ data, note }: { data: (BarDatum & { muted?: boolean }
             <T v="small" style={{ fontWeight: '700' }}>{formatBRL(d.valueCents)}</T>
           </View>
           <View style={styles.track}>
-            <View style={[styles.hbar, { width: `${Math.max(2, Math.round((d.valueCents / max) * 100))}%`, backgroundColor: d.muted ? '#B8C4D1' : colors.navy }]} />
+            <View style={[styles.hbar, { width: `${Math.max(2, Math.round((d.valueCents / max) * 100))}%`, backgroundColor: d.muted ? colors.chartMuted : colors.action }]} />
           </View>
           {d.detail ? <T v="caption" color={colors.textMuted}>{d.detail}</T> : null}
         </View>
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
   plot: { flexDirection: 'row', alignItems: 'flex-end', borderBottomWidth: 1, borderBottomColor: colors.border },
   col: { flex: 1, height: '100%', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 1 },
   bar: { width: '62%', maxWidth: 28, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
-  track: { height: 8, borderRadius: 6, backgroundColor: colors.navySoft, overflow: 'hidden' },
+  track: { height: 8, borderRadius: 6, backgroundColor: colors.actionSoft, overflow: 'hidden' },
   hbar: { height: 8, borderRadius: 6 },
 });

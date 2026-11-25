@@ -180,13 +180,13 @@ export default function ScanScreen() {
                   </View>
                 ) : null}
               </View>
-              <T v="small" color="#DCE6F0" center style={{ marginTop: space.md }}>
+              <T v="small" color={colors.onHighlightMuted} center style={{ marginTop: space.md }}>
                 Aponte para o código de barras. Segurar o produto parado não adiciona unidades extras.
               </T>
             </>
           ) : (
             <View style={styles.permissionBox}>
-              <Ionicons name="camera-outline" size={40} color={colors.navy} />
+              <Ionicons name="camera-outline" size={40} color={colors.action} />
               {view.kind === 'loading' ? <T>Verificando permissão da câmera…</T> : <T center>{'message' in view ? view.message : ''}</T>}
               {cameraError ? <T v="small" color={colors.redText} center>{cameraError}</T> : null}
               {view.kind === 'request' ? <Button title="Permitir câmera" icon="camera" onPress={() => requestPermission()} style={{ alignSelf: 'stretch' }} /> : null}
@@ -201,14 +201,14 @@ export default function ScanScreen() {
             <Pressable onPress={() => router.push(`/item/${last.id}`)} accessibilityRole="button" accessibilityLabel={`Último produto: ${last.name}. Toque para editar.`}>
               <Row style={{ justifyContent: 'space-between' }}>
                 <View style={{ flex: 1 }}>
-                  <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>Último produto</T>
+                  <T v="caption" color={colors.textMuted}>Último produto</T>
                   <T v="bodyStrong" numberOfLines={1}>{last.name}</T>
                   <T v="small" color={colors.textMuted}>
                     {formatQuantity(last.quantityMilli, last.saleUnit)} × {formatBRL(last.unitPriceCents)}
                     {isWeighed(last.saleUnit) ? (last.saleUnit === 'kg' ? '/kg' : '/L') : ''}
                   </T>
                 </View>
-                <Ionicons name="create-outline" size={20} color={colors.navy} />
+                <Ionicons name="create-outline" size={20} color={colors.action} />
               </Row>
             </Pressable>
           ) : (
@@ -216,7 +216,7 @@ export default function ScanScreen() {
           )}
           <Row style={{ justifyContent: 'space-between', paddingTop: space.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }}>
             <View>
-              <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>Total da compra</T>
+              <T v="caption" color={colors.textMuted}>Total da compra</T>
               <Money cents={totals.totalCents} v="title" />
             </View>
             <T v="small" color={colors.textMuted}>{totals.lineCount} {totals.lineCount === 1 ? 'item' : 'itens'}</T>

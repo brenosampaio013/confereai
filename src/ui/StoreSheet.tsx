@@ -64,7 +64,7 @@ function StoreForm({ initial, onSave }: { initial: StoreChoice; onSave: (c: Stor
       />
       {shown.length ? (
         <View>
-          <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase', marginBottom: 4 }}>Unidades cadastradas</T>
+          <T v="caption" color={colors.textMuted} style={{ marginBottom: 4 }}>Unidades cadastradas</T>
           {shown.map((s, i) => (
             <View key={s.location_id}>
               {i > 0 ? <Divider /> : null}
@@ -77,7 +77,7 @@ function StoreForm({ initial, onSave }: { initial: StoreChoice; onSave: (c: Stor
                 accessibilityLabel={`Selecionar ${unitLabel(s)}`}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: space.sm }}
               >
-                <Ionicons name={locationId === s.location_id ? 'radio-button-on' : 'radio-button-off'} size={20} color={colors.navy} />
+                <Ionicons name={locationId === s.location_id ? 'radio-button-on' : 'radio-button-off'} size={20} color={colors.action} />
                 <View style={{ flex: 1 }}>
                   <T v="bodyStrong" numberOfLines={1}>{s.name}</T>
                   <T v="small" color={colors.textMuted} numberOfLines={1}>{[s.address, s.neighborhood, `${s.city}/${s.state}`].filter(Boolean).join(' · ')}</T>

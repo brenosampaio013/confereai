@@ -7,7 +7,7 @@ import { signUp } from '@/services/auth';
 import { useApp } from '@/state/AppContext';
 import { AccountHeader, AccountScreen, CloudOff, StrengthMeter, SwapLine } from '@/ui/account';
 import { GradientButton, SoftCheck, SoftField, SoftNote } from '@/ui/soft';
-import { colors, soft, type } from '@/ui/theme';
+import { colors, type } from '@/ui/theme';
 
 type Errors = { name?: string; email?: string; password?: string; confirm?: string; terms?: string };
 
@@ -135,7 +135,7 @@ export default function CriarConta() {
           <Text style={[type.small, { color: colors.text, flex: 1 }]}>
             Li e aceito a{' '}
             <Text
-              style={{ color: soft.ring, fontWeight: '700' }}
+              style={{ color: colors.action, fontWeight: '700' }}
               accessibilityRole="link"
               onPress={() => router.push('/privacy')}
             >

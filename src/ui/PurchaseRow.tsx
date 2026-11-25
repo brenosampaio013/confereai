@@ -26,7 +26,7 @@ export function PurchaseRow({ s }: { s: PurchaseSummary }) {
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.surfaceAlt }]}
     >
       <View style={styles.icon}>
-        <Ionicons name={s.purchase.mode === 'cart' ? 'cart-outline' : 'receipt-outline'} size={20} color={colors.navy} />
+        <Ionicons name={s.purchase.mode === 'cart' ? 'cart-outline' : 'receipt-outline'} size={20} color={colors.action} />
       </View>
       <View style={{ flex: 1, gap: 4 }}>
         <T v="bodyStrong" numberOfLines={1}>{s.purchase.storeName || (s.purchase.mode === 'cart' ? 'Compra' : 'Conferência de nota')}</T>
@@ -51,5 +51,5 @@ export function PurchaseRow({ s }: { s: PurchaseSummary }) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.md },
-  icon: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.navySoft, alignItems: 'center', justifyContent: 'center' },
+  icon: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.actionSoft, alignItems: 'center', justifyContent: 'center' },
 });

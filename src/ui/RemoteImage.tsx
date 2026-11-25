@@ -38,7 +38,7 @@ export function RemoteImage({ path, style, contentFit = 'cover' }: { path: strin
   }, [path]);
   if (!path || failed || !uri) {
     return (
-      <View style={[style as object, { backgroundColor: colors.navySoft, alignItems: 'center', justifyContent: 'center' }]}>
+      <View style={[style as object, { backgroundColor: colors.actionSoft, alignItems: 'center', justifyContent: 'center' }]}>
         <Ionicons name={failed || !path ? 'image-outline' : 'hourglass-outline'} size={22} color={colors.textFaint} />
       </View>
     );

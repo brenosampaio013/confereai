@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ReactNode, useId, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   KeyboardTypeOptions,
   Platform,
@@ -15,25 +14,20 @@ import {
   ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
-import { colors, raised, soft, space, sunken, type } from './theme';
+import { Button } from './components';
+import { colors, radius, space, type } from './theme';
 
 /**
- * Na web o navegador desenha o próprio anel de foco preto dentro do campo. Ele é removido
- * porque a borda azul do campo já indica o foco (e passa em 3:1), mas a propriedade não
- * existe no React Native, então é aplicada só na web.
+ * Peças das telas de conta (entrar, criar conta, recuperar, confirmar).
+ *
+ * Até a versão 2.0 tinham visual próprio, azulado e em relevo. Agora seguem o design system do
+ * resto do app: os mesmos campos, botões e avisos. Os nomes e as opções continuam os mesmos para
+ * não mexer nas telas.
  */
+
+/** Na web o navegador desenha o próprio anel de foco dentro do campo; a borda já mostra o foco. */
 const semAnelDoNavegador =
   Platform.OS === 'web' ? ({ outlineStyle: 'none' } as unknown as { outlineWidth: number }) : null;
-
-/**
- * Peças das telas de conta, no estilo "soft UI": o relevo indica o que fazer com cada coisa.
- * Relevo = aperte. Afundado = escreva. Plano = leia.
- *
- * A sombra dupla vem de `raised()` e `sunken()` (ver theme.ts) e usa `boxShadow`, suportado
- * pelo React Native 0.88 e pelo react-native-web — sem biblioteca extra. Os degradês saem do
- * react-native-svg, que já é dependência do projeto.
- */
 
 export type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -41,50 +35,13 @@ export type IconName = keyof typeof Ionicons.glyphMap;
 /* Fundo e estrutura                                                   */
 /* ------------------------------------------------------------------ */
 
-/** Discos difusos sangrando pelas bordas: a única decoração das telas de conta. */
-function Decor() {
-  const id = useId();
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  return (
-    <View
-      style={StyleSheet.absoluteFill}
-      pointerEvents="none"
-      onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-    >
-      {size.w > 0 ? (
-        <Svg width={size.w} height={size.h}>
-          <Defs>
-            <RadialGradient id={`${id}-halo`} cx="50%" cy="50%" r="50%">
-              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.95} />
-              <Stop offset="1" stopColor="#FFFFFF" stopOpacity={0} />
-            </RadialGradient>
-            <RadialGradient id={`${id}-blue`} cx="50%" cy="50%" r="50%">
-              <Stop offset="0" stopColor="#9FB8EC" stopOpacity={0.5} />
-              <Stop offset="1" stopColor="#9FB8EC" stopOpacity={0} />
-            </RadialGradient>
-          </Defs>
-          <Circle cx={size.w * 0.16} cy={size.h * 0.06} r={size.w * 0.62} fill={`url(#${id}-halo)`} />
-          <Circle cx={size.w * -0.06} cy={size.h * 0.02} r={size.w * 0.42} fill={`url(#${id}-blue)`} />
-          <Circle cx={size.w * 1.06} cy={size.h * 0.33} r={size.w * 0.45} fill={`url(#${id}-blue)`} />
-          <Circle cx={size.w * 0.92} cy={size.h * 1.0} r={size.w * 0.7} fill={`url(#${id}-halo)`} />
-        </Svg>
-      ) : null}
-    </View>
-  );
-}
-
-/** Tela de conta: fundo azul claro, decoração ao fundo e uma coluna central de 400 px. */
+/** Tela de conta: fundo do app e uma coluna central de 400 px. */
 export function SoftScreen({ children, footer, corner }: { children: ReactNode; footer?: ReactNode; corner?: ReactNode }) {
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.screen}>
-      <Decor />
       {corner ? <View style={styles.corner}>{corner}</View> : null}
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View style={styles.column}>{children}</View>
         </ScrollView>
         {footer ? <View style={styles.footer}>{footer}</View> : null}
@@ -93,37 +50,26 @@ export function SoftScreen({ children, footer, corner }: { children: ReactNode; 
   );
 }
 
-/** Superfície em relevo. `inset` inverte a luz para o estado afundado. */
+/** Superfície de apoio. `inset` é a versão recolhida (para textos de explicação). */
 export function Plate({
   children,
   style,
-  level = 2,
   inset,
 }: {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  /** Mantido por compatibilidade: o relevo deixou de existir. */
   level?: 1 | 2 | 3;
   inset?: boolean;
 }) {
-  return (
-    <View
-      style={[
-        { backgroundColor: inset ? soft.sunken : soft.plate, borderRadius: 22, boxShadow: inset ? sunken() : raised(level) },
-        style,
-      ]}
-    >
-      {children}
-    </View>
-  );
+  return <View style={[styles.plate, inset && styles.plateInset, style]}>{children}</View>;
 }
 
-/** Cabeçalho das telas de conta: marca em relevo, título e uma linha de explicação. */
+/** Cabeçalho das telas de conta: a marca, o título e uma linha de explicação. */
 export function SoftHeader({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
     <View style={styles.header}>
-      <Plate level={3} style={styles.badge}>
-        {children}
-      </Plate>
+      <View style={styles.badge}>{children}</View>
       <Text style={styles.title} accessibilityRole="header">
         {title}
       </Text>
@@ -175,18 +121,12 @@ export function SoftField({
   const [shown, setShown] = useState(false);
   const hidden = !!secure && !shown;
   return (
-    <View style={{ gap: 4 }}>
+    <View style={{ gap: 6 }}>
       <Text style={styles.fieldLabel} numberOfLines={1}>
-        {value ? label : ' '}
+        {label}
       </Text>
-      <View
-        style={[
-          styles.field,
-          focused && { borderColor: soft.ring },
-          !!error && { borderColor: colors.red },
-        ]}
-      >
-        <Ionicons name={icon} size={20} color={error ? colors.redText : focused ? soft.ring : soft.placeholder} />
+      <View style={[styles.field, focused && styles.fieldFocused, !!error && styles.fieldError]}>
+        <Ionicons name={icon} size={20} color={error ? colors.redText : focused ? colors.action : colors.textMuted} />
         <TextInput
           testID={testID}
           accessibilityLabel={label}
@@ -195,8 +135,8 @@ export function SoftField({
           onChangeText={onChangeText}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={placeholder ?? label}
-          placeholderTextColor={soft.placeholder}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textFaint}
           secureTextEntry={hidden}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
@@ -217,13 +157,13 @@ export function SoftField({
             hitSlop={10}
             style={styles.eye}
           >
-            <Ionicons name={hidden ? 'eye-off-outline' : 'eye-outline'} size={20} color={soft.placeholder} />
+            <Ionicons name={hidden ? 'eye-off-outline' : 'eye-outline'} size={20} color={colors.textMuted} />
           </Pressable>
         ) : null}
       </View>
       {error ? (
         <View style={styles.fieldNote} accessibilityRole="alert" accessibilityLiveRegion="polite">
-          <Ionicons name="alert-circle" size={15} color={colors.redText} />
+          <Ionicons name="alert-circle" size={16} color={colors.redText} />
           <Text style={[type.small, { color: colors.redText, flex: 1 }]}>{error}</Text>
         </View>
       ) : hint ? (
@@ -233,7 +173,7 @@ export function SoftField({
   );
 }
 
-/** Caixa de seleção em relevo; marcada, afunda e fica azul. */
+/** Caixa de seleção; marcada, fica verde floresta com o visto branco. */
 export function SoftCheck({
   checked,
   onChange,
@@ -255,7 +195,7 @@ export function SoftCheck({
       style={styles.checkRow}
     >
       <View style={[styles.checkBox, checked ? styles.checkBoxOn : styles.checkBoxOff]}>
-        {checked ? <Ionicons name="checkmark" size={15} color={colors.white} /> : null}
+        {checked ? <Ionicons name="checkmark" size={16} color={colors.onAction} /> : null}
       </View>
       {children ?? <Text style={[type.small, { color: colors.text, flex: 1 }]}>{label}</Text>}
     </Pressable>
@@ -266,13 +206,16 @@ export function SoftCheck({
 /* Ações                                                               */
 /* ------------------------------------------------------------------ */
 
-/** Ação principal da tela: a única superfície saturada. */
+/**
+ * Ação principal da tela de conta: o botão principal do app. `tone="green"` é o botão de
+ * confirmar (verde claro), para o fim de um fluxo que deu certo.
+ */
 export function GradientButton({
   title,
   onPress,
   loading,
   disabled,
-  icon = 'arrow-forward',
+  icon = null,
   tone = 'blue',
   testID,
 }: {
@@ -284,56 +227,20 @@ export function GradientButton({
   tone?: 'blue' | 'green';
   testID?: string;
 }) {
-  const id = useId();
-  const off = !!disabled || !!loading;
-  const [size, setSize] = useState({ w: 0, h: 0 });
-  const [from, to] = tone === 'green' ? [colors.green, '#07663C'] : [soft.gradientFrom, soft.gradientTo];
   return (
-    <Pressable
-      testID={testID}
+    <Button
+      title={title}
       onPress={onPress}
-      disabled={off}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: off, busy: !!loading }}
-      onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      style={({ pressed }) => [
-        styles.cta,
-        { backgroundColor: from, boxShadow: pressed ? raised(1) : raised(2), opacity: off ? 0.55 : 1 },
-        pressed && { transform: [{ scale: 0.99 }] },
-      ]}
-    >
-      {size.w > 0 ? (
-        <View style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Svg width={size.w} height={size.h}>
-            <Defs>
-              <LinearGradient id={`${id}-cta`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <Stop offset="0" stopColor={from} />
-                <Stop offset="1" stopColor={to} />
-              </LinearGradient>
-            </Defs>
-            <Rect x="0" y="0" width={size.w} height={size.h} rx={28} fill={`url(#${id}-cta)`} />
-          </Svg>
-        </View>
-      ) : null}
-      {loading ? (
-        <ActivityIndicator color={colors.white} />
-      ) : (
-        <>
-          <Text style={styles.ctaText} numberOfLines={1}>
-            {title}
-          </Text>
-          {icon ? (
-            <View style={styles.ctaDisc}>
-              <Ionicons name={icon} size={18} color={colors.white} />
-            </View>
-          ) : null}
-        </>
-      )}
-    </Pressable>
+      loading={loading}
+      disabled={disabled}
+      icon={icon ?? undefined}
+      kind={tone === 'green' ? 'confirm' : 'primary'}
+      testID={testID}
+    />
   );
 }
 
-/** Ação secundária: relevo sem cor. */
+/** Ação secundária: o botão secundário do app. */
 export function SoftButton({
   title,
   onPress,
@@ -347,28 +254,7 @@ export function SoftButton({
   loading?: boolean;
   disabled?: boolean;
 }) {
-  const off = !!disabled || !!loading;
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={off}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: off, busy: !!loading }}
-      style={({ pressed }) => [
-        styles.soft,
-        { boxShadow: pressed ? sunken(1) : raised(1), opacity: off ? 0.55 : 1 },
-      ]}
-    >
-      {loading ? (
-        <ActivityIndicator color={colors.navy} />
-      ) : (
-        <>
-          {icon ? <Ionicons name={icon} size={18} color={colors.navy} /> : null}
-          <Text style={[type.bodyStrong, { color: colors.navy }]}>{title}</Text>
-        </>
-      )}
-    </Pressable>
-  );
+  return <Button title={title} onPress={onPress} icon={icon} loading={loading} disabled={disabled} kind="secondary" />;
 }
 
 /** Ligação em texto, para as trocas de tela. */
@@ -394,7 +280,7 @@ export function SoftLink({
         <Text
           style={[
             type.small,
-            { color: strong ? soft.ring : colors.textMuted, fontWeight: strong ? '700' : '600' },
+            { color: strong ? colors.action : colors.textMuted, fontWeight: strong ? '700' : '600' },
             pressed && { textDecorationLine: 'underline' },
           ]}
         >
@@ -411,107 +297,53 @@ const alignment = { center: 'center', left: 'flex-start', right: 'flex-end' } as
 /* Recados                                                             */
 /* ------------------------------------------------------------------ */
 
-/** Aviso de erro ou de sucesso, no mesmo relevo das demais peças. */
+/** Aviso de erro, sucesso ou informação: o mesmo desenho do aviso do app. */
 export function SoftNote({ tone, children }: { tone: 'red' | 'green' | 'navy'; children: ReactNode }) {
   const skin = {
-    red: { fg: colors.redText, icon: 'alert-circle' as IconName },
-    green: { fg: colors.greenText, icon: 'checkmark-circle' as IconName },
-    navy: { fg: colors.navy, icon: 'information-circle' as IconName },
+    red: { bg: colors.redSoft, fg: colors.redText, icon: 'alert-circle' as IconName },
+    green: { bg: colors.greenSoft, fg: colors.greenText, icon: 'checkmark-circle' as IconName },
+    navy: { bg: colors.actionSoft, fg: colors.action, icon: 'information-circle' as IconName },
   }[tone];
   return (
-    <View style={[styles.note, { boxShadow: sunken(1) }]} accessibilityRole="alert" accessibilityLiveRegion="polite">
-      <Ionicons name={skin.icon} size={19} color={skin.fg} style={{ marginTop: 1 }} />
-      <Text style={[type.small, { color: skin.fg, flex: 1 }]}>{children}</Text>
+    <View style={[styles.note, { backgroundColor: skin.bg }]} accessibilityRole="alert" accessibilityLiveRegion="polite">
+      <Ionicons name={skin.icon} size={20} color={skin.fg} style={{ marginTop: 1 }} />
+      <Text style={[type.small, { color: colors.text, flex: 1 }]}>{children}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: soft.bg },
+  screen: { flex: 1, backgroundColor: colors.bg },
   corner: { position: 'absolute', top: space.md, left: space.lg, zIndex: 3 },
-  fieldLabel: { fontSize: 12.5, lineHeight: 16, fontWeight: '600', color: colors.textMuted, paddingHorizontal: 8 },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: space.xl, paddingVertical: space.xxl },
   column: { width: '100%', maxWidth: 400, alignSelf: 'center', gap: space.lg },
   footer: { paddingHorizontal: space.xl, paddingBottom: space.md, alignItems: 'center' },
+  plate: { backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border },
+  plateInset: { backgroundColor: colors.surfaceAlt },
   header: { alignItems: 'center', gap: space.sm, marginBottom: space.sm },
-  badge: {
-    width: 92,
-    height: 92,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: space.md,
-  },
-  title: {
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '800',
-    letterSpacing: -0.7,
-    color: colors.navy,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: '500',
-    color: colors.textMuted,
-    textAlign: 'center',
-    maxWidth: 330,
-  },
+  badge: { alignItems: 'center', justifyContent: 'center', marginBottom: space.sm },
+  title: { ...type.display, color: colors.text, textAlign: 'center' },
+  subtitle: { ...type.body, fontSize: 15, lineHeight: 22, color: colors.textMuted, textAlign: 'center', maxWidth: 330 },
+  fieldLabel: { ...type.small, fontWeight: '600', color: colors.text },
   field: {
-    minHeight: 58,
-    borderRadius: 20,
-    backgroundColor: soft.sunken,
-    boxShadow: sunken(),
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    paddingHorizontal: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  input: { flex: 1, fontSize: 16, lineHeight: 22, color: colors.text, paddingVertical: 14 },
-  eye: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: -12 },
-  fieldNote: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 6 },
-  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1, minHeight: 44 },
-  checkBox: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  checkBoxOff: { backgroundColor: soft.plate, boxShadow: raised(1) },
-  checkBoxOn: { backgroundColor: soft.ring, boxShadow: sunken(1) },
-  cta: {
-    minHeight: 58,
-    borderRadius: 28,
-    overflow: 'hidden',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 22,
-  },
-  ctaText: { fontSize: 17, fontWeight: '700', color: colors.white, letterSpacing: 0.2 },
-  ctaDisc: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  soft: {
     minHeight: 52,
-    borderRadius: 26,
-    backgroundColor: soft.plate,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderField,
+    paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingHorizontal: 20,
+    gap: space.sm,
   },
-  note: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'flex-start',
-    backgroundColor: soft.sunken,
-    borderRadius: 16,
-    padding: 14,
-  },
+  fieldFocused: { borderColor: colors.action, outlineColor: colors.action, outlineStyle: 'solid', outlineWidth: 1 },
+  fieldError: { borderColor: colors.redText, outlineColor: colors.redText, outlineStyle: 'solid', outlineWidth: 1 },
+  input: { ...type.body, flex: 1, color: colors.text, paddingVertical: 13 },
+  eye: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: -10 },
+  fieldNote: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, flexShrink: 1, minHeight: 44 },
+  checkBox: { width: 24, height: 24, borderRadius: 6, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
+  checkBoxOff: { backgroundColor: colors.surface, borderColor: colors.borderField },
+  checkBoxOn: { backgroundColor: colors.action, borderColor: colors.action },
+  note: { flexDirection: 'row', gap: space.md, alignItems: 'flex-start', borderRadius: radius.md, paddingVertical: space.md, paddingHorizontal: 14 },
 });

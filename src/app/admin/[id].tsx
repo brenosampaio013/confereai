@@ -103,7 +103,7 @@ export default function AdminReview() {
       <Card>
         <T v="heading">Histórico</T>
         {audit.history.map((h, i) => <T key={i} v="small" color={colors.textMuted}>{h.previous_status ? `${STATUS_LABEL[h.previous_status as PromotionStatus]} → ` : ''}{STATUS_LABEL[h.new_status]}{h.reason ? ` (${h.reason})` : ''} · {fmtDateTime(h.changed_at)}</T>)}
-        {audit.actions.map((a, i) => <T key={`a${i}`} v="small" color={colors.navy}>Moderação: {a.action}{a.notes ? ` — ${a.notes}` : ''} · {fmtDateTime(a.created_at)}</T>)}
+        {audit.actions.map((a, i) => <T key={`a${i}`} v="small" color={colors.action}>Moderação: {a.action}{a.notes ? ` — ${a.notes}` : ''} · {fmtDateTime(a.created_at)}</T>)}
       </Card>
 
       <Card>

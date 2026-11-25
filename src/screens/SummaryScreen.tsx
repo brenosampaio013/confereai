@@ -40,7 +40,7 @@ export default function SummaryScreen() {
       </Row>
 
       <Card>
-        <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>Total gasto no mês</T>
+        <T v="caption" color={colors.textMuted}>Total gasto no mês</T>
         <T v="display">{formatBRL(s.totalCents)}</T>
         {s.previousCount > 0 ? (
           <Row gap={6}>
@@ -65,7 +65,7 @@ export default function SummaryScreen() {
       {withBudget.length ? (
         <Card>
           <Row>
-            <Ionicons name="wallet-outline" size={20} color={colors.navy} />
+            <Ionicons name="wallet-outline" size={20} color={colors.action} />
             <T style={{ flex: 1 }}>{within} de {plural(withBudget.length, 'compra com orçamento ficou', 'compras com orçamento ficaram')} dentro do planejado.</T>
           </Row>
         </Card>
@@ -99,7 +99,7 @@ const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 function Stat({ label, value, sub, onPress }: { label: string; value: string; sub?: string; onPress?: () => void }) {
   return (
     <Card style={{ flex: 1 }} onPress={onPress} accessibilityLabel={`${label}: ${value}`}>
-      <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>{label}</T>
+      <T v="caption" color={colors.textMuted}>{label}</T>
       <T v="heading">{value}</T>
       {sub ? <T v="caption" color={colors.textMuted} numberOfLines={2}>{sub}</T> : null}
     </Card>

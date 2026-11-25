@@ -118,7 +118,7 @@ export default function Assistente() {
       ) : null}
 
       <Card>
-        <T v="caption" color={colors.textMuted}>ASSISTENTE</T>
+        <T v="caption" color={colors.textMuted}>Assistente</T>
         <T v="heading">Fale o que você precisa</T>
         <T v="small" color={colors.textMuted}>
           Por exemplo: “dois quilos de arroz tio joão, um litro de leite e três pacotes de café”. Ele identifica os produtos; o preço você confere na etiqueta, como sempre.
@@ -168,12 +168,12 @@ export default function Assistente() {
       {resultado ? (
         <>
           <Card>
-            <T v="caption" color={colors.textMuted}>VOCÊ DISSE</T>
+            <T v="caption" color={colors.textMuted}>Você disse</T>
             <T>{resultado.transcricao || '—'}</T>
             {resultado.resposta ? (
               <Row gap={space.sm}>
-                <Ionicons name="chatbubble-ellipses-outline" size={16} color={colors.navy} />
-                <T v="small" color={colors.navy} style={styles.cresce}>{resultado.resposta}</T>
+                <Ionicons name="chatbubble-ellipses-outline" size={16} color={colors.action} />
+                <T v="small" color={colors.action} style={styles.cresce}>{resultado.resposta}</T>
               </Row>
             ) : null}
           </Card>
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: radius.pill,
-    backgroundColor: colors.navy,
+    backgroundColor: colors.action,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -24,7 +24,7 @@ export default function MyOffers() {
     <Screen>
       {data.rep ? (
         <Card>
-          <T v="caption" color={colors.textMuted}>SUA PARTICIPAÇÃO</T>
+          <T v="caption" color={colors.textMuted}>Sua participação</T>
           <T v="heading">{REPUTATION_LABEL[data.rep.level]}</T>
           <T v="small" color={colors.textMuted}>{data.rep.published} publicadas · {data.rep.confirmed} confirmadas pela comunidade ou moderação</T>
           <T v="small" color={colors.textMuted}>A reputação cresce com ofertas confirmadas e preços corretos, não com a quantidade de publicações.</T>

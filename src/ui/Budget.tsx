@@ -46,7 +46,7 @@ export function BudgetCard({ status, onEdit }: { status: BudgetStatus; onEdit?: 
 function Figure({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <View style={{ gap: 2 }}>
-      <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>{label}</T>
+      <T v="caption" color={colors.textMuted}>{label}</T>
       <T v="bodyStrong" color={color}>{value}</T>
     </View>
   );

@@ -122,15 +122,15 @@ export default function OffersScreen() {
           </Row>
           <Row style={{ flexWrap: 'wrap' }}>
             <Pressable onPress={() => setSheet('city')} style={styles.chip} accessibilityRole="button" accessibilityLabel="Escolher cidade">
-              <Ionicons name="business-outline" size={16} color={colors.navy} />
+              <Ionicons name="business-outline" size={16} color={colors.action} />
               <T v="small" style={{ fontWeight: '700' }}>{city ? `${city.city} - ${city.state}` : 'Todas as cidades'}</T>
-              <Ionicons name="chevron-down" size={14} color={colors.navy} />
+              <Ionicons name="chevron-down" size={14} color={colors.action} />
             </Pressable>
             {perm?.granted ? (
               <Pill label={pos ? 'Localização atual ativada' : posFailed ? 'Localização indisponível' : 'Obtendo localização…'} t={posFailed ? 'neutral' : 'green'} icon="navigate" />
             ) : (
               <Pressable onPress={() => requestPerm()} style={styles.chip} accessibilityRole="button">
-                <Ionicons name="navigate-outline" size={16} color={colors.navy} />
+                <Ionicons name="navigate-outline" size={16} color={colors.action} />
                 <T v="small" style={{ fontWeight: '600' }}>Usar minha localização</T>
               </Pressable>
             )}
@@ -146,7 +146,7 @@ export default function OffersScreen() {
         ) : (
           <>
             <View style={{ paddingHorizontal: space.lg, gap: space.md }}>
-              <Button title="PUBLICAR PROMOÇÃO" icon="add-circle" kind="confirm" onPress={() => router.push('/offers/publish')} style={{ minHeight: 58 }} />
+              <Button title="Publicar promoção" icon="add-circle" kind="confirm" onPress={() => router.push('/offers/publish')} style={{ minHeight: 58 }} />
               <Row>
                 <Button title="Minhas publicações" icon="albums-outline" kind="secondary" compact onPress={() => router.push('/offers/mine')} style={{ flex: 1 }} />
                 <Button title={mode === 'list' ? 'Ver no mapa' : 'Ver em lista'} icon={mode === 'list' ? 'map-outline' : 'list-outline'} kind="secondary" compact onPress={() => setMode(mode === 'list' ? 'map' : 'list')} style={{ flex: 1 }} />
@@ -164,7 +164,7 @@ export default function OffersScreen() {
             <CategoryStrip value={category} onChange={setCategory} />
 
             {error ? <View style={{ paddingHorizontal: space.lg }}><Banner t="red" icon="alert-circle" title="Erro ao carregar">{error}</Banner></View> : null}
-            {offers === null ? <ActivityIndicator color={colors.navy} style={{ marginTop: space.xl }} /> : null}
+            {offers === null ? <ActivityIndicator color={colors.action} style={{ marginTop: space.xl }} /> : null}
 
             {mode === 'map' ? (
               <View style={{ paddingHorizontal: space.lg, height: 460 }}>
@@ -246,7 +246,7 @@ export default function OffersScreen() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={{ gap: space.sm }}>
-      <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase', paddingHorizontal: space.lg }}>{title}</T>
+      <T v="caption" color={colors.textMuted} style={{ paddingHorizontal: space.lg }}>{title}</T>
       {children}
     </View>
   );
@@ -254,9 +254,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function FilterChip({ label, active, onPress, icon = 'chevron-down' }: { label: string; active?: boolean; onPress: () => void; icon?: 'chevron-down' | 'close' }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" style={[styles.chip, active && { backgroundColor: colors.navy, borderColor: colors.navy }]}>
-      <T v="small" color={active ? colors.white : colors.navy} style={{ fontWeight: '600' }} numberOfLines={1}>{label}</T>
-      <Ionicons name={icon} size={14} color={active ? colors.white : colors.navy} />
+    <Pressable onPress={onPress} accessibilityRole="button" style={[styles.chip, active && { backgroundColor: colors.action, borderColor: colors.action }]}>
+      <T v="small" color={active ? colors.white : colors.action} style={{ fontWeight: '600' }} numberOfLines={1}>{label}</T>
+      <Ionicons name={icon} size={14} color={active ? colors.white : colors.action} />
     </Pressable>
   );
 }

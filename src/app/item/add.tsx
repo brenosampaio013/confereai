@@ -336,7 +336,7 @@ export default function AddItem() {
           ) : null}
           {suggestion ? (
             <Card>
-              <T v="caption" color={colors.textMuted} style={{ textTransform: 'uppercase' }}>{suggestion.source === 'community' ? 'Sugestão da comunidade do Meu Carrin' : 'Sugestão da base pública Open Food Facts'}</T>
+              <T v="caption" color={colors.textMuted}>{suggestion.source === 'community' ? 'Sugestão da comunidade do Meu Carrin' : 'Sugestão da base pública Open Food Facts'}</T>
               <T v="bodyStrong">{suggestion.name}</T>
               <T v="small" color={colors.textMuted}>{[suggestion.brand, suggestion.quantityText].filter(Boolean).join(' · ')}</T>
               <T v="small" color={colors.textMuted}>Base colaborativa: confira se corresponde à embalagem em mãos.</T>

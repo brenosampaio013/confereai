@@ -100,5 +100,5 @@ export function ImageCropper({ image, onDone, onCancel }: { image: Picked | null
 }
 
 const styles = StyleSheet.create({
-  box: { alignSelf: 'center', overflow: 'hidden', borderRadius: radius.md, borderWidth: 2, borderColor: colors.navy, backgroundColor: colors.black },
+  box: { alignSelf: 'center', overflow: 'hidden', borderRadius: radius.md, borderWidth: 2, borderColor: colors.action, backgroundColor: colors.black },
 });

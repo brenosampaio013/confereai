@@ -12,7 +12,7 @@ import { fmtDateTime } from '@/lib/format';
 import { useLoad } from '@/lib/useLoad';
 import { runConference } from '@/services/conference';
 import { useApp } from '@/state/AppContext';
-import { Banner, Button, Card, Divider, Loading, Money, Pill, Row, Screen, SEVERITY_ICON, SectionTitle, Sheet, T } from '@/ui/components';
+import { Banner, Button, Card, Cupom, Loading, Money, Picote, Pill, Row, Screen, SEVERITY_ICON, SectionTitle, Sheet, T } from '@/ui/components';
 import { colors, space, tone } from '@/ui/theme';
 import { showAlert } from '@/lib/dialog';
 
@@ -99,9 +99,19 @@ export default function ReportScreen() {
         {!report.complete ? <Pill label="Conferência incompleta: a leitura do cupom tem pendências" t="yellow" icon="alert-circle" /> : null}
       </View>
 
-      <Card>
+      <Cupom>
         {report.scenario === 'cart_vs_receipt' ? (
           <>
+            <View>
+              <T v="small" color={colors.textMuted}>Diferença calculada</T>
+              <Money
+                cents={report.differenceCents}
+                signed
+                v="moneyLarge"
+                color={report.differenceCents && report.differenceCents > 0 ? colors.redText : report.differenceCents === 0 ? colors.greenText : colors.text}
+              />
+            </View>
+            <Picote />
             <Row style={{ justifyContent: 'space-between' }}>
               <T color={colors.textMuted}>Total registrado</T>
               <Money cents={report.cartTotalCents} />
@@ -109,11 +119,6 @@ export default function ReportScreen() {
             <Row style={{ justifyContent: 'space-between' }}>
               <T color={colors.textMuted}>Total da nota</T>
               <Money cents={report.receiptTotalCents} />
-            </Row>
-            <Divider />
-            <Row style={{ justifyContent: 'space-between' }}>
-              <T v="bodyStrong">Diferença calculada</T>
-              <Money cents={report.differenceCents} signed color={report.differenceCents && report.differenceCents > 0 ? colors.redText : colors.text} />
             </Row>
             <T v="small" color={colors.textMuted}>Diferença = total da nota − total registrado. Valor positivo indica que a nota está acima do que você registrou.</T>
           </>
@@ -123,12 +128,13 @@ export default function ReportScreen() {
             <Money cents={report.receiptTotalCents} />
           </Row>
         )}
+        <Picote />
         <Row style={{ gap: space.lg }}>
           <Stat label="Itens conferidos" value={String(report.itemsChecked)} />
           <Stat label="Para revisar" value={String(pending.length)} color={pending.length ? colors.yellowText : colors.greenText} />
         </Row>
         <T v="small" color={colors.textFaint}>Gerado em {fmtDateTime(report.generatedAt)}</T>
-      </Card>
+      </Cupom>
 
       {report.limitations.map((l) => (
         <Banner key={l} t="navy" icon="information-circle-outline">{l}</Banner>
@@ -368,7 +374,7 @@ function DivergenceCard({ d, expanded, onToggle, cart, lines, actions }: { d: Di
           {cart || lines.length ? (
             <View style={styles.compare}>
               <View style={styles.col}>
-                <T v="caption" color={colors.textMuted}>CARRINHO</T>
+                <T v="caption" color={colors.textMuted}>Carrinho</T>
                 {cart ? (
                   <>
                     <T v="small" style={{ fontWeight: '600' }}>{cart.name}</T>
@@ -380,7 +386,7 @@ function DivergenceCard({ d, expanded, onToggle, cart, lines, actions }: { d: Di
                 ) : <T v="small" color={colors.textMuted}>Não registrado</T>}
               </View>
               <View style={[styles.col, { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: colors.border, paddingLeft: space.md }]}>
-                <T v="caption" color={colors.textMuted}>NOTA</T>
+                <T v="caption" color={colors.textMuted}>Nota</T>
                 {lines.length ? lines.map((l) => (
                   <View key={l.id} style={{ gap: 1 }}>
                     <T v="small" style={{ fontWeight: '600' }}>{l.description}</T>

@@ -12,7 +12,7 @@ import { BudgetSheet, BudgetStrip } from '@/ui/Budget';
 import { Banner, Button, Card, Divider, EmptyState, Money, Row, SectionTitle, T, IconName } from '@/ui/components';
 import { Logo } from '@/ui/Logo';
 import { PurchaseRow } from '@/ui/PurchaseRow';
-import { colors, radius, space } from '@/ui/theme';
+import { colors, highlightShadow, radius, space } from '@/ui/theme';
 import { showAlert } from '@/lib/dialog';
 
 export default function Home() {
@@ -65,14 +65,14 @@ export default function Home() {
         ) : null}
 
         {active ? (
-          <Card style={{ backgroundColor: colors.navy, borderColor: colors.navy }}>
+          <Card style={{ backgroundColor: colors.highlight, borderColor: colors.highlight, borderRadius: radius.xl, ...highlightShadow }}>
             <Row style={{ justifyContent: 'space-between' }}>
-              <T v="caption" color="#B9C9DA" style={{ textTransform: 'uppercase' }}>Compra em andamento</T>
-              <T v="small" color="#B9C9DA">{plural(totals.unitCount, 'unidade', 'unidades')}</T>
+              <T v="caption" color={colors.onHighlightMuted}>Compra em andamento</T>
+              <T v="small" color={colors.onHighlightMuted}>{plural(totals.unitCount, 'unidade', 'unidades')}</T>
             </Row>
             <View>
-              <Money cents={totals.totalCents} v="display" color={colors.white} />
-              <T v="small" color="#B9C9DA">
+              <Money cents={totals.totalCents} v="moneyLarge" color={colors.onHighlight} />
+              <T v="small" color={colors.onHighlightMuted}>
                 {plural(totals.lineCount, 'produto registrado', 'produtos registrados')}
                 {active.storeName ? ` · ${active.storeName}` : ''}
               </T>
@@ -84,7 +84,7 @@ export default function Home() {
             ) : null}
             <Row>
               <Button title="Escanear" icon="barcode-outline" kind="confirm" onPress={() => router.push('/scan')} style={{ flex: 1 }} />
-              <Button title="Carrinho" icon="cart-outline" kind="secondary" onPress={() => router.push('/purchases')} style={{ flex: 1 }} />
+              <Button title="Carrinho" icon="cart-outline" kind="onDark" onPress={() => router.push('/purchases')} style={{ flex: 1 }} />
             </Row>
             {/* O assistente só aparece quando o plano que o inclui estiver à venda: não se
                 oferece no aplicativo o que ainda não dá para contratar. */}
@@ -194,7 +194,7 @@ function ActionTile({ icon, title, text, onPress, accent }: { icon: IconName; ti
       style={({ pressed }) => [styles.tile, pressed && { opacity: 0.85 }]}
     >
       <View style={[styles.tileIcon, accent && { backgroundColor: colors.greenSoft }]}>
-        <Ionicons name={icon} size={24} color={accent ? colors.green : colors.navy} />
+        <Ionicons name={icon} size={24} color={accent ? colors.green : colors.action} />
       </View>
       <T v="bodyStrong">{title}</T>
       <T v="small" color={colors.textMuted}>{text}</T>
@@ -214,5 +214,5 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     minHeight: 150,
   },
-  tileIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.navySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  tileIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.actionSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
 });

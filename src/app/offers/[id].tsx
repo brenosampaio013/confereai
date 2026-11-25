@@ -77,7 +77,7 @@ export default function OfferDetailScreen() {
           {o.images.length > 1 ? (
             <ScrollView horizontal contentContainerStyle={{ gap: space.sm }}>
               {o.images.map((img, i) => (
-                <Pressable key={img.path} onPress={() => setPhoto(i)} accessibilityLabel={IMAGE_TYPES.find((t) => t.id === img.type)?.label} style={[styles.thumbWrap, i === photo && { borderColor: colors.navy }]}>
+                <Pressable key={img.path} onPress={() => setPhoto(i)} accessibilityLabel={IMAGE_TYPES.find((t) => t.id === img.type)?.label} style={[styles.thumbWrap, i === photo && { borderColor: colors.action }]}>
                   <RemoteImage path={img.path} style={styles.thumb} />
                 </Pressable>
               ))}
@@ -91,7 +91,7 @@ export default function OfferDetailScreen() {
             <StatusPill status={o.status} />
             <Pill label={categoryLabel(o.category)} t="neutral" />
           </Row>
-          <T v="title" style={{ textTransform: 'uppercase' }}>{o.product_name}</T>
+          <T v="title">{o.product_name}</T>
           <T color={colors.textMuted}>{[o.brand, o.package_label].filter(Boolean).join(' · ')}</T>
           <T v="display" color={colors.greenText}>{formatOfferPrice(o.promotional_price_cents, o.sale_unit)}</T>
           {discount.regularText ? <T v="small" color={colors.textMuted}>{discount.regularText}{discount.percent ? ` · ${discount.percent}% de desconto` : ''}</T> : null}
@@ -103,7 +103,7 @@ export default function OfferDetailScreen() {
 
         <Card>
           <Row>
-            <Ionicons name="storefront-outline" size={22} color={colors.navy} />
+            <Ionicons name="storefront-outline" size={22} color={colors.action} />
             <View style={{ flex: 1 }}>
               <T v="bodyStrong">{o.store.name}</T>
               <T v="small" color={colors.textMuted}>{[o.store.address, o.store.neighborhood, `${o.store.city} - ${o.store.state}`].filter(Boolean).join(' · ')}</T>
@@ -229,7 +229,7 @@ function ConfirmSheet({ visible, onClose, offer, onDone }: { visible: boolean; o
     <Sheet visible={visible} onClose={onClose} title="O que você encontrou na loja?">
       {CONFIRMATION_TYPES.map((c) => (
         <Pressable key={c.id} onPress={() => setType(c.id)} style={[styles.option, type === c.id && { borderColor: c.positive ? colors.green : colors.yellow, backgroundColor: c.positive ? colors.greenSoft : colors.yellowSoft }]} accessibilityRole="radio" accessibilityState={{ selected: type === c.id }}>
-          <Ionicons name={type === c.id ? 'radio-button-on' : 'radio-button-off'} size={20} color={type === c.id ? colors.navy : colors.textFaint} />
+          <Ionicons name={type === c.id ? 'radio-button-on' : 'radio-button-off'} size={20} color={type === c.id ? colors.action : colors.textFaint} />
           <T style={{ flex: 1 }}>{c.label}</T>
         </Pressable>
       ))}

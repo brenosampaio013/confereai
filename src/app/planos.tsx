@@ -122,7 +122,7 @@ export default function Planos() {
       ) : null}
 
       <Card>
-        <T v="caption" color={colors.textMuted}>SEU PLANO</T>
+        <T v="caption" color={colors.textMuted}>Seu plano</T>
         <T v="title">{planoAnunciado(estado?.plano ?? 'gratis').nome}</T>
         {cobranca ? (
           <T v="small" color={cobranca.tom === 'atencao' ? colors.yellowText : colors.textMuted}>{cobranca.texto}</T>
@@ -271,7 +271,7 @@ function Uso({ icone, titulo, balde, frase }: { icone: IconName; titulo: string;
       </Row>
       {fracao === null ? null : (
         <View style={styles.trilho} accessibilityRole="progressbar" accessibilityLabel={`${titulo}: ${frase}`}>
-          <View style={[styles.preenchido, { width: `${Math.round(fracao * 100)}%`, backgroundColor: acabou ? colors.red : colors.navy }]} />
+          <View style={[styles.preenchido, { width: `${Math.round(fracao * 100)}%`, backgroundColor: acabou ? colors.red : colors.action }]} />
         </View>
       )}
       <T v="small" color={acabou ? colors.redText : colors.textMuted}>{frase}</T>

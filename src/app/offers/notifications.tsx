@@ -42,7 +42,7 @@ function Inbox() {
   return (
     <>
       {data.map((n) => (
-        <Pressable key={n.id} onPress={() => n.promotion_id && router.push(`/offers/${n.promotion_id}`)} style={[styles.item, !n.read_at && { borderColor: colors.navy }]} accessibilityRole="button">
+        <Pressable key={n.id} onPress={() => n.promotion_id && router.push(`/offers/${n.promotion_id}`)} style={[styles.item, !n.read_at && { borderColor: colors.action }]} accessibilityRole="button">
           <T v="bodyStrong">{n.title}</T>
           <T v="small" color={colors.textMuted}>{n.body}</T>
           <T v="small" color={colors.textFaint}>{relativeTime(n.created_at)}</T>
@@ -94,7 +94,7 @@ function Prefs() {
           {CATEGORIES.map((c) => {
             const on = p.favorite_categories.includes(c.id);
             return (
-              <Pressable key={c.id} onPress={() => toggleCat(c.id)} style={[styles.chip, on && { backgroundColor: colors.navy, borderColor: colors.navy }]} accessibilityRole="checkbox" accessibilityState={{ checked: on }}>
+              <Pressable key={c.id} onPress={() => toggleCat(c.id)} style={[styles.chip, on && { backgroundColor: colors.action, borderColor: colors.action }]} accessibilityRole="checkbox" accessibilityState={{ checked: on }}>
                 <T v="small" color={on ? colors.white : colors.text}>{c.label}</T>
               </Pressable>
             );

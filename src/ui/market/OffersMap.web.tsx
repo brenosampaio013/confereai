@@ -13,7 +13,7 @@ function pin(count: number) {
   const el = document.createElement('button');
   el.type = 'button';
   el.setAttribute('aria-label', `${count} ofertas nesta unidade`);
-  el.style.cssText = `min-width:34px;height:34px;padding:0 8px;border-radius:17px;border:3px solid #fff;background:${colors.navy};color:#fff;font:700 14px system-ui,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer`;
+  el.style.cssText = `min-width:34px;height:34px;padding:0 8px;border-radius:17px;border:3px solid #fff;background:${colors.action};color:#fff;font:700 14px system-ui,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer`;
   el.textContent = String(count);
   return el;
 }
@@ -58,7 +58,7 @@ export function OffersMap({ stores, onSelect, center }: OffersMapProps) {
   return createElement(
     'div',
     { style: { position: 'relative', flex: 1, minHeight: 360, height: '100%' } },
-    createElement('div', { ref: setEl, style: { position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden', background: colors.navySoft } }),
+    createElement('div', { ref: setEl, style: { position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden', background: colors.actionSoft } }),
     tilesFailed
       ? createElement('div', { role: 'status', style: { position: 'absolute', left: 12, right: 12, top: 12, padding: '10px 12px', borderRadius: 12, background: colors.yellowSoft, color: colors.yellowText, font: '14px system-ui, sans-serif' } },
           'Não foi possível carregar o fundo do mapa (sem conexão com o servidor de mapas). Os marcadores ainda indicam as unidades; toque em um deles ou use a lista.')
@@ -111,7 +111,7 @@ export function PickLocationMap({ value, onChange, center, focar }: PickLocation
     else marker.current.setLngLat([value.longitude, value.latitude]);
   }, [value, el]);
 
-  return createElement('div', { ref: setEl, style: { height: 260, borderRadius: 16, overflow: 'hidden', background: colors.navySoft } });
+  return createElement('div', { ref: setEl, style: { height: 260, borderRadius: 16, overflow: 'hidden', background: colors.actionSoft } });
 }
 
 export const mapAvailable = true;

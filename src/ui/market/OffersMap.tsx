@@ -27,7 +27,7 @@ export function OffersMap({ stores, onSelect }: OffersMapProps) {
               <T v="small" color={colors.greenText}>{s.active_offers} {s.active_offers === 1 ? 'oferta ativa' : 'ofertas ativas'}{s.top_offers?.[0] ? ` · ${s.top_offers[0].product_name} ${formatOfferPrice(s.top_offers[0].promotional_price_cents, s.top_offers[0].sale_unit)}` : ''}</T>
             </View>
             <Pressable onPress={() => openMaps(s.latitude, s.longitude, s.supermarket_name)} accessibilityLabel="Abrir no app de mapas" hitSlop={8}>
-              <Ionicons name="navigate-outline" size={22} color={colors.navy} />
+              <Ionicons name="navigate-outline" size={22} color={colors.action} />
             </Pressable>
           </Row>
         </Card>

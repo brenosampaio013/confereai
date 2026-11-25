@@ -50,7 +50,7 @@ export default function Confirmar() {
 
       <Plate inset style={{ padding: space.lg, alignItems: 'center', gap: 6 }}>
         <Text style={[type.small, { color: colors.textMuted }]}>Enviamos um link de confirmação para</Text>
-        <Text style={[type.bodyStrong, { color: colors.navy }]} numberOfLines={2}>
+        <Text style={[type.bodyStrong, { color: colors.action }]} numberOfLines={2}>
           {email ?? 'seu e-mail'}
         </Text>
       </Plate>

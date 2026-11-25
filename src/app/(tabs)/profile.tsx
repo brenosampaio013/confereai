@@ -94,7 +94,7 @@ export default function Account() {
         </Banner>
       ) : signedIn ? (
         <Card>
-          <T v="caption" color={colors.textMuted}>CONTA</T>
+          <T v="caption" color={colors.textMuted}>Conta</T>
           <T v="heading">{session!.user.email}</T>
           <KeyValue label="Alterações a enviar" value={String(pending)} />
           {lastSync ? (

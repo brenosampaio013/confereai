@@ -5,9 +5,11 @@ import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from '@/state/AppContext';
 import { Loading } from '@/ui/components';
-import { colors } from '@/ui/theme';
+import { carregarFontes } from '@/ui/fontes';
+import { colors, font } from '@/ui/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+carregarFontes();
 
 function Ready() {
   useEffect(() => {
@@ -25,8 +27,8 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerStyle: { backgroundColor: colors.surface },
-            headerTintColor: colors.navy,
-            headerTitleStyle: { fontWeight: '700', color: colors.text },
+            headerTintColor: colors.action,
+            headerTitleStyle: { fontFamily: font.family, fontWeight: '700', color: colors.text },
             headerShadowVisible: false,
             contentStyle: { backgroundColor: colors.bg },
             headerBackButtonDisplayMode: 'minimal',

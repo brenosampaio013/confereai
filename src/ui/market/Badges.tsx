@@ -26,7 +26,7 @@ export function BadgeDetails({ flags }: { flags: VerificationFlags }) {
       {list.length === 0 ? <T v="small" color={colors.textMuted}>Nenhuma verificação concluída até agora. Confira na loja antes de ir só por causa desta oferta.</T> : null}
       {list.map((b) => (
         <View key={b.key} style={{ flexDirection: 'row', gap: space.sm, alignItems: 'flex-start' }}>
-          <Ionicons name={b.icon as never} size={18} color={b.key === 'location' ? colors.navy : colors.green} style={{ marginTop: 2 }} />
+          <Ionicons name={b.icon as never} size={18} color={b.key === 'location' ? colors.action : colors.green} style={{ marginTop: 2 }} />
           <View style={{ flex: 1 }}>
             <T v="small" style={{ fontWeight: '700' }}>{b.label}</T>
             <T v="small" color={colors.textMuted}>{b.detail}</T>
