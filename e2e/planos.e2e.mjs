@@ -197,6 +197,11 @@ await step('assinatura cancelada devolve a pessoa ao plano grátis', async () =>
   assert.match(texto, /As 4 leituras deste mês acabaram/); // volta ao limite do grátis
 });
 
+await step('medição do funil: a tela de planos é contada', async () => {
+  const [{ n }] = await sql("select count(*)::int n from public.analytics_events where event = 'pricing_viewed' and source = 'app'");
+  assert.ok(n > 0, 'pricing_viewed não foi registrado');
+});
+
 await step('o perfil leva à tela de planos', async () => {
   await page.goto(`${APP}/profile`);
   await page.waitForTimeout(2000);

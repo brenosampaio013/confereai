@@ -9,6 +9,7 @@ import { handoff } from '@/state/handoff';
 import { Banner, Button, Card, Row, Screen, T } from '@/ui/components';
 import { useOcrConsent } from '@/ui/OcrConsent';
 import { colors } from '@/ui/theme';
+import { registrar } from '@/services/medicao';
 
 /**
  * Foto do produto com a etiqueta de preço. A leitura preenche o formulário do item,
@@ -77,7 +78,7 @@ export default function CaptureScreen() {
         <Banner t={error.reason === 'offline' || error.reason === 'not_configured' || error.reason === 'quota' ? 'yellow' : 'red'} icon="alert-circle" title="Não foi possível ler automaticamente">
           <T v="small" color={colors.text}>{error.message}</T>
           <Button title="Digitar os dados" kind="secondary" compact onPress={() => router.replace({ pathname: '/item/add', params: { via: 'manual' } })} />
-          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => router.push('/planos')} /> : null}
+          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => { registrar('upgrade_clicked', { lugar: 'foto_do_produto' }); router.push('/planos'); }} /> : null}
         </Banner>
       ) : null}
       <T v="small" color={colors.textFaint}>

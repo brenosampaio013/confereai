@@ -18,7 +18,7 @@
 //   STRIPE_WEBHOOK_SECRET  segredo do endpoint (whsec_...), dado pela Stripe ao criar o webhook
 import Stripe from 'npm:stripe@23.2.0';
 import {
-  adminClient, fimDoPeriodo, idDaAssinatura, json, planoDoPreco, precoDaAssinatura, stripeClient,
+  adminClient, eventoDoFunil, fimDoPeriodo, idDaAssinatura, json, planoDoPreco, precoDaAssinatura, stripeClient,
 } from '../_shared/stripe.ts';
 
 const INTERESSAM = new Set([
@@ -120,6 +120,17 @@ Deno.serve(async (req) => {
       // Devolver erro faz a Stripe tentar de novo, que é o que queremos.
       console.error('espelho_falhou', error.message);
       return json(500, { error: 'espelho_falhou' });
+    }
+
+    // Medição do funil: assinatura concluída ou cancelada, uma vez por assinatura. Nada que
+    // identifique a pessoa vai para a tabela, e uma falha aqui não derruba o aviso (o espelho,
+    // que é o que libera o plano, já foi gravado).
+    const funil = await eventoDoFunil(assinatura.id, assinatura.status, chaveDoPreco);
+    if (funil) {
+      const { error: erroDaMedicao } = await admin
+        .from('analytics_events')
+        .upsert({ event: funil.event, source: 'servidor', props: funil.props, ref: funil.ref }, { onConflict: 'ref', ignoreDuplicates: true });
+      if (erroDaMedicao) console.error('medicao_falhou', erroDaMedicao.message);
     }
 
     return json(200, { ok: true, plano, status: assinatura.status });

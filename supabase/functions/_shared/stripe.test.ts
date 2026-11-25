@@ -5,7 +5,7 @@
 // funciona neste runtime. Se ela falhasse abrindo passagem, qualquer POST liberaria o plano pago.
 import { assertEquals, assertRejects } from 'jsr:@std/assert@1.0.14';
 import Stripe from 'npm:stripe@23.2.0';
-import { fimDoPeriodo, idDaAssinatura, planoDoPreco, precoDaAssinatura } from './stripe.ts';
+import { eventoDoFunil, fimDoPeriodo, idDaAssinatura, planoDoPreco, precoDaAssinatura } from './stripe.ts';
 
 const SEGREDO = 'whsec_teste_apenas_para_este_arquivo';
 const stripe = new Stripe('sk_test_naoUsada', { httpClient: Stripe.createFetchHttpClient() });
@@ -89,4 +89,38 @@ Deno.test('o plano vem da chave de busca do preço, e preço estranho não vira 
   assertEquals(planoDoPreco(''), null);
   const assinatura = { items: { data: [{ price: { lookup_key: 'mais_anual' } }] } } as unknown as Stripe.Subscription;
   assertEquals(precoDaAssinatura(assinatura), 'mais_anual');
+});
+
+// ---- Medição do funil: o que o webhook conta (decisão 5 da reformulação 2.0)
+
+Deno.test('assinatura ativa conta como concluída, com plano e período, uma vez por assinatura', async () => {
+  const a = await eventoDoFunil('sub_123', 'active', 'mais_anual');
+  const b = await eventoDoFunil('sub_123', 'active', 'mais_anual');
+  assertEquals(a?.event, 'subscription_completed');
+  assertEquals(a?.props, { plano: 'mais', periodo: 'anual' });
+  assertEquals(a?.ref, b?.ref);
+  assertEquals(a?.ref.startsWith('concluida:'), true);
+});
+
+Deno.test('a referência não guarda o identificador da Stripe', async () => {
+  const e = await eventoDoFunil('sub_123', 'active', 'mais_mensal');
+  assertEquals(e?.ref.includes('sub_123'), false);
+  assertEquals(e?.ref.length, 'concluida:'.length + 64);
+});
+
+Deno.test('assinatura cancelada conta como cancelada, separada da concluída', async () => {
+  const c = await eventoDoFunil('sub_123', 'canceled', 'mais_mensal');
+  const a = await eventoDoFunil('sub_123', 'active', 'mais_mensal');
+  assertEquals(c?.event, 'subscription_canceled');
+  assertEquals(c?.ref === a?.ref, false);
+});
+
+Deno.test('estados de passagem não contam nada', async () => {
+  for (const status of ['incomplete', 'incomplete_expired', 'past_due', 'unpaid', 'paused'] as const) {
+    assertEquals(await eventoDoFunil('sub_123', status, 'mais_mensal'), null);
+  }
+});
+
+Deno.test('trial também conta como concluída', async () => {
+  assertEquals((await eventoDoFunil('sub_9', 'trialing', 'mais_mensal'))?.event, 'subscription_completed');
 });

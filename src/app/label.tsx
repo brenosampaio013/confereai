@@ -13,6 +13,7 @@ import { Banner, Button, Card, Field, Pill, Row, Screen, Segmented, T } from '@/
 import { useOcrConsent } from '@/ui/OcrConsent';
 import { colors } from '@/ui/theme';
 import { showAlert } from '@/lib/dialog';
+import { registrar } from '@/services/medicao';
 
 export default function LabelScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
@@ -120,7 +121,7 @@ export default function LabelScreen() {
         <Banner t={error.reason === 'offline' || error.reason === 'not_configured' || error.reason === 'quota' ? 'yellow' : 'red'} icon="alert-circle" title="Não foi possível ler automaticamente">
           <T v="small" color={colors.text}>{error.message}</T>
           <Button title="Digitar o preço" kind="secondary" compact onPress={() => router.back()} />
-          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => router.push('/planos')} /> : null}
+          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => { registrar('upgrade_clicked', { lugar: 'leitura_da_etiqueta' }); router.push('/planos'); }} /> : null}
         </Banner>
       ) : null}
 

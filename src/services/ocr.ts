@@ -6,6 +6,7 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { parseLabel } from '@/domain/labelParser';
 import { type CaptureReading, normalizeProductCapture, type RawProductCapture } from '@/domain/productCapture';
+import { registrar } from './medicao';
 import { getSupabase } from './supabase';
 import { isOnline } from './network';
 
@@ -76,7 +77,10 @@ export async function runOcr(kind: 'receipt' | 'label' | 'product', imageUris: s
         // corpo não-JSON
       }
     }
-    if (status === 429) throw new OcrError('quota', message);
+    if (status === 429) {
+      registrar('free_limit_reached', { tipo: kind === 'receipt' ? 'cupom' : kind === 'label' ? 'etiqueta' : 'produto' });
+      throw new OcrError('quota', message);
+    }
     if (status === 413) throw new OcrError('too_large', message);
     if (status === 503) throw new OcrError('not_configured', message);
     if (status === 401) throw new OcrError('needs_account', 'Sua sessão expirou. Entre novamente na conta.');

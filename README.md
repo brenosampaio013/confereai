@@ -791,6 +791,30 @@ A documentação da Stripe diz que contas brasileiras aceitam Pix só avulso; *P
 está disponível para elas. Por isso a assinatura é com cartão. Em modo assinatura a Stripe já
 oferece apenas meios que aceitam recorrência, então a função não precisa listar nada.
 
+## Medição do funil
+
+Decisão 5 da reformulação 2.0: medir o caminho visita → cadastro → planos → assinatura **sem
+serviço de terceiros e sem dado pessoal**.
+
+- **Onde fica:** tabela `public.analytics_events` (migração `20261125120000_medicao.sql`). Ela não
+  tem coluna para quem fez a ação: só o nome do evento, a origem (`site`, `app`, `servidor`), dados
+  de uma lista fechada (`pagina`, `plano`, `periodo`, `tipo`, `lugar`) e a hora.
+- **Quem escreve:** o app e o site só pela função `registrar_evento`, que recusa evento fora da
+  lista e qualquer valor que não seja uma palavra curta em minúsculas (não cabe e-mail, nome nem
+  telefone). Os eventos `subscription_completed` e `subscription_canceled` só o webhook da Stripe
+  grava, uma vez por assinatura (coluna `ref`, com o hash do id da assinatura).
+- **Quem lê:** ninguém pelo app ou pelo site. A leitura é pelo painel do Supabase, por exemplo:
+  `select event, count(*) from analytics_events where created_at > now() - interval '30 days' group by 1`.
+- **Eventos:** `page_view`, `pricing_viewed` e `upgrade_clicked` (site); `app_first_use`,
+  `signup_started`, `signup_completed`, `pricing_viewed`, `checkout_started`,
+  `free_limit_reached` e `upgrade_clicked` (app); `subscription_completed` e
+  `subscription_canceled` (webhook).
+- **O site só mede no endereço publicado.** No computador de quem desenvolve e nos testes, nada é
+  enviado; o `check-site` confere isso e simula o domínio real para conferir os três eventos.
+- **Para ligar em produção:** aplicar a migração no banco de produção e publicar o
+  `stripe-webhook` de novo (ele agora importa `eventoDoFunil` de `_shared/stripe.ts`). As duas
+  coisas só com autorização.
+
 ## Configurar o OCR / IA
 
 A leitura de cupons e etiquetas passa pela Edge Function `receipt-ocr`, que devolve **somente o texto transcrito**. A interpretação dos valores é feita pelo parser determinístico do app. Para a foto do produto com a etiqueta (`kind: "product"`), a função devolve também os campos identificados, como texto impresso; o app converte e valida.

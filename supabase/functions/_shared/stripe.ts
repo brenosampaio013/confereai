@@ -110,3 +110,41 @@ export async function clienteDoUsuario(
   if (error) throw new HttpError(500, 'espelho_falhou', 'Não foi possível iniciar a assinatura. Tente de novo.');
   return cliente.id;
 }
+
+// ---- Medição do funil (decisão 5 da reformulação 2.0)
+
+export interface EventoDoFunil {
+  event: 'subscription_completed' | 'subscription_canceled';
+  /** Plano e período, sem nada que identifique a pessoa. */
+  props: { plano: string; periodo: string };
+  /** Uma por assinatura e por tipo: o mesmo aviso reenviado não conta duas vezes. */
+  ref: string;
+}
+
+async function sha256(texto: string): Promise<string> {
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
+  return Array.from(new Uint8Array(bytes)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * O que o webhook registra na medição a partir do estado ATUAL da assinatura (o mesmo que vai
+ * para o espelho). Ativa ou em teste grátis conta como concluída; cancelada, como cancelada; os
+ * estados de passagem não contam. A referência é o hash do id da assinatura: deduplica sem
+ * guardar o identificador da Stripe na tabela de medição.
+ */
+export async function eventoDoFunil(
+  assinaturaId: string,
+  status: Stripe.Subscription.Status,
+  chaveDoPreco: string | null,
+): Promise<EventoDoFunil | null> {
+  const [plano, periodo] = (chaveDoPreco ?? '').split('_');
+  if (!plano || !periodo) return null;
+  const props = { plano, periodo };
+  if (status === 'active' || status === 'trialing') {
+    return { event: 'subscription_completed', props, ref: `concluida:${await sha256(assinaturaId)}` };
+  }
+  if (status === 'canceled') {
+    return { event: 'subscription_canceled', props, ref: `cancelada:${await sha256(assinaturaId)}` };
+  }
+  return null;
+}

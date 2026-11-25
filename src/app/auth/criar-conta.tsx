@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { isValidEmail, passwordProblem, passwordStrength } from '@/domain/auth';
 import { isCloudConfigured } from '@/lib/config';
 import { signUp } from '@/services/auth';
+import { registrar } from '@/services/medicao';
 import { useApp } from '@/state/AppContext';
 import { AccountHeader, AccountScreen, CloudOff, StrengthMeter, SwapLine } from '@/ui/account';
 import { GradientButton, SoftCheck, SoftField, SoftNote } from '@/ui/soft';
@@ -21,6 +22,7 @@ export default function CriarConta() {
   const [errors, setErrors] = useState<Errors>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  useEffect(() => registrar('signup_started'), []);
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/auth'));
   if (!isCloudConfigured()) return <CloudOff onBack={back} />;
@@ -44,6 +46,7 @@ export default function CriarConta() {
     setBusy(true);
     try {
       const outcome = await signUp(name, email, password);
+      registrar('signup_completed');
       bump();
       if (outcome.kind === 'entrou') router.replace('/profile');
       else router.replace({ pathname: '/auth/confirmar', params: { email: outcome.email } });

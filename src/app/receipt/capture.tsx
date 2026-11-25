@@ -20,6 +20,7 @@ import { Banner, Button, Card, IconButton, KeyValue, Pill, Row, Screen, SectionT
 import { useOcrConsent } from '@/ui/OcrConsent';
 import { colors, radius, space } from '@/ui/theme';
 import { showAlert } from '@/lib/dialog';
+import { registrar } from '@/services/medicao';
 
 const MAX_PHOTOS = 6;
 
@@ -196,7 +197,7 @@ export default function CaptureReceipt() {
         <Banner t={error.reason === 'offline' || error.reason === 'not_configured' || error.reason === 'quota' ? 'yellow' : 'red'} icon="alert-circle" title="A leitura automática não foi concluída">
           <T v="small" color={colors.text}>{error.message}</T>
           {error.reason === 'needs_account' ? <Button title="Entrar na conta" kind="secondary" compact onPress={() => router.push('/auth')} /> : null}
-          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => router.push('/planos')} /> : null}
+          {error.reason === 'quota' ? <Button title="Ver planos" icon="card-outline" kind="secondary" compact onPress={() => { registrar('upgrade_clicked', { lugar: 'leitura_do_cupom' }); router.push('/planos'); }} /> : null}
         </Banner>
       ) : null}
 

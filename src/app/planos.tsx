@@ -17,6 +17,7 @@ import {
   type Balde, descreveCobranca, economiaAnualCents, fracaoUsada, fraseDeUso, OFERTAS,
   type PlanoAnunciado, planoAnunciado, precoDe, quandoZera, VITRINE,
 } from '@/domain/planos';
+import { registrar } from '@/services/medicao';
 import { assinar, gerenciarAssinatura, meuPlano, PlanoError } from '@/services/planos';
 import { useApp } from '@/state/AppContext';
 import { Banner, Button, Card, Divider, type IconName, Money, Row, Screen, SectionTitle, Segmented, T } from '@/ui/components';
@@ -33,6 +34,7 @@ export default function Planos() {
   const [recarga, setRecarga] = useState(0);
   const [indo, setIndo] = useState(false);
   const [tentativas, setTentativas] = useState(0);
+  useEffect(() => registrar('pricing_viewed'), []);
 
   const { data: estado, error } = useLoad(
     () => (cloud && conectado ? meuPlano() : Promise.resolve(null)),
@@ -180,7 +182,10 @@ export default function Planos() {
           key={p.id}
           plano={p}
           ocupado={indo}
-          onAssinar={(periodo) => ir(() => assinar(precoDe(p.id, periodo)))}
+          onAssinar={(periodo) => {
+            registrar('checkout_started', { plano: p.id === 'gratis' ? undefined : p.id, periodo });
+            void ir(() => assinar(precoDe(p.id, periodo)));
+          }}
         />
       ))}
 

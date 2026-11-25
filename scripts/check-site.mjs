@@ -26,6 +26,9 @@ const pagina = await navegador.newPage({ viewport: { width: 1280, height: 860 } 
 pagina.on('console', (m) => m.type() === 'error' && falhas.push(`console: ${m.text().slice(0, 140)}`));
 pagina.on('pageerror', (e) => falhas.push(`erro de script: ${e.message.slice(0, 140)}`));
 pagina.on('requestfailed', (r) => falhas.push(`requisição falhou: ${r.url().replace(`http://localhost:${PORTA}`, '')}`));
+// Medição do funil: fora do endereço publicado a página não pode enviar nada (nem nos testes).
+const medicoes = [];
+pagina.on('request', (r) => { if (r.url().includes('/rpc/registrar_evento')) medicoes.push(r.url()); });
 
 await pagina.goto(`http://localhost:${PORTA}/`, { waitUntil: 'load' });
 const lcp = await pagina.evaluate(() => new Promise((r) => {
@@ -131,9 +134,55 @@ for (const arquivo of readdirSync(dist).filter((f) => f.endsWith('.html') || f.e
   if (sobrou) falhas.push(`${arquivo} ainda tem ${[...new Set(sobrou)].join(', ')}`);
 }
 
+// A medição está ligada no build (a página publicada mede), mas não disparou aqui
+if (medicoes.length) falhas.push(`a página local enviou ${medicoes.length} evento(s) de medição: só o endereço publicado mede`);
+{
+  const js = readFileSync(join(dist, 'pagina.js'), 'utf8');
+  const cabecalhos = readFileSync(join(dist, '_headers'), 'utf8');
+  const origem = (js.match(/fetch\('(https:\/\/[^/']+)\/rest\/v1\/rpc\/registrar_evento'/) || [])[1];
+  if (!origem) falhas.push('pagina.js não tem o endereço da medição do funil');
+  else if (!cabecalhos.includes(origem)) falhas.push(`a CSP não libera ${origem}: a medição seria bloqueada pelo navegador`);
+  if (!/data-medir="upgrade_clicked"/.test(readFileSync(join(dist, 'index.html'), 'utf8'))) falhas.push('o botão Assinar o Mais não mede o clique');
+}
+
 // Páginas de apoio
 for (const caminho of ['privacidade.html', 'termos.html', 'robots.txt', 'sitemap.xml', 'assets/compartilhar.png']) {
   if (!existsSync(join(dist, caminho))) falhas.push(`arquivo ausente: ${caminho}`);
+}
+
+// No endereço publicado a página mede: simulamos o domínio servindo o site-dist e interceptamos
+// a chamada ao banco (nada sai daqui). Confere os três eventos e que nenhum dado pessoal vai junto.
+{
+  const publicado = new URL(process.env.SITE_URL || 'https://meucarrin.com').origin;
+  const contexto = await navegador.newContext({ viewport: { width: 390, height: 800 } });
+  const enviados = [];
+  await contexto.route('**/*', async (rota) => {
+    const url = new URL(rota.request().url());
+    if (url.pathname.endsWith('/rest/v1/rpc/registrar_evento')) {
+      enviados.push({ corpo: JSON.parse(rota.request().postData() || '{}'), referer: rota.request().headers()['referer'] ?? null });
+      return rota.fulfill({ status: 204, body: '' });
+    }
+    if (url.origin === publicado) {
+      let f = join(dist, decodeURIComponent(url.pathname));
+      if (existsSync(f) && statSync(f).isDirectory()) f = join(f, 'index.html');
+      if (existsSync(f)) return rota.fulfill({ status: 200, contentType: tipos[extname(f)] || 'application/octet-stream', body: readFileSync(f) });
+      return rota.fulfill({ status: 404, body: '' });
+    }
+    return rota.fulfill({ status: 204, body: '' }); // app, analytics do Cloudflare: fora do teste
+  });
+  const p = await contexto.newPage();
+  await p.goto(`${publicado}/`, { waitUntil: 'load' });
+  await p.locator('#planos').scrollIntoViewIfNeeded();
+  await p.waitForTimeout(500);
+  await p.getByText('Assinar o Mais', { exact: true }).click();
+  await p.waitForTimeout(800);
+  const eventos = enviados.map((e) => `${e.corpo.p_evento}:${JSON.stringify(e.corpo.p_dados)}`);
+  for (const esperado of ['page_view:{"pagina":"/"}', 'pricing_viewed:{}', 'upgrade_clicked:{"lugar":"site_planos"}']) {
+    if (!eventos.includes(esperado)) falhas.push(`medição no endereço publicado: faltou ${esperado} (enviados: ${eventos.join(', ') || 'nenhum'})`);
+  }
+  if (enviados.some((e) => e.corpo.p_origem !== 'site')) falhas.push('medição do site enviada com origem diferente de "site"');
+  if (enviados.some((e) => e.referer)) falhas.push('a medição enviou o endereço de origem (Referer)');
+  await contexto.close();
 }
 
 await navegador.close();

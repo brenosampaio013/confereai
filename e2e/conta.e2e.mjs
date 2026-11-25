@@ -178,6 +178,15 @@ await step('a senha pode ser mostrada e escondida', async () => {
   await ctx.close();
 });
 
+await step('medição do funil: primeiro uso e cadastro contados, sem dado pessoal', async () => {
+  const contagem = await sql("select event, count(*)::int n from public.analytics_events group by event");
+  const n = Object.fromEntries(contagem.map((r) => [r.event, r.n]));
+  for (const ev of ['app_first_use', 'signup_started', 'signup_completed']) assert.ok(n[ev] > 0, `faltou ${ev}: ${JSON.stringify(n)}`);
+  // As contas criadas acima usam e-mails de teste: nenhum pode ter ido parar na medição.
+  const props = await sql('select props::text as p from public.analytics_events');
+  assert.ok(props.every((r) => !r.p.includes('@') && !r.p.includes('Pessoa')), 'a medição não guarda e-mail nem nome');
+});
+
 await browser.close();
 for (const e of [...new Set(erros)]) results.push(`FAIL erro de página: ${e}`);
 console.log(results.join('\n'));

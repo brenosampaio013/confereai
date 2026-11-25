@@ -35,7 +35,7 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 | 2 · Site | concluída em 25/11 — cores do design system, faixa de benefícios, só Grátis e Mais, 13 perguntas (com cobrança, renovação e cancelamento) e o JSON-LD gerado delas, capturas novas do app. Não vai ao ar antes da leitura por foto e da Stripe ligadas em produção |
 | 3 · Aplicativo | concluída em 25/11 — Início com painel do mês (dados reais) e ações em lista; Meu plano só com Grátis e Mais; histórico legível; capturas do site refeitas |
 | 4 · Conversão | aguarda a leitura por foto em produção |
-| 5 · Medição | — |
+| 5 · Medição | concluída em 25/11 — tabela `analytics_events` sem dado pessoal, porta única `registrar_evento`, eventos de assinatura pelo webhook; testada no banco, no app (e2e) e no site (check-site). Migração ainda não aplicada em produção |
 | 6 · Stripe em teste | — |
 | 7 · Acessibilidade | — |
 | 8 · Regressão e publicação | — |
@@ -57,3 +57,9 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 
 - A tela do assistente (`/assistente`) só abre pelo endereço, mas ainda cita o plano Meu Carrin IA e leva para Planos, onde o IA não aparece. Fica assim até o assistente funcionar (decisão 4).
 - O painel "Este mês" do Início mostra R$ 0,00 no começo de cada mês, até a primeira compra encerrada.
+
+## Pendências registradas na etapa 5
+
+- Aplicar `20261125120000_medicao.sql` no banco de produção e publicar de novo o `stripe-webhook`: só com autorização.
+- A política de privacidade não menciona a contagem de eventos. Ela não guarda dado pessoal, mas por transparência vale uma frase: texto legal, só com revisão do responsável.
+- A função `registrar_evento` é aberta a visitantes (o site precisa disso): alguém pode inflar a contagem chamando a função em massa. Não expõe dado nenhum; se virar problema, dá para limitar por janela de tempo.

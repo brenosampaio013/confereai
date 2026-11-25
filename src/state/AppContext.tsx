@@ -33,6 +33,7 @@ import type { CartItem, Purchase } from "@/domain/types";
 import { newId } from "@/lib/id";
 import { isOnline } from "@/services/network";
 import { supabaseRemote } from "@/services/remoteAdapter";
+import { registrarPrimeiroUso } from '@/services/medicao';
 import { getSupabase } from "@/services/supabase";
 
 interface AppValue {
@@ -97,6 +98,7 @@ export function AppProvider({
         await migrate(driver);
         const r = new Repository(driver, newId);
         setRepo(r);
+        void registrarPrimeiroUso(r);
         const sb = getSupabase();
         if (sb) {
           setSync(

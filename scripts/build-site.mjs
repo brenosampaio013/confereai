@@ -22,6 +22,29 @@ const saida = join(root, 'site-dist');
 
 const SITE_URL = (process.env.SITE_URL || 'https://meucarrin.com').replace(/\/+$/, '');
 const APP_URL = (process.env.SITE_APP_URL || 'https://app.meucarrin.com').replace(/\/+$/, '');
+// Medição do funil (decisão 5): a página conta visitas e cliques pela função `registrar_evento`.
+// Os dois valores abaixo são públicos por natureza (já viajam no pacote do aplicativo); quem
+// protege os dados é o banco: a função só aceita uma lista fechada de eventos, sem dado pessoal. Ficam aqui, e não só no painel de quem
+// compila, para a landing publicar certo de qualquer lugar — como o app faz em src/lib/config.ts.
+// A chave `service_role` NUNCA entra aqui.
+const SUPABASE_PADRAO = 'https://urfqgajoauryxmkbseet.supabase.co';
+const CHAVE_PADRAO =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZnFnYWpvYXVyeXhta2JzZWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMDIyNjMsImV4cCI6MjExMDY3ODI2M30.LGLXovbKtCQ3__cRKXqH-wcJ8jgDeksH5qIFbXj3KJs';
+// Um endereço de servidor, não uma chave: trocar os dois campos no painel de compilação é um
+// engano fácil, e aqui ele é ignorado em vez de publicar uma página quebrada.
+const pareceEndereco = (v) => /^https?:\/\/[^\s"']+$/.test(v);
+const doAmbiente = (valor, valido, padrao, nome) => {
+  const v = (valor || '').trim();
+  if (!v) return padrao;
+  if (valido(v)) return v;
+  console.warn(`  aviso: ${nome} foi ignorada (formato inesperado); usando o valor padrão.`);
+  return padrao;
+};
+const SUPABASE_URL = doAmbiente(process.env.EXPO_PUBLIC_SUPABASE_URL, pareceEndereco, SUPABASE_PADRAO, 'EXPO_PUBLIC_SUPABASE_URL').replace(/\/+$/, '');
+const SUPABASE_KEY = doAmbiente(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY, (v) => !pareceEndereco(v) && v.length >= 8, CHAVE_PADRAO, 'EXPO_PUBLIC_SUPABASE_ANON_KEY');
+// Só a página publicada mede: no computador de quem desenvolve e nos testes, nada é enviado.
+const SITE_HOST = new URL(SITE_URL).hostname;
+
 rmSync(saida, { recursive: true, force: true });
 mkdirSync(saida, { recursive: true });
 cpSync(origem, saida, {
@@ -116,6 +139,10 @@ for (const outra of ['404.html', 'termos.html']) {
 }
 
 
+let js = readFileSync(join(origem, 'pagina.js'), 'utf8');
+js = js.replaceAll('__SUPABASE_URL__', SUPABASE_URL).replaceAll('__SUPABASE_KEY__', SUPABASE_KEY).replaceAll('__SITE_HOST__', SITE_HOST);
+writeFileSync(join(saida, 'pagina.js'), js);
+
 // ---- Política de privacidade (a mesma do aplicativo)
 copyFileSync(join(root, 'docs', 'privacidade.html'), join(saida, 'privacidade.html'));
 
@@ -177,7 +204,7 @@ copyFileSync(capaGuardada, join(saida, 'assets', 'compartilhar.png'));
 // static.cloudflareinsights.com e a medição é enviada para cloudflareinsights.com.
 const RASTREADOR_ORIGEM = 'https://static.cloudflareinsights.com';
 const RASTREADOR_DESTINO = 'https://cloudflareinsights.com';
-const conecta = ["'self'", RASTREADOR_DESTINO].join(' ');
+const conecta = ["'self'", new URL(SUPABASE_URL).origin, RASTREADOR_DESTINO].join(' ');
 writeFileSync(join(saida, '_headers'), `/*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

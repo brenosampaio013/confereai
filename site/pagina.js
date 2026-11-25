@@ -5,6 +5,41 @@
   var semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var brl = function (c) { return (c / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); };
 
+  /* ---------- Medição do funil: só contagem, sem dado pessoal ---------- */
+  // Só a página publicada mede (no computador de quem desenvolve e nos testes, nada sai daqui).
+  // Envia o nome do evento e o caminho da página, sem consulta, sem de onde a pessoa veio.
+  var MEDE = location.hostname === '__SITE_HOST__' || location.hostname === 'www.__SITE_HOST__';
+  function registrar(evento, dados) {
+    if (!MEDE || !window.fetch) return;
+    try {
+      fetch('__SUPABASE_URL__/rest/v1/rpc/registrar_evento', {
+        method: 'POST',
+        keepalive: true,
+        referrerPolicy: 'no-referrer',
+        headers: { 'Content-Type': 'application/json', apikey: '__SUPABASE_KEY__', Authorization: 'Bearer __SUPABASE_KEY__' },
+        body: JSON.stringify({ p_evento: evento, p_origem: 'site', p_dados: dados || {} })
+      }).catch(function () {});
+    } catch (e) { /* medir nunca atrapalha a página */ }
+  }
+  var caminho = location.pathname.toLowerCase();
+  registrar('page_view', /^\/[a-z0-9\/_-]*$/.test(caminho) && caminho.length <= 60 ? { pagina: caminho } : {});
+
+  var secaoPlanos = document.getElementById('planos');
+  if (secaoPlanos && 'IntersectionObserver' in window) {
+    var viuPlanos = new IntersectionObserver(function (entradas) {
+      if (entradas.some(function (e) { return e.isIntersecting; })) {
+        registrar('pricing_viewed', {});
+        viuPlanos.disconnect();
+      }
+    }, { threshold: 0.3 });
+    viuPlanos.observe(secaoPlanos);
+  }
+  document.querySelectorAll('[data-medir]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      registrar(el.getAttribute('data-medir'), { lugar: el.getAttribute('data-lugar') || 'site' });
+    });
+  });
+
   var ano = document.getElementById('ano');
   if (ano) ano.textContent = String(new Date().getFullYear());
 
