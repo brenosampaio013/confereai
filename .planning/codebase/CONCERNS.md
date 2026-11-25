@@ -4,22 +4,16 @@
 
 ## Dívida técnica
 
-**Encerrar compra sem tratamento de erro e sem garantia de gravação (defeito intermitente):**
-- Problema: em `src/screens/CartScreen.tsx` (`finish()`, linhas 73-85) o `onPress` do botão "Encerrar" é `async` e faz `await repo.updatePurchase(active.id, { status: 'closed' })`, `bump()` e `router.navigate('/')`. Não há `try/catch`: se a gravação falhar, a promessa rejeitada fica sem tratamento e o usuário não vê nada. `showAlert` (`src/lib/dialog.ts`) chama `a.onPress?.()` sem `await` nem captura de erro, então nenhuma falha chega à interface.
-- Arquivos: `src/screens/CartScreen.tsx`, `src/lib/dialog.ts`, `src/data/repository.ts` (`updatePurchase`, linhas 296-321), `src/state/AppContext.tsx` (`bump`, `refreshActive`), `src/data/expoDriver.ts`.
-- Impacto: a compra pode continuar ativa. O e2e `compra encerrada fica em Minhas compras com orçamento e diferença` (`e2e/budget.e2e.mjs`, ~linha 168) falha de forma intermitente. O próprio teste já traz um comentário (linhas 171-174) dizendo que recarregar a página antes de a gravação terminar desfazia o encerramento. Isso sugere que a gravação no banco do navegador (SQLite no navegador) pode ainda não ser durável quando a navegação ou o reload acontece.
-- Causa raiz: **não estabelecida**. Hipóteses a verificar, em ordem:
-  1. `updatePurchase` faz várias escritas sequenciais (UPDATE de `purchases`, `logEdit`, `enqueue`, e UPDATE de `price_history` por linha) sem transação. Uma interrupção no meio deixa estado parcial.
-  2. A UI navega para `/` assim que o `await` resolve, mas não há garantia de flush/persistência do banco no navegador. O teste espera "Nova compra" e depois apenas 1500 ms fixos (`waitForTimeout`) antes de `page.goto`, e isso é uma espera por tempo, não por condição.
-  3. Corrida com a sincronização: `bump()` agenda `syncNow` em 4000 ms. O `pull()` em `src/data/sync.ts` (linhas 148-170) só ignora a linha remota se `local.updated_at > remoteUpdated` (ou `>=` com pendência local). Uma linha remota mais nova ou com relógio divergente pode reverter `status` para `active`. Avaliar também `refreshActive` rodando em paralelo (`src/state/AppContext.tsx`, ~linhas 150-175).
-  4. Na web, `showAlert` usa `window.confirm`; o clique em "Encerrar" no teste precisa coincidir com o tratamento do diálogo.
-- Abordagem de correção: envolver `finish()` em `try/catch` com aviso ao usuário; fazer `showAlert` aguardar e capturar `onPress`; colocar as escritas de `updatePurchase` em transação; trocar a espera por tempo no e2e por espera de condição (ex.: ler o status no banco); reproduzir em laço (rodar o passo 50 vezes) para isolar a causa antes de mexer.
+**Encerrar compra que voltava a ficar em andamento — CORRIGIDO em 2026-11-25:**
+- Causa raiz (medida com registros temporários e reproduzida em teste determinístico): o `pull()` de `src/data/sync.ts` conferia a linha local (versão e pendência), e só depois, com outras esperas no meio, gravava a cópia do servidor. Um encerramento gravado nessa janela era apagado pela cópia mais antiga. A janela era frequente porque `sync()` conferia a trava `running`, esperava duas respostas (internet e sessão) e só então a marcava: pedidos simultâneos (alteração, rede, volta ao primeiro plano) rodavam até cinco sincronizações em paralelo, cada uma regravando as mesmas linhas.
+- Correção: a trava passou a ser marcada antes de qualquer espera, e a regra de quem vence (versão mais nova; no empate, a local ainda não enviada) foi para dentro do próprio comando de gravação (`ON CONFLICT ... DO UPDATE ... WHERE`), conferida pelo banco no instante de gravar.
+- Testes: `__tests__/data/repository.test.ts` — "encerrar a compra durante uma sincronização não é desfeito pela cópia antiga do servidor" e "duas sincronizações pedidas ao mesmo tempo rodam uma só". Os dois falhavam antes da correção. A suíte de ponta a ponta passou 3 de 3 depois.
+- Hipóteses descartadas: carga da máquina, recarregamento da página antes de gravar (explicação dada em 2026-11-23 e errada), durabilidade do SQLite no navegador.
+- Resíduos que continuam valendo: `finish()` em `src/screens/CartScreen.tsx` não tem `try/catch`, e `showAlert` (`src/lib/dialog.ts`) não aguarda nem captura o `onPress`; uma falha de gravação continua invisível para a pessoa. `updatePurchase` faz várias escritas sem transação.
 
-**`Banner` só envolve em `<T>` quando `children` é uma string única:**
-- Problema: `src/ui/components.tsx` linha 236: `typeof children === 'string' ? <T ...>{children}</T> : children`. Quando `children` tem texto misturado com expressões, o JSX gera um array (texto + valores), que não é `string`, e o conteúdo vira texto solto dentro de uma `View`.
-- Arquivos: chamadores afetados `src/app/product/[id].tsx:72` (`{formatBRL(...)} / {per}, registrado {ageLabel(...)}.` e a expressão condicional) e `src/app/offers/publish.tsx:187` (`... até {MAX_PHOTOS} fotos.`).
-- Impacto: na web a fonte sai errada (sem o estilo de `T`); no Android o React Native lança erro por texto fora de `<Text>` e a tela quebra. Como o app nunca rodou em aparelho físico, o erro não foi visto.
-- Abordagem de correção: tratar `string` e `number` e arrays de primitivos (`Array.isArray` com todos os itens `string`/`number`) dentro do `Banner`, ou usar template string nos chamadores. Varrer os demais usos de `<Banner>` (`grep -rn "<Banner" src`) por conteúdo misto. Considerar um teste de renderização com `jest-expo` para evitar regressão.
+**`Banner` com texto misturado a variáveis — CORRIGIDO em 2026-11-25:**
+- `src/ui/components.tsx`: a decisão "o conteúdo é só texto?" virou `soTexto()`, que aceita string, número e listas deles (texto misturado a expressões no JSX). Teste: `__tests__/ui/texto.test.tsx`, que falhava nos casos do defeito.
+- Os dois chamadores afetados (`src/app/product/[id].tsx:72`, `src/app/offers/publish.tsx:187`) passam a ser renderizados dentro de `<T>` sem mudança neles. A verificação no Android continua pendente (o app nunca rodou em aparelho).
 
 **Blocos `catch` vazios que engolem erros:**
 - Problema: `catch {` sem registro ou propagação em `src/services/assistente.ts` (63, 94), `src/services/planos.ts:43`, `src/services/prices.ts:98`, `src/services/location.ts:69`, `src/services/geocode.ts:50`, `src/services/marketplace.ts:219`, `src/services/productLookup.ts:54`, `src/services/ocr.ts:75`, `src/data/sync.ts:80`, `src/data/repository.ts:34`, `src/app/item/add.tsx:273`, `src/app/assistente.tsx:49`, `src/ui/RemoteImage.tsx:30`, `src/lib/files.ts:28`, `src/domain/fiscal.ts` (148, 165).
@@ -34,9 +28,9 @@
 
 ## Bugs conhecidos
 
-**Encerrar compra às vezes não persiste:** ver "Dívida técnica" acima (intermitente, causa não estabelecida).
+**Encerrar compra às vezes não persiste:** corrigido em 2026-11-25; ver "Dívida técnica" acima.
 
-**Banner com conteúdo misto:** ver acima (`src/app/product/[id].tsx:72`, `src/app/offers/publish.tsx:187`).
+**Banner com conteúdo misto:** corrigido em 2026-11-25; ver acima.
 
 ## Considerações de segurança
 
@@ -59,7 +53,7 @@
 ## Gargalos de desempenho
 
 **Escritas em laço em `updatePurchase`:**
-- `src/data/repository.ts` linhas 316-321: para cada linha de `price_history` há um `UPDATE` e um `enqueue`, sem transação. Em compras grandes isso é lento e, junto com a falta de atomicidade, alimenta o defeito de encerramento.
+- `src/data/repository.ts` linhas 316-321: para cada linha de `price_history` há um `UPDATE` e um `enqueue`, sem transação. Em compras grandes isso é lento e não é atômico.
 - Melhoria: um único `UPDATE ... WHERE purchase_id = ?` e enfileiramento em lote, dentro de transação.
 
 **Atraso de sincronização:**

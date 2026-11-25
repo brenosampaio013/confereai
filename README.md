@@ -681,7 +681,7 @@ teste e de produção. Nada de `price_...` colado no código ou em variável de 
    Supabase → Edge Functions → Secrets). O segredo do webhook é revelado no painel da Stripe,
    em Desenvolvedores → Webhooks → o endpoint acima. Enquanto faltarem, o webhook recusa tudo
    e a tela de planos diz que a assinatura não está configurada — falha fechada, de propósito.
-2. **Revogar os privilégios desnecessários** (ver abaixo).
+2. ~~Revogar os privilégios desnecessários~~ — feito (ver abaixo).
 
 Para publicar de novo depois de mudar o código das funções:
 
@@ -753,7 +753,7 @@ modos**: trocar `STRIPE_SECRET_KEY` de `sk_test_` para `sk_live_` é a única di
 Para reconferir o pagamento depois de mexer nas funções: `e2e/pagamento-stripe.mjs` (instruções
 no topo do arquivo). Ele não entra em `npm run test:e2e` porque exige uma chave de teste.
 
-### Privilégios que o Supabase concede por padrão (pendente)
+### Privilégios que o Supabase concede por padrão (corrigido)
 
 Ao conferir a migração em produção apareceu algo que não é de hoje: projeto Supabase novo tem um
 privilégio padrão no schema `public` que concede **tudo** (`arwdDxtm`) a `anon` e a
@@ -766,11 +766,12 @@ para disparar isso com a chave pública, e as 32 tabelas têm RLS. O que existe 
 nenhuma tela usa e que a RLS **não** cobre — TRUNCATE não passa por política de linha. Uma função
 futura com `security invoker` ou uma injeção de SQL bastaria para virar perda total de dados.
 
-A correção está em `supabase/migrations/20261122130000_privilegios.sql` e **ainda não foi
-aplicada**: a aplicação automática foi barrada por conter `revoke ... truncate` (a proteção não
-distingue tirar privilégio de apagar dado). Aplique o conteúdo desse arquivo no editor de SQL do
-Supabase — ele só *remove* privilégios (`truncate`, `trigger`, `references`) e não mexe em nada
-que o aplicativo use. O banco de teste (`supabase/tests/helpers.mjs`) passou a imitar o
+A correção está em `supabase/migrations/20261122130000_privilegios.sql` e **foi aplicada em
+produção pelo editor de SQL do Supabase**. Conferido em 25/11/2026, só por leitura: nenhuma tabela
+do schema `public` dá TRUNCATE a `anon` ou a `authenticated`, e o privilégio padrão do papel
+`postgres` para tabelas novas ficou em `arwdm` (sem truncate, trigger e references). O privilégio
+padrão do papel `supabase_admin` continua concedendo tudo, mas as migrações do projeto criam
+tabelas como `postgres`, então ele não as alcança. O banco de teste (`supabase/tests/helpers.mjs`) passou a imitar o
 privilégio padrão do Supabase, e há teste conferindo que ninguém consegue esvaziar as tabelas.
 
 ### Google Play: por que não há botão de compra no Android
@@ -911,7 +912,7 @@ O app lê o QR Code da NFC-e (versões 1, 2 e 3 do formato) e extrai **apenas o 
 | **Plano IA e assistente — Jest** | 13 testes novos (163 no total), todos passando: o plano IA lido do servidor com o uso do assistente, a ordem dos planos pagos, a chave do preço montada a partir do plano e do período, o IA ainda marcado como indisponível, e a leitura do que a IA entendeu — grama e mililitro virando quilo e litro, pacote com peso indo para a observação, quantidade não dita continuando não dita (não vira 1), item sem nome descartado, unidade desconhecida sem conversão inventada e a lista com teto de 30 itens. |
 | **Plano IA — banco** | 4 testes novos (76 no total), todos passando: o assistente só existe no plano IA (o balde `voz` é zero nos outros, e é ele que recusa), a conversa consumindo o balde de voz e o total de 600, e a tela de planos mostrando o uso do assistente. |
 | **Assistente — não exercitado com áudio** | A função `assistente` tem tipagem verificada e está publicada, mas **nunca rodou com áudio de verdade**: falta a chave da Claude (que não pode ser guardada no cofre desta sessão) e a conta da OpenAI está **sem créditos** (`insufficient_quota`). Sem isso não há transcrição nem entendimento, e por isso o plano IA está marcado como indisponível. |
-| **Passo instável conhecido** | `avisa ao passar de 75%, ao atingir 100% e ao ultrapassar`, no roteiro do orçamento, depende de o aviso aparecer logo após o toque em "+". Em 22/11/2026 ele passou 3 vezes e falhou 2 no mesmo código, sempre com a máquina ocupada; sozinho e com a máquina livre, passou 4 vezes seguidas. A espera foi de 10 s para 20 s, como no resto do roteiro. **Não é defeito do aplicativo**: quando falha, é o aviso demorando mais que a espera do teste. Se voltar a falhar com frequência, o caminho é investigar a fila de verificação de orçamento no AppContext, não aumentar o tempo de novo.<br><br>**23/11/2026 — causa encontrada em outro passo.** O passo `compra encerrada fica em Minhas compras` passou a falhar em 5 de 8 rodadas depois que o pacote cresceu (assistente e plano IA). Não era carga nem a tela nova: o roteiro **recarregava a página 1,5 s depois de encerrar**, antes de o aplicativo terminar de gravar, e o encerramento se perdia. Agora o teste espera o início mostrar "Nova compra" — isto é, confere o efeito em vez de correr com ele — e passou 3 de 3. Duas hipóteses minhas foram descartadas pelo caminho (carga da máquina e a tela nova), cada uma com uma rodada de controle. Ao investigar apareceu também uma corrida real no `AppContext`: duas leituras do estado da compra podiam terminar fora de ordem e a mais antiga sobrescrevia a mais nova, devolvendo à tela uma compra já encerrada. Corrigido com um número de leitura (só a mais recente escreve na tela). |
+| **Passo instável conhecido** | `avisa ao passar de 75%, ao atingir 100% e ao ultrapassar`, no roteiro do orçamento, depende de o aviso aparecer logo após o toque em "+". Em 22/11/2026 ele passou 3 vezes e falhou 2 no mesmo código, sempre com a máquina ocupada; sozinho e com a máquina livre, passou 4 vezes seguidas. A espera foi de 10 s para 20 s, como no resto do roteiro. **Não é defeito do aplicativo**: quando falha, é o aviso demorando mais que a espera do teste. Se voltar a falhar com frequência, o caminho é investigar a fila de verificação de orçamento no AppContext, não aumentar o tempo de novo.<br><br>**23/11/2026 — causa encontrada em outro passo.** O passo `compra encerrada fica em Minhas compras` passou a falhar em 5 de 8 rodadas depois que o pacote cresceu (assistente e plano IA). Não era carga nem a tela nova: o roteiro **recarregava a página 1,5 s depois de encerrar**, antes de o aplicativo terminar de gravar, e o encerramento se perdia. Agora o teste espera o início mostrar "Nova compra" — isto é, confere o efeito em vez de correr com ele — e passou 3 de 3. Duas hipóteses minhas foram descartadas pelo caminho (carga da máquina e a tela nova), cada uma com uma rodada de controle.<br><br>**25/11/2026 — a explicação acima estava errada.** O passo voltou a falhar com a espera nova. Registros temporários mostraram a causa real: uma sincronização em andamento lia a compra ainda ativa, e gravava a cópia do servidor depois do encerramento, apagando-o. Isso acontecia com frequência porque a trava de "uma sincronização por vez" era marcada tarde, e até cinco rodavam juntas. Corrigido em `src/data/sync.ts` (trava marcada antes de qualquer espera; regra de quem vence conferida dentro do comando de gravação), com dois testes que falhavam antes. Ponta a ponta: 3 de 3 rodadas completas depois. Ao investigar apareceu também uma corrida real no `AppContext`: duas leituras do estado da compra podiam terminar fora de ordem e a mais antiga sobrescrevia a mais nova, devolvendo à tela uma compra já encerrada. Corrigido com um número de leitura (só a mais recente escreve na tela). |
 | **Celular físico** | **Não realizado.** Leitura de código pela câmera, fotos, lanterna, armazenamento seguro e permissões nativas precisam ser verificados em aparelho real. |
 | **Cupons reais** | **Não testado.** O parser foi validado apenas com textos fictícios em layouts típicos (NFC-e, duas linhas por item, ECF/SAT). |
 

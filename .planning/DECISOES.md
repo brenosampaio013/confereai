@@ -30,7 +30,7 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 
 | Etapa | Situação |
 |---|---|
-| 0 · Base segura | em andamento |
+| 0 · Base segura | concluída em 25/11 — Banner corrigido; encerramento corrigido (causa: corrida da sincronização) |
 | 1 · Design system | — |
 | 2 · Site | — |
 | 3 · Aplicativo | — |
