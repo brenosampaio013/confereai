@@ -31,7 +31,7 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 | Etapa | Situação |
 |---|---|
 | 0 · Base segura | concluída em 25/11 — Banner corrigido; encerramento corrigido (causa: corrida da sincronização) |
-| 1 · Design system | — |
+| 1 · Design system | em revisão — referência publicada em https://claude.ai/artifact/DaYfDXtkbHv9yRhWNb3qKK (cópia dos tokens e do guia em `.planning/design-system/`); nada aplicado ao app até a aprovação |
 | 2 · Site | — |
 | 3 · Aplicativo | — |
 | 4 · Conversão | aguarda a leitura por foto em produção |
