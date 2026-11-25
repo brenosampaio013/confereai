@@ -174,6 +174,47 @@ describe('funcionamento sem internet e sincronização (teste 18)', () => {
     await sync.pull();
     expect((await repo.getCartItem(item.id))!.quantityMilli).toBe(5000); // remoto é mais novo
   });
+
+  it('encerrar a compra durante uma sincronização não é desfeito pela cópia antiga do servidor', async () => {
+    // Reproduz o defeito visto no app: a sincronização lê a compra ainda ativa, decide gravar a
+    // cópia do servidor e, antes de a gravação chegar ao banco, a pessoa encerra a compra.
+    const { db, repo } = await open();
+    const p = await repo.startPurchase();
+    const remote = fakeRemote();
+    const sync0 = new SyncService(db, remote, { isOnline: async () => true, isAuthenticated: async () => true });
+    await sync0.push(); // o servidor fica com a compra ativa, igual à do aparelho
+    const copiaDoServidor = { ...remote.store.get('purchases')!.get(p.id)!, user_id: 'u1' };
+    remote.pullSince = async (table) => (table === 'purchases' ? [copiaDoServidor] : []);
+
+    // Entre a leitura e a gravação da sincronização, o encerramento chega ao banco.
+    let encerrou = false;
+    const comCorrida: typeof db = Object.assign(Object.create(Object.getPrototypeOf(db)), db, {
+      async run(sql: string, params?: (string | number | null)[]) {
+        if (!encerrou && /^\s*INSERT INTO purchases/.test(sql)) {
+          encerrou = true;
+          await repo.updatePurchase(p.id, { status: 'closed' });
+        }
+        return db.run(sql, params);
+      },
+    });
+    const sync = new SyncService(comCorrida, remote, { isOnline: async () => true, isAuthenticated: async () => true });
+    await sync.pull();
+
+    expect(encerrou).toBe(true);
+    expect((await repo.getPurchase(p.id))!.status).toBe('closed');
+  });
+
+  it('duas sincronizações pedidas ao mesmo tempo rodam uma só', async () => {
+    // O app pede sincronização por vários caminhos (alteração, rede, volta ao primeiro plano).
+    // Pedidos simultâneos não podem rodar em paralelo: cada um regravaria as mesmas linhas.
+    const { db, repo } = await open();
+    await repo.startPurchase();
+    const remote = fakeRemote();
+    const sync = new SyncService(db, remote, { isOnline: async () => true, isAuthenticated: async () => true });
+    const [a, b] = await Promise.all([sync.sync(), sync.sync()]);
+    expect([a.skipped, b.skipped].filter((s) => s === 'busy')).toHaveLength(1);
+    expect(remote.calls).toBe(1);
+  });
 });
 
 describe('orçamento, histórico de compras e preços por supermercado', () => {

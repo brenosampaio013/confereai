@@ -92,11 +92,13 @@ export class SyncService {
   ) {}
 
   async sync(): Promise<SyncResult> {
+    // A trava é marcada antes de qualquer espera: conferida antes e marcada só depois das duas
+    // consultas abaixo, vários pedidos simultâneos passavam todos e rodavam em paralelo.
     if (this.running) return { pushed: 0, pulled: 0, failed: 0, skipped: 'busy' };
-    if (!(await this.env.isOnline())) return { pushed: 0, pulled: 0, failed: 0, skipped: 'offline' };
-    if (!(await this.env.isAuthenticated())) return { pushed: 0, pulled: 0, failed: 0, skipped: 'not_authenticated' };
     this.running = true;
     try {
+      if (!(await this.env.isOnline())) return { pushed: 0, pulled: 0, failed: 0, skipped: 'offline' };
+      if (!(await this.env.isAuthenticated())) return { pushed: 0, pulled: 0, failed: 0, skipped: 'not_authenticated' };
       const push = await this.push();
       const pulled = push.failed === 0 ? await this.pull() : 0;
       return { ...push, pulled };
@@ -182,9 +184,16 @@ export class SyncService {
     const cols = await this.columnsOf(table);
     const entries = Object.entries(row).filter(([k]) => cols.has(k));
     const names = entries.map(([k]) => k);
+    // A regra de quem vence (a versão mais nova; no empate, a local que ainda não foi enviada) é
+    // conferida de novo dentro do próprio comando. Conferir antes e gravar depois deixava uma
+    // janela: uma alteração feita nesse meio — encerrar a compra, por exemplo — era apagada pela
+    // cópia mais antiga que vinha do servidor.
     await this.db.run(
       `INSERT INTO ${table} (${names.join(',')}) VALUES (${names.map(() => '?').join(',')})
-       ON CONFLICT(id) DO UPDATE SET ${names.filter((n) => n !== 'id').map((n) => `${n}=excluded.${n}`).join(',')}`,
+       ON CONFLICT(id) DO UPDATE SET ${names.filter((n) => n !== 'id').map((n) => `${n}=excluded.${n}`).join(',')}
+       WHERE excluded.updated_at > ${table}.updated_at
+          OR (excluded.updated_at = ${table}.updated_at
+              AND NOT EXISTS (SELECT 1 FROM sync_queue q WHERE q.table_name = '${table}' AND q.row_id = ${table}.id))`,
       entries.map(([, v]) => v),
     );
   }

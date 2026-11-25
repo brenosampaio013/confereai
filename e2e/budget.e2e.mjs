@@ -169,9 +169,10 @@ try {
     await page.goto(`${APP}/purchases`);
     await page.getByText('Feijão carioca (teste)').first().waitFor({ timeout: 20000 });
     await click(page, 'Encerrar');
-    // Encerrar grava no banco do navegador e volta para o início. Recarregar a página antes de
-    // a gravação terminar desfazia o encerramento neste teste (o roteiro navega bem mais rápido
-    // do que uma pessoa), então espera-se o início aparecer sem compra em andamento.
+    // Encerrar grava no banco do navegador e volta para o início; espera-se o início sem compra
+    // em andamento, que é o efeito visível. Este passo falhava de forma intermitente porque uma
+    // sincronização em andamento regravava a cópia antiga do servidor por cima do encerramento
+    // (corrigido em src/data/sync.ts; teste em __tests__/data/repository.test.ts).
     await page.getByText('Nova compra', { exact: true }).first().waitFor({ timeout: 20000 });
     await page.waitForTimeout(1500);
     await page.goto(`${APP}/purchases?view=history`);
