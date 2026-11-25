@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ReactNode } from 'react';
+import { Children, ReactNode } from 'react';
 import {
   ActivityIndicator,
   KeyboardTypeOptions,
@@ -227,13 +227,23 @@ export const SEVERITY_ICON: Record<'green' | 'yellow' | 'red', IconName> = {
   red: 'warning',
 };
 
+/**
+ * Se o conteúdo é só texto — uma string, ou texto misturado com variáveis, que o JSX entrega como
+ * uma lista de pedaços. Esse conteúdo precisa ir dentro de um <T>: solto numa <View>, a web o
+ * mostra na fonte do navegador e o React Native recusa texto fora de <Text>.
+ */
+export function soTexto(children: ReactNode): boolean {
+  const partes = Children.toArray(children);
+  return partes.length > 0 && partes.every((p) => typeof p === 'string' || typeof p === 'number');
+}
+
 export function Banner({ t = 'navy', icon = 'information-circle', title, children, action }: { t?: SeverityTone; icon?: IconName; title?: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <View style={[styles.banner, { backgroundColor: tone[t].bg }]} accessibilityRole="alert">
       <Ionicons name={icon} size={22} color={tone[t].fg} style={{ marginTop: 1 }} />
       <View style={{ flex: 1, gap: 2 }}>
         {title ? <T v="bodyStrong" color={tone[t].fg}>{title}</T> : null}
-        {typeof children === 'string' ? <T v="small" color={tone[t].fg}>{children}</T> : children}
+        {soTexto(children) ? <T v="small" color={tone[t].fg}>{children}</T> : children}
         {action}
       </View>
     </View>
