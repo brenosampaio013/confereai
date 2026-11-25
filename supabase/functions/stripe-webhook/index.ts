@@ -18,7 +18,7 @@
 //   STRIPE_WEBHOOK_SECRET  segredo do endpoint (whsec_...), dado pela Stripe ao criar o webhook
 import Stripe from 'npm:stripe@23.2.0';
 import {
-  adminClient, eventoDoFunil, fimDoPeriodo, idDaAssinatura, json, planoDoPreco, precoDaAssinatura, stripeClient,
+  adminClient, escolherAssinatura, eventoDoFunil, fimDoPeriodo, idDaAssinatura, json, planoDoPreco, precoDaAssinatura, stripeClient,
 } from '../_shared/stripe.ts';
 
 const INTERESSAM = new Set([
@@ -88,31 +88,38 @@ Deno.serve(async (req) => {
 
     // A verdade é o estado atual na Stripe, não o que veio no aviso.
     const assinatura = await stripe.subscriptions.retrieve(assinaturaId);
+    // Se a mesma pessoa tiver mais de uma assinatura (duas abas de pagamento), o espelho segue a
+    // que está valendo, não a do aviso: cancelar uma não pode tirar o plano de quem paga a outra.
+    const clienteDoAviso = typeof assinatura.customer === 'string' ? assinatura.customer : assinatura.customer?.id;
+    const todas = clienteDoAviso
+      ? (await stripe.subscriptions.list({ customer: clienteDoAviso, status: 'all', limit: 20 })).data
+      : [];
+    const vigente = escolherAssinatura(todas.length ? todas : [assinatura]) ?? assinatura;
     const admin = adminClient();
-    const dono = await donoDaAssinatura(stripe, admin, assinatura);
+    const dono = await donoDaAssinatura(stripe, admin, vigente);
     if (!dono) {
       console.error('assinatura_sem_dono', assinaturaId);
       return json(200, { ignorado: 'sem_dono' });
     }
 
-    const chaveDoPreco = precoDaAssinatura(assinatura);
+    const chaveDoPreco = precoDaAssinatura(vigente);
     const plano = planoDoPreco(chaveDoPreco);
     if (!plano) {
-      console.error('preco_desconhecido', assinaturaId, chaveDoPreco);
+      console.error('preco_desconhecido', vigente.id, chaveDoPreco);
       return json(200, { ignorado: 'preco_desconhecido' });
     }
 
-    const clienteId = typeof assinatura.customer === 'string' ? assinatura.customer : assinatura.customer?.id;
+    const clienteId = typeof vigente.customer === 'string' ? vigente.customer : vigente.customer?.id;
     const { error } = await admin.from('subscriptions').upsert(
       {
         user_id: dono,
         stripe_customer_id: clienteId!,
-        stripe_subscription_id: assinatura.id,
+        stripe_subscription_id: vigente.id,
         plan: plano,
-        status: assinatura.status,
+        status: vigente.status,
         price_lookup_key: chaveDoPreco,
-        current_period_end: fimDoPeriodo(assinatura),
-        cancel_at_period_end: assinatura.cancel_at_period_end ?? false,
+        current_period_end: fimDoPeriodo(vigente),
+        cancel_at_period_end: vigente.cancel_at_period_end ?? false,
       },
       { onConflict: 'user_id' },
     );
@@ -125,7 +132,8 @@ Deno.serve(async (req) => {
     // Medição do funil: assinatura concluída ou cancelada, uma vez por assinatura. Nada que
     // identifique a pessoa vai para a tabela, e uma falha aqui não derruba o aviso (o espelho,
     // que é o que libera o plano, já foi gravado).
-    const funil = await eventoDoFunil(assinatura.id, assinatura.status, chaveDoPreco);
+    // A medição conta a assinatura do aviso (cancelar uma de duas é, sim, um cancelamento).
+    const funil = await eventoDoFunil(assinatura.id, assinatura.status, precoDaAssinatura(assinatura));
     if (funil) {
       const { error: erroDaMedicao } = await admin
         .from('analytics_events')
@@ -133,7 +141,7 @@ Deno.serve(async (req) => {
       if (erroDaMedicao) console.error('medicao_falhou', erroDaMedicao.message);
     }
 
-    return json(200, { ok: true, plano, status: assinatura.status });
+    return json(200, { ok: true, plano, status: vigente.status });
   } catch (e) {
     console.error('webhook_erro', e instanceof Error ? e.message : String(e));
     return json(500, { error: 'internal' });

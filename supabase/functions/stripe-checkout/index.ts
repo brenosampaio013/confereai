@@ -33,6 +33,18 @@ Deno.serve(async (req) => {
     if (!precos.length) throw new HttpError(500, 'preco_ausente', 'Esse plano não está disponível agora.');
 
     const cliente = await clienteDoUsuario(stripe, admin, usuario);
+
+    // Quem já assina não paga de novo: trocar entre mensal e anual, ou atualizar o cartão, é no
+    // portal. Conferido na Stripe, que é a verdade, e não só na tela (defeito provado em
+    // e2e/stripe-cenarios.mjs: a função abria um segundo pagamento).
+    const vivas = await stripe.subscriptions.list({ customer: cliente, status: 'all', limit: 20 });
+    if (vivas.data.some((s) => s.status === 'active' || s.status === 'trialing' || s.status === 'past_due')) {
+      throw new HttpError(409, 'ja_assina', 'Você já tem uma assinatura. Para trocar entre mensal e anual ou atualizar o cartão, use Gerenciar assinatura.');
+    }
+    // Um pagamento aberto em outra aba deixa de valer: só a sessão mais nova pode ser concluída.
+    const abertas = await stripe.checkout.sessions.list({ customer: cliente, status: 'open', limit: 20 });
+    for (const s of abertas.data) await stripe.checkout.sessions.expire(s.id).catch(() => {});
+
     const sessao = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: cliente,

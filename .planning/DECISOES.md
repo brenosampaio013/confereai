@@ -36,7 +36,7 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 | 3 · Aplicativo | concluída em 25/11 — Início com painel do mês (dados reais) e ações em lista; Meu plano só com Grátis e Mais; histórico legível; capturas do site refeitas |
 | 4 · Conversão | aguarda a leitura por foto em produção |
 | 5 · Medição | concluída em 25/11 — tabela `analytics_events` sem dado pessoal, porta única `registrar_evento`, eventos de assinatura pelo webhook; testada no banco, no app (e2e) e no site (check-site). Migração ainda não aplicada em produção |
-| 6 · Stripe em teste | — |
+| 6 · Stripe em teste | concluída em 25/11 — 6 cenários novos e o caminho feliz passando na Stripe de teste; 2 defeitos provados e corrigidos (segundo pagamento; plano perdido com duas assinaturas). Funções ainda não publicadas em produção |
 | 7 · Acessibilidade | — |
 | 8 · Regressão e publicação | — |
 
@@ -63,3 +63,10 @@ Aprovadas pelo responsável pelo produto em 25/11/2026 ("pode seguir com suas re
 - Aplicar `20261125120000_medicao.sql` no banco de produção e publicar de novo o `stripe-webhook`: só com autorização.
 - A política de privacidade não menciona a contagem de eventos. Ela não guarda dado pessoal, mas por transparência vale uma frase: texto legal, só com revisão do responsável.
 - A função `registrar_evento` é aberta a visitantes (o site precisa disso): alguém pode inflar a contagem chamando a função em massa. Não expõe dado nenhum; se virar problema, dá para limitar por janela de tempo.
+
+## Pendências registradas na etapa 6
+
+- Publicar de novo `stripe-checkout` e `stripe-webhook` em produção (correções e medição): só com autorização. O `_shared/stripe.ts` vai junto.
+- Os segredos da Stripe (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) continuam fora do Supabase de produção: sem eles, nenhuma assinatura funciona em produção.
+- O clique no botão de pagar da página da Stripe tem uma verificação anti-robô (hCaptcha) que não deve ser contornada: esse passo precisa de um teste manual seu, com o cartão 4242 4242 4242 4242, no modo de teste.
+- Ainda não testado: reembolso e disputa (chargeback). O webhook não escuta esses eventos; a assinatura segue a regra da Stripe.

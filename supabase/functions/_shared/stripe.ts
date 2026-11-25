@@ -148,3 +148,24 @@ export async function eventoDoFunil(
   }
   return null;
 }
+
+// ---- Qual assinatura vale quando a mesma pessoa tem mais de uma
+
+const PESO: Partial<Record<Stripe.Subscription.Status, number>> = { active: 5, trialing: 4, past_due: 3, unpaid: 2, incomplete: 1 };
+
+/**
+ * A assinatura que o espelho deve mostrar. Duas abas de pagamento concluídas geram duas
+ * assinaturas na Stripe; espelhar a do último aviso faria o cancelamento de uma tirar o plano de
+ * quem ainda paga a outra (defeito provado em e2e/stripe-cenarios.mjs). Vale a "mais viva":
+ * ativa, depois teste grátis, atraso, não paga, incompleta; entre iguais, a mais recente.
+ */
+export function escolherAssinatura<T extends { status: Stripe.Subscription.Status; created: number }>(lista: readonly T[]): T | null {
+  let melhor: T | null = null;
+  for (const s of lista) {
+    if (!melhor) { melhor = s; continue; }
+    const a = PESO[s.status] ?? 0;
+    const b = PESO[melhor.status] ?? 0;
+    if (a > b || (a === b && s.created > melhor.created)) melhor = s;
+  }
+  return melhor;
+}

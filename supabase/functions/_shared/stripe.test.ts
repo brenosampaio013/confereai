@@ -5,7 +5,7 @@
 // funciona neste runtime. Se ela falhasse abrindo passagem, qualquer POST liberaria o plano pago.
 import { assertEquals, assertRejects } from 'jsr:@std/assert@1.0.14';
 import Stripe from 'npm:stripe@23.2.0';
-import { eventoDoFunil, fimDoPeriodo, idDaAssinatura, planoDoPreco, precoDaAssinatura } from './stripe.ts';
+import { escolherAssinatura, eventoDoFunil, fimDoPeriodo, idDaAssinatura, planoDoPreco, precoDaAssinatura } from './stripe.ts';
 
 const SEGREDO = 'whsec_teste_apenas_para_este_arquivo';
 const stripe = new Stripe('sk_test_naoUsada', { httpClient: Stripe.createFetchHttpClient() });
@@ -123,4 +123,24 @@ Deno.test('estados de passagem não contam nada', async () => {
 
 Deno.test('trial também conta como concluída', async () => {
   assertEquals((await eventoDoFunil('sub_9', 'trialing', 'mais_mensal'))?.event, 'subscription_completed');
+});
+
+// ---- Qual assinatura o espelho segue quando a pessoa tem mais de uma (defeito provado na etapa 6)
+
+const sub = (id: string, status: Stripe.Subscription.Status, created: number) => ({ id, status, created });
+
+Deno.test('cancelar uma de duas assinaturas: o espelho segue a que continua ativa', () => {
+  const escolhida = escolherAssinatura([sub('velha', 'canceled', 200), sub('nova', 'active', 100)]);
+  assertEquals(escolhida?.id, 'nova');
+});
+
+Deno.test('ativa vence atraso, atraso vence incompleta, e entre iguais vale a mais recente', () => {
+  assertEquals(escolherAssinatura([sub('a', 'past_due', 1), sub('b', 'active', 0)])?.id, 'b');
+  assertEquals(escolherAssinatura([sub('a', 'incomplete', 9), sub('b', 'past_due', 1)])?.id, 'b');
+  assertEquals(escolherAssinatura([sub('a', 'active', 1), sub('b', 'active', 5)])?.id, 'b');
+  assertEquals(escolherAssinatura([sub('a', 'canceled', 1), sub('b', 'canceled', 5)])?.id, 'b');
+});
+
+Deno.test('sem nenhuma assinatura não há o que escolher', () => {
+  assertEquals(escolherAssinatura([]), null);
 });

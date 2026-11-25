@@ -663,6 +663,33 @@ aplicativo e confirma que o banco recusa.
 Os preços são achados por `lookup_key` (`mais_mensal`, `mais_anual`), que é igual nos modos de
 teste e de produção. Nada de `price_...` colado no código ou em variável de ambiente.
 
+### Cenários difíceis, testados na Stripe de teste (25/11/2026)
+
+`e2e/stripe-cenarios.mjs` roda as funções reais (`stripe-webhook`, `stripe-checkout`) contra a
+Stripe em modo de teste, com o banco do `fake-supabase` (instruções no topo do arquivo). Ele se
+recusa a rodar com chave `sk_live` e para se a Stripe responder em modo real.
+
+| Cenário | O que se confere |
+|---|---|
+| Cartão recusado (4000 0000 0000 0341) | assinatura `incomplete`, plano continua grátis, nada contado na medição |
+| Aviso repetido (3 vezes) e fatura fora de ordem | uma linha no espelho, uma assinatura concluída na medição |
+| Quem já assina pede outro pagamento | `stripe-checkout` recusa com 409 `ja_assina` |
+| Duas abas de pagamento | a sessão antiga é expirada; só a mais nova pode ser concluída |
+| Duas assinaturas da mesma pessoa, uma cancelada | o espelho segue a que está ativa; o plano não cai |
+| Renovação recusada (relógio de teste, 35 dias depois) | espelho em `past_due`, plano segue no prazo de 3 dias |
+
+Dois defeitos apareceram aqui e foram corrigidos, com o teste antes da correção:
+
+1. **Segundo pagamento.** O `stripe-checkout` não conferia se a pessoa já assinava: quem tinha o
+   Mais conseguia abrir (e pagar) outro. Agora a função consulta a Stripe e recusa, e um pagamento
+   aberto em outra aba é expirado ao abrir um novo.
+2. **Plano perdido com duas assinaturas.** O webhook espelhava a assinatura do último aviso; se a
+   pessoa tivesse duas e cancelasse uma, o espelho virava "cancelada" e o plano caía, com a outra
+   ainda sendo cobrada. Agora o espelho segue a assinatura que está valendo (`escolherAssinatura`).
+
+As duas correções só valem em produção depois de publicar de novo `stripe-checkout` e
+`stripe-webhook`, com autorização.
+
 ### O que já está no ar (22/11/2026)
 
 - Migração dos planos aplicada no projeto `meucarrin`: `plan_limits` com as três linhas,
